@@ -6,6 +6,7 @@ import arrow
 import secrets
 
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods"
 
@@ -84,7 +85,7 @@ def get_profile_id(id_file):
             file.write(profile_id)
 
 
-def add_launcher_profile(minecraft, profile_dir, profile_name, profile_icon, java_args, java_dir, version_id):
+def add_launcher_profile(minecraft, profile_dir, profile_name, profile_icon, java_args, java_path, version_id):
     minecraft = Path(minecraft)
     profiles = None
     profiles_file = minecraft / "launcher_profiles.json"
@@ -104,7 +105,7 @@ def add_launcher_profile(minecraft, profile_dir, profile_name, profile_icon, jav
             "gameDir": str(profile_dir.resolve()),
             "icon": profile_icon,
             "javaArgs": java_args,
-            "javaDir": str(java_dir.resolve()),
+            "javaDir": str(java_path.resolve()),
             "lastUsed": utc_now,
             "lastVersionId": version_id,
             "name": profile_name,
@@ -115,6 +116,24 @@ def add_launcher_profile(minecraft, profile_dir, profile_name, profile_icon, jav
 
         with open(profiles_file, "w") as file:
             json.dump(profiles, file, indent=2)
+
+
+def install_mc_forge(minecraft, forge_download, java_path):
+    response = requests.get(forge_download, allow_redirects=True)
+    response.raise_for_status()
+
+    versions_dir = Path(minecraft) / "versions"
+    versions_list = set(versions_dir.iterdir())
+
+    with TemporaryDirectory() as temp_dir:
+        installer = Path(temp_dir) / "forge_installer.jar"
+
+        with open(installer, "w") as file:
+            file.write(response.content)
+
+        subprocess.run([java_path, "-jar", installer])
+
+    return [set(versions_dir.iterdir()) - versions_list][0].stem
 
 
 if __name__ == "__main__":
