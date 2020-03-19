@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import secrets
+import subprocess
 
 import tqdm
 import arrow
@@ -128,10 +129,10 @@ def get_profile_id(id_file):
             file.write(profile_id)
 
 
-def add_launcher_profile(minecraft, profile_dir, profile_name, profile_icon, java_args, java_path, version_id):
-    minecraft = Path(minecraft)
+def add_launcher_profile(minecraft_dir, profile_dir, profile_name, profile_icon, java_args, java_path, version_id):
+    minecraft_dir = Path(minecraft_dir)
     profiles = None
-    profiles_file = minecraft / "launcher_profiles.json"
+    profiles_file = minecraft_dir / "launcher_profiles.json"
     profile_id_file = profile_dir / "profile_id"
     profile_id = get_profile_id(profile_id_file)
 
@@ -175,6 +176,25 @@ def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_siz
 
     if total_size != 0 and tracker.total != total_size:
         raise DownloadException("Downloaded bytes did not match 'content-length' header")
+
+
+def install_mc_forge(minecraft_dir, forge_download, java_path, tracker=ProgressTracker()):
+    """
+    Downloads and executes the Forge installer.
+    """
+    versions_dir = Path(minecraft_dir) / "versions"
+
+    with TemporaryDirectory() as temp_dir:
+        installer_path = Path(temp_dir) / "forge_installer.jar"
+
+        download_as_stream(forge_download, installer_path, tracker=tracker)
+        tracker.close()
+
+        start_directory = os.getcwd()
+        os.chdir(temp_dir)
+        
+        subprocess.run([java_path, "-jar", str(installer_path)], stdout=subprocess.DEVNULL)
+        os.chdir(start_directory)
 
 
 if __name__ == "__main__":
