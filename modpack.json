@@ -2,6 +2,12 @@
     "profile_name": "The Alex Pack",
     "profile_id": "the_alex_pack",
     "game_version": "1.12.2",
+    "compat_versions": [
+        "1.12.2",
+        "1.12.1",
+        "1.12.0",
+        "1.12"
+    ],
     "java_args": "-Xmx8G -Xms8G -Xaggressive -Xdisableexplicitgc -Xgc:concurrentScavenge -Xgcthreads6",
     "java_download": {
         "win": "https://github.com/AdoptOpenJDK/openjdk8-binaries/releases/download/jdk8u242-b08_openj9-0.18.1/OpenJDK8U-jre_x64_windows_openj9_8u242b08_openj9-0.18.1.zip",
