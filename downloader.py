@@ -12,7 +12,12 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 
 API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods"
-
+TQDM_OPTIONS = {
+    "leave": True,
+    "unit": "b",
+    "unit_scale": True,
+    "dynamic_ncols": True
+}
 
 class VersionException(Exception):
     pass
@@ -201,10 +206,14 @@ if __name__ == "__main__":
     pack_meta = None
     mods_lock = {}
 
-    with open("modpack.json", "r") as file:
+    with open("modpack/modpack.json", "r") as file:
         pack_meta = json.load(file)
 
-    os.makedirs("mods", exist_ok=True)
+    # os.makedirs("mods", exist_ok=True)
 
-    for mod_slug in pack_meta["curse_mods"]:
-        mod_info = get_mod_info(mod_slug, pack_meta["game_versions"])
+    # for mod_slug in pack_meta["curse_mods"]:
+    #     mod_info = get_mod_info(mod_slug, pack_meta["game_versions"])
+
+    minecraft_dir = Path(os.getenv("appdata")) / ".minecraft"
+
+    install_mc_forge(minecraft_dir, pack_meta["forge_download"], "java", tracker=TqdmTracker(**TQDM_OPTIONS))
