@@ -14,13 +14,11 @@ API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods"
 
 
 class VersionException(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 class ProfileExistsException(Exception):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    pass
 
 
 def get_mod_files(version_lists, game_versions):
