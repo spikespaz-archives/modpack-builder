@@ -161,22 +161,20 @@ def add_launcher_profile(minecraft, profile_dir, profile_name, profile_icon, jav
             json.dump(profiles, file, indent=2)
 
 
-def install_mc_forge(minecraft, forge_download, java_path):
-    response = requests.get(forge_download, allow_redirects=True)
+def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_size=1024):
+    response = requests.get(file_url, stream=True, allow_redirects=True)
     response.raise_for_status()
+    total_size = int(response.headers.get("content-length", 0))
 
-    versions_dir = Path(minecraft) / "versions"
-    versions_list = set(versions_dir.iterdir())
+    tracker.total = total_size
 
-    with TemporaryDirectory() as temp_dir:
-        installer = Path(temp_dir) / "forge_installer.jar"
+    with open(file_path, "wb") as file:
+        for data in response.iter_content(block_size):
+            tracker.update(len(data))
+            file.write(data)
 
-        with open(installer, "w") as file:
-            file.write(response.content)
-
-        subprocess.run([java_path, "-jar", installer])
-
-    return [set(versions_dir.iterdir()) - versions_list][0].stem
+    if total_size != 0 and tracker.total != total_size:
+        raise DownloadException("Downloaded bytes did not match 'content-length' header")
 
 
 if __name__ == "__main__":
