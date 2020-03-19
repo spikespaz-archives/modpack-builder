@@ -11,9 +11,9 @@ import requests
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
-API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods"
+API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
+CURSE_DOWNLOAD_URL = "https://edge.forgecdn.net/files/{}/{}/{}"
 TQDM_OPTIONS = {
-    "leave": True,
     "unit": "b",
     "unit_scale": True,
     "dynamic_ncols": True
@@ -105,7 +105,7 @@ def get_mod_info(mod_slug, game_versions):
     assets compatible with listed game versions.
     """
 
-    response = requests.get(API_BASE_URL + "/" + mod_slug)
+    response = requests.get(API_BASE_URL.format(mod_slug))
     response.raise_for_status()
     mod_data = response.json()
     releases = get_mod_files(mod_data["versions"], game_versions)
@@ -167,19 +167,20 @@ def add_launcher_profile(minecraft_dir, profile_dir, profile_name, profile_icon,
             json.dump(profiles, file, indent=2)
 
 
-def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_size=1024):
-    response = requests.get(file_url, stream=True, allow_redirects=True)
+def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_size=1024, **kwargs):
+    response = requests.get(file_url, stream=True, allow_redirects=True, **kwargs)
     response.raise_for_status()
-    total_size = int(response.headers.get("content-length", 0))
 
-    tracker.total = total_size
+    tracker.total = int(response.headers.get("content-length", 0))
 
     with open(file_path, "wb") as file:
         for data in response.iter_content(block_size):
             tracker.update(len(data))
             file.write(data)
 
-    if total_size != 0 and tracker.total != total_size:
+    tracker.close()
+
+    if tracker.total != 0 and tracker.value != tracker.total:
         raise DownloadException("Downloaded bytes did not match 'content-length' header")
 
 
@@ -193,7 +194,6 @@ def install_mc_forge(minecraft_dir, forge_download, java_path, tracker=ProgressT
         installer_path = Path(temp_dir) / "forge_installer.jar"
 
         download_as_stream(forge_download, installer_path, tracker=tracker)
-        tracker.close()
 
         start_directory = os.getcwd()
         os.chdir(temp_dir)
