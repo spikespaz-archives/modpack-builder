@@ -1,8 +1,7 @@
 {
     "profile_name": "The Alex Pack",
-    "profile_id": "the_alex_pack",
-    "game_version": "1.12.2",
-    "compat_versions": [
+    "profile_id": "the-alex-pack",
+    "game_versions": [
         "1.12.2",
         "1.12.1",
         "1.12.0",
@@ -16,9 +15,9 @@
     },
     "forge_download": "https://files.minecraftforge.net/maven/net/minecraftforge/forge/1.12.2-14.23.5.2847/forge-1.12.2-14.23.5.2847-installer.jar",
     "external_mods": [
-        "http://ci.micdoodle8.com/job/Galacticraft-1.12/181/artifact/Forge/build/libs/GalacticraftCore-1.12.2-4.0.1.181.jar",
-        "http://ci.micdoodle8.com/job/Galacticraft-1.12/181/artifact/Forge/build/libs/Galacticraft-Planets-1.12.2-4.0.1.181.jar",
-        "http://ci.micdoodle8.com/job/Galacticraft-1.12/181/artifact/Forge/build/libs/MicdoodleCore-1.12.2-4.0.1.181.jar"
+        "https://ci.micdoodle8.com/job/Galacticraft-1.12/181/artifact/Forge/build/libs/GalacticraftCore-1.12.2-4.0.1.181.jar",
+        "https://ci.micdoodle8.com/job/Galacticraft-1.12/181/artifact/Forge/build/libs/Galacticraft-Planets-1.12.2-4.0.1.181.jar",
+        "https://ci.micdoodle8.com/job/Galacticraft-1.12/181/artifact/Forge/build/libs/MicdoodleCore-1.12.2-4.0.1.181.jar"
     ],
     "curse_mods": [
         "ae2wtlib",
@@ -43,6 +42,7 @@
         "chisel",
         "chunk-animator",
         "chunkpregenerator",
+        "cleanview",
         "client-tweaks",
         "codechicken-lib-1-8",
         "cofh-core",
@@ -96,7 +96,6 @@
         "morpheus",
         "mouse-tweaks",
         "movingworld",
-        "mrcrayfish-furniture-mod",
         "mrtjpcore",
         "multi-mine",
         "natura",
