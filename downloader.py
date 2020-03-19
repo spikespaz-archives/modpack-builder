@@ -21,6 +21,49 @@ class ProfileExistsException(Exception):
     pass
 
 
+class DownloadException(Exception):
+    pass
+
+
+class ProgressTracker:
+    def __init__(self, total=0):
+        self.total = total
+        self.value = 0
+
+    def update(self, amount):
+        self.value += amount
+
+    def close(self):
+        pass
+
+
+class TqdmTracker(ProgressTracker):
+    def __init__(self, **kwargs):
+        self._tqdm = None
+        self._kwargs = kwargs
+
+        if "total" in kwargs:
+            self.total(kwargs["total"])
+
+    @property
+    def total(self):
+        return self._tqdm.total
+
+    @total.setter
+    def total(self, size):
+        self._tqdm = tqdm.tqdm(total=size, **self._kwargs)
+
+    @property
+    def value(self):
+        return self._tqdm.n
+
+    def update(self, amount):
+        self._tqdm.update(amount)
+
+    def close(self):
+        self._tqdm.close()
+
+
 def get_mod_files(version_lists, game_versions):
     """
     Sort through versions of the mod files to find the best possible release.
