@@ -11,17 +11,18 @@ class VersionException(Exception):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-def get_latest_mod_files(version_lists, compat_versions):
+
+def get_mod_files(version_lists, game_versions):
     """
     Sort through versions of the mod files to find the best possible release.
     
     versions_lists: The version lists to sort through.
-    compat_versions: Compatible semantic versions that should be accepted, in descending order of preference.
+    game_versions: Compatible semantic versions that should be accepted, in descending order of preference.
     stable: If this is false, the latest beta will be used. If true, the latest release is preferred.
     """
     releases = None
 
-    for version in compat_versions:
+    for version in game_versions:
         if version in version_lists:
             releases = version_lists[version]
             break
@@ -39,6 +40,27 @@ def get_latest_mod_files(version_lists, compat_versions):
 
     return latest
 
+
+def get_mod_info(mod_slug, game_versions):
+    """
+    Takes a CurseForge project slug as input and returns original mod data, and only release
+    assets compatible with listed game versions.
+    """
+
+    response = requests.get(API_BASE_URL + "/" + mod_slug)
+    response.raise_for_status()
+    mod_data = response.json()
+    releases = get_mod_files(mod_data["versions"], game_versions)
+
+    del mod_data["downloads"]
+    del mod_data["files"]
+    del mod_data["versions"]
+    del mod_data["download"]
+
+    mod_data["releases"] = releases
+
+    return mod_data
+
 if __name__ == "__main__":
     pack_meta = None
     mods_lock = {}
@@ -49,19 +71,4 @@ if __name__ == "__main__":
     os.makedirs("mods", exist_ok=True)
 
     for mod_slug in pack_meta["curse_mods"]:
-        print("Fetching mod: " + mod_slug)
-
-        response = requests.get(API_BASE_URL + "/" + mod_slug)
-        mod_data = response.json()
-
-        print("Found mod: " + mod_data["title"])
-
-        latest = get_latest_mod_files(mod_data["versions"], pack_meta["compat_versions"])
-
-        empty_version = {"name": None}
-
-        latest_release = latest.get("release", empty_version).get("name")
-        beta_release = latest.get("beta", empty_version).get("name")
-        alpha_release = latest.get("alpha", empty_version).get("name")
-
-        print("Release: {}\nBeta: {}\nAlpha: {}".format(latest_release, beta_release, alpha_release))
+        mod_info = get_mod_info(mod_slug, pack_meta["game_versions"])
