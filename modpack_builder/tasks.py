@@ -44,17 +44,6 @@ if __name__ == "__main__":
     with open(pack_manifest_path, "r") as file:
         pack_meta = json.load(file)
 
-    print("Downloading Minecraft Forge installer...")
-
-    forge_jar_name = pack_meta["forge_download"].rsplit("/", 1)[1]
-    forge_jar_path = temp_dir / forge_jar_name
-
-    utility.download_as_stream(pack_meta["forge_download"], forge_jar_path, tracker=TqdmTracker(desc=forge_jar_name, **TQDM_OPTIONS))
-
-    print("Executing Minecraft Forge installer...")
-
-    subprocess.run([java_path, "-jar", str(forge_jar_path)], stdout=subprocess.DEVNULL)
-
     os.chdir(orig_dir)
     temp_dir_manager.cleanup()
 
@@ -66,8 +55,13 @@ class ModpackBuilder:
         self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
         self.mods_dir = self.profile_dir / "mods"
         self.config_dir = self.profile_dir / "config"
+        self.runtime_dir = self.profile_dir / "runtime"
         self.modlist = None
         self.modlist_path = self.profile_dir / "modlist.json"
+        self.java_path = shutil.which("java")
+
+        if self.java_path:
+            self.java_path = Path(self.java_path)
 
     def install(self):
         self.clean()
@@ -175,7 +169,14 @@ class ModpackBuilder:
         pass
 
     def install_forge(self):
-        pass
+        if not java_path:
+            self.install_runtime()
+
+        print("Downloading Minecraft Forge installer...")
+        utility.download_as_stream(self.meta["forge_download"], "forge_installer.jar", tracker=TqdmTracker(desc=self.meta["forge_download"].rsplit("/", 1)[1], **TQDM_OPTIONS))
+
+        print("Executing Minecraft Forge installer...")
+        subprocess.run([str(self.java_path), "-jar", "forge_installer.jar"], stdout=subprocess.DEVNULL)
 
     def install_profile(self):
         pass
