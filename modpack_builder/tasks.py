@@ -8,8 +8,8 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from modpack_builder import utility
-from modpack_builder import curseforge
+from . import utility
+from . import curseforge
 
 from .utility import TqdmTracker
 
@@ -166,17 +166,27 @@ class ModpackBuilder:
         pass
 
     def install_runtime(self):
-        pass
+        print("Downloading Java runtime...")
+        file_url = self.meta["java_download"][{"win32": "win", "darwin": "mac"}.get(sys.platform, sys.platform)]
+        file_name = file_url.rsplit("/", 1)[1]
+        utility.download_as_stream(file_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
+
+        print("Extracting Java runtime...")
+        with ZipFile(file_name) as java_zip:
+            java_zip.extractall(self.runtime_dir)
+
+        self.java_path = Path(next(self.runtime_dir.glob("**/bin/javaw*")))
 
     def install_forge(self):
         if not java_path:
             self.install_runtime()
 
         print("Downloading Minecraft Forge installer...")
-        utility.download_as_stream(self.meta["forge_download"], "forge_installer.jar", tracker=TqdmTracker(desc=self.meta["forge_download"].rsplit("/", 1)[1], **TQDM_OPTIONS))
+        file_name = self.meta["forge_download"].rsplit("/", 1)[1]
+        utility.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
         print("Executing Minecraft Forge installer...")
-        subprocess.run([str(self.java_path), "-jar", "forge_installer.jar"], stdout=subprocess.DEVNULL)
+        subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def install_profile(self):
         pass
