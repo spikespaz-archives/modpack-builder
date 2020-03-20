@@ -31,10 +31,7 @@ class ModpackBuilder:
         self.runtime_dir = self.profile_dir / "runtime"
         self.modlist = None
         self.modlist_path = self.profile_dir / "modlist.json"
-        self.java_path = shutil.which("java")
-
-        if self.java_path:
-            self.java_path = Path(self.java_path)
+        self.java_path = None
 
     def install(self):
         self.clean()
@@ -130,7 +127,25 @@ class ModpackBuilder:
 
 
     def install_configs(self):
-        self.configs_dir.mkdir(parents=True, exist_ok=True)
+        print("Installing configuration files...")
+
+        self.config_dir.mkdir(parents=True, exist_ok=True)
+        temp_config_dir = Path("modpack/config")
+
+        for file_path in temp_config_dir.glob("**/*"):
+            if not file_path.is_file():
+                continue
+
+            short_path = file_path.relative_to(temp_config_dir)
+            dest_path = self.config_dir / short_path
+
+            if dest_path.exists() and dest_path.is_file():
+                print("Found existing config file: " + str(short_path))
+                continue
+
+            print("Copying config file: " + str(short_path))
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(file_path, dest_path)
 
     def update_mods(self):
         pass
@@ -151,7 +166,7 @@ class ModpackBuilder:
         self.java_path = Path(next(self.runtime_dir.glob("**/bin/javaw*")))
 
     def install_forge(self):
-        if not java_path:
+        if not self.java_path:
             self.install_runtime()
 
         print("Downloading Minecraft Forge installer...")
