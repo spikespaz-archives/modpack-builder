@@ -1,36 +1,18 @@
-import os
 import json
 import secrets
-import subprocess
 
 from pathlib import Path
-from tempfile import TemporaryDirectory
 
 import arrow
 
 from . import utility
 
+from .utility import ProgressTracker
+
 
 class ProfileExistsException(Exception):
     pass
 
-
-def install_mc_forge(minecraft_dir, forge_download, java_path, tracker=ProgressTracker()):
-    """
-    Downloads and executes the Forge installer.
-    """
-    versions_dir = Path(minecraft_dir) / "versions"
-
-    with TemporaryDirectory() as temp_dir:
-        installer_path = Path(temp_dir) / "forge_installer.jar"
-
-        utility.download_as_stream(forge_download, installer_path, tracker=tracker)
-
-        start_directory = os.getcwd()
-        os.chdir(temp_dir)
-        
-        subprocess.run([java_path, "-jar", str(installer_path)], stdout=subprocess.DEVNULL)
-        os.chdir(start_directory)
 
 def get_profile_id(id_file):
     """
