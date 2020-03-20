@@ -230,11 +230,18 @@ if __name__ == "__main__":
     with open("modpack/modpack.json", "r") as file:
         pack_meta = json.load(file)
 
-    # os.makedirs("mods", exist_ok=True)
+    for mod_slug in pack_meta["curse_mods"]:
+        print("Looking up CurseForge project: " + mod_slug)
+        mods_lock[mod_slug] = get_mod_lock_info(mod_slug, pack_meta["game_versions"])
 
-    # for mod_slug in pack_meta["curse_mods"]:
-    #     mod_info = get_mod_info(mod_slug, pack_meta["game_versions"])
+        print("Project ID: {project_id}\nProject Name: {project_name}\nProject URL: {project_url}\nRelease Type: {release_type}\nDownload URL: {file_url}\n".format(**mods_lock[mod_slug]))
 
-    minecraft_dir = Path(os.getenv("appdata")) / ".minecraft"
+    with open("modlist.lock.json", "w") as file:
+        json.dump(mods_lock, file, indent=True)
 
-    install_mc_forge(minecraft_dir, pack_meta["forge_download"], "java", tracker=TqdmTracker(**TQDM_OPTIONS))
+    # minecraft_dir = Path(os.getenv("appdata")) / ".minecraft"
+
+    # mods_dir = Path("./mods")
+    # os.makedirs(mods_dir, exist_ok=True)
+
+    # install_mc_forge(minecraft_dir, pack_meta["forge_download"], "java", tracker=TqdmTracker(**TQDM_OPTIONS))
