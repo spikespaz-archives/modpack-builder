@@ -8,7 +8,7 @@ from tempfile import TemporaryDirectory
 
 import arrow
 
-import utility
+from . import utility
 
 
 class ProfileExistsException(Exception):

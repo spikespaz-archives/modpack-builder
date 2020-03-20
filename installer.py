@@ -4,7 +4,7 @@ import json
 
 from pathlib import Path
 
-import curseforge
+from mpbldr import curseforge
 
 
 TQDM_OPTIONS = {
@@ -15,11 +15,16 @@ TQDM_OPTIONS = {
 
 
 if __name__ == "__main__":
+    print("Loading modpack metadata...")
+
     pack_meta = None
-    mods_lock = {}
 
     with open("modpack/modpack.json", "r") as file:
         pack_meta = json.load(file)
+
+    print("Gathering modlist information...\n")
+
+    mods_lock = {}
 
     for mod_slug in pack_meta["curse_mods"]:
         print("Fetching project information: " + mod_slug)
@@ -31,8 +36,11 @@ if __name__ == "__main__":
             "  File ID: {file_id}\n" +
             "  File URL: {file_url}\n" +
             "  File Name: {file_name}\n" +
-            "  Release Type: {release_type}\n"
+            "  Release Type: {release_type}"
             ).format(**mods_lock[mod_slug]))
+
+    print("Dumping modlist information...")
+
     with open("modlist.lock.json", "w") as file:
         json.dump(mods_lock, file, indent=True)
 
