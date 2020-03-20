@@ -133,7 +133,8 @@ class ModpackBuilder:
 
 
     def update(self):
-        pass
+        self.update_mods()
+        self.update_configs()
 
 
     def clean(self):
@@ -150,11 +151,11 @@ class ModpackBuilder:
 
 
     def install_mods(self):
-        pass
+        self.mods_dir.mkdir(parents=True, exist_ok=True)
 
 
     def install_configs(self):
-        pass
+        self.configs_dir.mkdir(parents=True, exist_ok=True)
 
 
     def update_mods(self):
