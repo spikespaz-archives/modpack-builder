@@ -70,33 +70,33 @@ class TqdmTracker(ProgressTracker):
         self._tqdm.close()
 
 
-def get_mod_files(version_lists, game_versions):
+def get_latest_mod_files(mod_files, game_versions):
     """
     Sort through versions of the mod files to find the best possible release.
     
-    versions_lists: The version lists to sort through.
+    mod_files: The list of mod files JSON data to sort through.
     game_versions: Compatible semantic versions that should be accepted, in descending order of preference.
     stable: If this is false, the latest beta will be used. If true, the latest release is preferred.
     """
-    releases = None
+    mod_files = sorted(mod_files, key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
+    releases = {}
 
-    for version in game_versions:
-        if version in version_lists:
-            releases = version_lists[version]
+    for mod_file in mod_files:
+        if len(releases) == 3:
             break
-    else:
+
+        for version in game_versions:
+            if len(releases) == 3:
+                break
+
+            if version in mod_file["versions"] and mod_file["type"] not in releases:
+                releases[mod_file["type"]] = mod_file
+                continue
+    
+    if not releases:
         raise VersionException("Unable to find a compatible version")
 
-    # Sort the assets in descending order of the time of which they were uploaded
-    releases = sorted(releases, key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
-
-    latest = {}
-
-    for release in releases:
-        if release["type"] not in latest:
-            latest[release["type"]] = release
-
-    return latest
+    return releases
 
 
 def get_mod_info(mod_slug, game_versions):
@@ -108,7 +108,7 @@ def get_mod_info(mod_slug, game_versions):
     response = requests.get(API_BASE_URL.format(mod_slug))
     response.raise_for_status()
     mod_data = response.json()
-    releases = get_mod_files(mod_data["versions"], game_versions)
+    releases = get_latest_mod_files(mod_data["files"], game_versions)
 
     del mod_data["downloads"]
     del mod_data["files"]
