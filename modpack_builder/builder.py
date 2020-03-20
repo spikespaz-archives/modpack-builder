@@ -9,10 +9,10 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from . import utility
+from . import utilities
 from . import curseforge
 
-from .utility import TqdmTracker
+from .utilities import TqdmTracker
 
 import arrow
 
@@ -116,7 +116,7 @@ class ModpackBuilder:
                 print("Found existing mod file: " + mod_info["file_name"])
                 continue
 
-            utility.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
+            utilities.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
             shutil.move(mod_info["file_name"], mod_path)
 
         print("Downloading external mod files...")
@@ -129,7 +129,7 @@ class ModpackBuilder:
                 print("Found existing mod file: " + file_name)
                 continue
             
-            utility.download_as_stream(mod_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
+            utilities.download_as_stream(mod_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
             shutil.move(file_name, mod_path)
 
 
@@ -161,7 +161,7 @@ class ModpackBuilder:
         print("Downloading Java runtime...")
         file_url = self.meta["java_download"][{"win32": "win", "darwin": "mac"}.get(sys.platform, sys.platform)]
         file_name = file_url.rsplit("/", 1)[1]
-        utility.download_as_stream(file_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
+        utilities.download_as_stream(file_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
         print("Extracting Java runtime...")
         with ZipFile(file_name) as java_zip:
@@ -175,14 +175,14 @@ class ModpackBuilder:
 
         print("Downloading Minecraft Forge installer...")
         file_name = self.meta["forge_download"].rsplit("/", 1)[1]
-        utility.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
+        utilities.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
         print("Executing Minecraft Forge installer...")
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def install_profile(self):
         print("Installing launcher profile...")
-        self.profile_id = utility.get_profile_id(self.profile_id_file)
+        self.profile_id = utilities.get_profile_id(self.profile_id_file)
 
         with open(self.profiles_file, "r") as file:
             profiles = json.load(file)

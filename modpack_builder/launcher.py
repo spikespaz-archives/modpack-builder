@@ -5,7 +5,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from modpack_builder.tasks import ModpackBuilder
+from modpack_builder.builder import ModpackBuilder
 
 
 TASK_MAP = {
@@ -98,3 +98,4 @@ def main(argv):
         os.chdir(orig_dir)
 
     print("Completed all tasks successfully!")
+utilitiesutilitiesutilitiesutilitiesutilities

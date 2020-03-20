@@ -1,5 +1,5 @@
 import sys
 
-from . import installer
+from . import launcher
 
-installer.main(sys.argv)
+launcher.main(sys.argv)
