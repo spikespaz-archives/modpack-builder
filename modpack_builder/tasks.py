@@ -84,7 +84,8 @@ class ModpackBuilder:
                 "  File ID: {file_id}\n" +
                 "  File URL: {file_url}\n" +
                 "  File Name: {file_name}\n" +
-                "  Release Type: {release_type}"
+                "  Release Type: {release_type}\n"
+                "  Timestamp: {timestamp}"
                 ).format(**self.modlist[project_slug]))
 
         print("Dumping modlist information...")

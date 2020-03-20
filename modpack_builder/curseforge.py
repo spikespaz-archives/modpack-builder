@@ -36,7 +36,7 @@ def get_latest_mod_files(mod_files, game_versions):
     if not releases:
         raise VersionException("Unable to find a compatible version")
 
-    return releases
+    return tuple(releases.values())
 
 
 def get_mod_info(mod_slug, game_versions):
@@ -62,20 +62,27 @@ def get_mod_info(mod_slug, game_versions):
 
 def get_mod_lock_info(mod_slug, game_versions, release_preference):
     mod_info = get_mod_info(mod_slug, game_versions)
-    mod_release = None
+    selected_file = None
 
-    for version_type in release_preference:
-        if not mod_release and version_type in mod_info["releases"]:
-            mod_release = mod_info["releases"][version_type]
+    if len(mod_info["releases"]) == 1:
+        selected_file = mod_info["releases"][0]
+    else:
+        sorted_files = sorted(mod_info["releases"], key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
 
-    file_id = str(mod_release["id"])
+        for mod_file in sorted_files:
+            if mod_file["type"] in release_preference[:2]:
+                selected_file = mod_file
+                break
+
+    file_id_str = str(selected_file["id"])
     
     return {
-        "project_id": str(mod_info["id"]),
+        "project_id": mod_info["id"],
         "project_url": mod_info["urls"]["curseforge"],
         "project_name": mod_info["title"],
-        "file_id": file_id,
-        "file_url": CURSE_DOWNLOAD_URL.format(file_id[:4], file_id[4:7], mod_release["name"]),
-        "file_name": mod_release["name"],
-        "release_type": mod_release["type"]
+        "file_id": selected_file["id"],
+        "file_url": CURSE_DOWNLOAD_URL.format(file_id_str[:4], file_id_str[4:7], selected_file["name"]),
+        "file_name": selected_file["name"],
+        "release_type": selected_file["type"],
+        "timestamp": arrow.get(selected_file["uploaded_at"]).timestamp
     }
