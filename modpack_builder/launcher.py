@@ -98,4 +98,3 @@ def main(argv):
         os.chdir(orig_dir)
 
     print("Completed all tasks successfully!")
-utilitiesutilitiesutilitiesutilitiesutilities

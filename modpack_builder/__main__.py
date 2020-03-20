@@ -1,5 +1,5 @@
 import sys
 
-from . import launcher
+from modpack_builder import launcher
 
 launcher.main(sys.argv)
