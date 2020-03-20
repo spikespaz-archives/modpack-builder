@@ -231,11 +231,17 @@ if __name__ == "__main__":
         pack_meta = json.load(file)
 
     for mod_slug in pack_meta["curse_mods"]:
-        print("Looking up CurseForge project: " + mod_slug)
+        print("Fetching project information: " + mod_slug)
         mods_lock[mod_slug] = get_mod_lock_info(mod_slug, pack_meta["game_versions"])
-
-        print("Project ID: {project_id}\nProject Name: {project_name}\nProject URL: {project_url}\nRelease Type: {release_type}\nDownload URL: {file_url}\n".format(**mods_lock[mod_slug]))
-
+        print((
+            "  Project ID: {project_id}\n" +
+            "  Project URL: {project_url}\n" + 
+            "  Project Name: {project_name}\n" +
+            "  File ID: {file_id}\n" +
+            "  File URL: {file_url}\n" +
+            "  File Name: {file_name}\n" +
+            "  Release Type: {release_type}\n"
+            ).format(**mods_lock[mod_slug]))
     with open("modlist.lock.json", "w") as file:
         json.dump(mods_lock, file, indent=True)
 
