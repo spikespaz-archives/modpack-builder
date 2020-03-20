@@ -17,16 +17,16 @@ TASK_MAP = {
     # Sub-tasks
     "create_modlist": lambda instance: ModpackBuilder.create_modlist(instance),
     "clean_mods": lambda instance: ModpackBuilder.clean_mods(instance),
-    "clean_configs": lambda instance: ModpackBuilder.clean_configs(instance),
+    "clean_externals": lambda instance: ModpackBuilder.clean_externals(instance),
     "install_mods": lambda instance: ModpackBuilder.install_mods(instance),
-    "install_configs": lambda instance: ModpackBuilder.install_configs(instance),
+    "install_externals": lambda instance: ModpackBuilder.install_externals(instance),
     "update_mods": lambda instance: ModpackBuilder.update_mods(instance),
-    "update_configs": lambda instance: ModpackBuilder.update_configs(instance),
+    "update_externals": lambda instance: ModpackBuilder.update_externals(instance),
     "install_runtime": lambda instance: ModpackBuilder.install_runtime(instance),
     "install_forge": lambda instance: ModpackBuilder.install_forge(instance),
     "install_profile": lambda instance: ModpackBuilder.install_profile(instance),
     "update_profile": lambda instance: ModpackBuilder.update_profile(instance),
-    "uninstall": lambda instance: ModpackBuilder.uninstall(instance),
+    "uninstall": lambda instance: ModpackBuilder.uninstalclean_externals
 }
 
 
@@ -84,11 +84,11 @@ if __name__ == "__main__":
         print("Extracting modpack...")
 
         with ZipFile(modpack_path, "r") as modpack_zip:
-            modpack_zip.extractall("modpack")
+            modpack_zip.extractall()
 
         print("Loading modpack manifest...")
 
-        with open("modpack/manifest.json", "r") as file:
+        with open("manifest.json", "r") as file:
             modpack_meta = json.load(file)
 
         modpack_builder = ModpackBuilder(modpack_meta, mc_dir)

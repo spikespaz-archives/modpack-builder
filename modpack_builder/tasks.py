@@ -2,6 +2,7 @@ import os
 import sys
 import json
 import shutil
+import itertools
 import subprocess
 
 from pathlib import Path
@@ -29,7 +30,6 @@ class ModpackBuilder:
         self.mc_dir = Path(mc_dir)
         self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
         self.mods_dir = self.profile_dir / "mods"
-        self.config_dir = self.profile_dir / "config"
         self.runtime_dir = self.profile_dir / "runtime"
         self.modlist = None
         self.modlist_path = self.profile_dir / "modlist.json"
@@ -42,18 +42,18 @@ class ModpackBuilder:
     def install(self):
         self.clean()
         self.install_mods()
-        self.install_configs()
+        self.install_externals()
         self.install_runtime()
         self.install_forge()
         self.install_profile()
 
     def update(self):
         self.update_mods()
-        self.update_configs()
+        self.update_externals()
 
     def clean(self):
         self.clean_mods()
-        self.clean_configs()
+        self.clean_externals()
 
     def _fetch_modlist(self):
         if self.modlist_path.exists() and self.modlist_path.is_file():
@@ -98,7 +98,7 @@ class ModpackBuilder:
     def clean_mods(self):
         pass
 
-    def clean_configs(self):
+    def clean_externals(self):
         pass
 
     def install_mods(self):
@@ -133,31 +133,28 @@ class ModpackBuilder:
             shutil.move(file_name, mod_path)
 
 
-    def install_configs(self):
-        print("Installing configuration files...")
+    def install_externals(self):
+        print("Installing external files...")
 
-        self.config_dir.mkdir(parents=True, exist_ok=True)
-        temp_config_dir = Path("modpack/config")
-
-        for file_path in temp_config_dir.glob("**/*"):
+        for file_path in itertools.chain(*(Path().resolve().glob(pattern) for pattern in self.meta["external_files"])):
             if not file_path.is_file():
                 continue
 
-            short_path = file_path.relative_to(temp_config_dir)
-            dest_path = self.config_dir / short_path
+            short_path = file_path.relative_to(Path().resolve())
+            dest_path = self.profile_dir / short_path
 
             if dest_path.exists() and dest_path.is_file():
-                print("Found existing config file: " + str(short_path))
+                print("Found existing external file: " + str(short_path))
                 continue
 
-            print("Copying config file: " + str(short_path))
+            print("Copying external file: " + str(short_path))
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file_path, dest_path)
 
     def update_mods(self):
         pass
 
-    def update_configs(self):
+    def update_externals(self):
         pass
 
     def install_runtime(self):
