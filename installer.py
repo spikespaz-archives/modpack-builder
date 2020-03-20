@@ -6,26 +6,28 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from mpbldr import tasks
+from mpbldr.tasks import ModpackBuilder
 
 
 TASK_MAP = {
     # Major tasks
-    "clean": lambda *_: print("Not yet implemented."),
-    "install": lambda *_: print("Not yet implemented."),
-    "update": lambda *_: print("Not yet implemented."),
+    "clean": lambda instance: ModpackBuilder.clean(instance),
+    "install": lambda instance: ModpackBuilder.install(instance),
+    "update": lambda instance: ModpackBuilder.update(instance),
     # Sub-tasks
-    "clean_mods": lambda *_: print("Not yet implemented."),
-    "clean_configs": lambda *_: print("Not yet implemented."),
-    "install_mods": lambda *_: print("Not yet implemented."),
-    "install_configs": lambda *_: print("Not yet implemented."),
-    "update_mods": lambda *_: print("Not yet implemented."),
-    "update_configs": lambda *_: print("Not yet implemented."),
-    "install_runtime": lambda *_: print("Not yet implemented."),
-    "install_forge": lambda *_: print("Not yet implemented."),
-    "install_profile": lambda *_: print("Not yet implemented."),
-    "update_profile": lambda *_: print("Not yet implemented."),
-    "uninstall": lambda *_: print("Not yet implemented."),
+    "load_modlist": lambda instance: ModpackBuilder.load_modlist(instance),
+    "create_modlist": lambda instance: ModpackBuilder.create_modlist(instance),
+    "clean_mods": lambda instance: ModpackBuilder.clean_mods(instance),
+    "clean_configs": lambda instance: ModpackBuilder.clean_configs(instance),
+    "install_mods": lambda instance: ModpackBuilder.install_mods(instance),
+    "install_configs": lambda instance: ModpackBuilder.install_configs(instance),
+    "update_mods": lambda instance: ModpackBuilder.update_mods(instance),
+    "update_configs": lambda instance: ModpackBuilder.update_configs(instance),
+    "install_runtime": lambda instance: ModpackBuilder.install_runtime(instance),
+    "install_forge": lambda instance: ModpackBuilder.install_forge(instance),
+    "install_profile": lambda instance: ModpackBuilder.install_profile(instance),
+    "update_profile": lambda instance: ModpackBuilder.update_profile(instance),
+    "uninstall": lambda instance: ModpackBuilder.uninstall(instance),
 }
 
 
@@ -84,9 +86,10 @@ if __name__ == "__main__":
 
         print("Loading modpack manifest...")
         modpack_meta = json.load("modpack/manifest.json")
+        modpack_builder = ModpackBuilder(modpack_meta, mc_dir)
 
         for task in tasks:
-            TASK_MAP[task](modpack_meta, mc_dir)
+            TASK_MAP[task](modpack_builder)
 
     print("Completed all tasks successfully.")
     input()
