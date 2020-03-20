@@ -1,16 +1,12 @@
 import os
 import sys
 import json
-import subprocess
 
 from pathlib import Path
+from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from mpbldr import curseforge
-from mpbldr import utility
-
-from mpbldr.utility import TqdmTracker
-
+from mpbldr import tasks
 
 TQDM_OPTIONS = {
     "unit": "b",
@@ -18,94 +14,84 @@ TQDM_OPTIONS = {
     "dynamic_ncols": True
 }
 
+TASK_MAP = {
+    # Major tasks
+    "install": lambda *_: print("Not yet implemented."),
+    "update": lambda *_: print("Not yet implemented."),
+    "clean": lambda *_: print("Not yet implemented."),
+    # Sub-tasks
+    "install_mods": lambda *_: print("Not yet implemented."),
+    "update_mods": lambda *_: print("Not yet implemented."),
+    "clean_mods": lambda *_: print("Not yet implemented."),
+    "install_configs": lambda *_: print("Not yet implemented."),
+    "update_configs": lambda *_: print("Not yet implemented."),
+    "clean_configs": lambda *_: print("Not yet implemented."),
+    "install_forge": lambda *_: print("Not yet implemented."),
+    "install_runtime": lambda *_: print("Not yet implemented."),
+    "install_profile": lambda *_: print("Not yet implemented."),
+    "update_profile": lambda *_: print("Not yet implemented."),
+    "uninstall": lambda *_: print("Not yet implemented."),
+}
+
+
+class ArgumentError(Exception):
+    pass
+
+
+def get_tasks(arguments):
+    """
+    Get a validated and sorted task list from program arguments.
+    """
+    if len(arguments) > 2:
+        tasks = arguments[1:len(arguments) - 1]
+
+        for task in tasks:
+            if task not in TASK_MAP:
+                raise ArgumentError("Unrecognized task: " + task)
+
+        return sorted(tasks, key=lambda task: tuple(TASK_MAP.keys()).index(task))
+    else:
+        return ("install",)
+
+
+def get_modpack_path(arguments):
+    """
+    Get a validated path to a modpack zip file from program arguments.
+    """
+    if not len(arguments) > 1:
+        raise ArgumentError("Too few arguments, must include at least modpack path")
+
+    modpack_path = Path(arguments[-1]).resolve()
+
+    if not (modpack_path.exists() and modpack_path.is_file()):
+        raise FileNotFoundError("Modpack path does not exist or is not a file")
+
+    return modpack_path
+
 
 if __name__ == "__main__":
+    tasks = get_tasks(sys.argv)
+    modpack_path = get_modpack_path(sys.argv)
+
+    print("Performing tasks: " + ", ".join(tasks))
+    print("Modpack location: " + str(modpack_path))
+
     mc_dir = Path(os.getenv("appdata")) / ".minecraft"
-    profile_dir = mc_dir / "profiles"
-    temp_dir_manager = TemporaryDirectory()
-    temp_dir = Path(temp_dir_manager.name)
-    orig_dir = Path(os.getcwd())
-    modlist_lock_path = orig_dir / "modpack/modlist.lock.json"
-    modlist_lock = None
-    mods_dir = orig_dir / "mods"
-    mods_dir.mkdir(exist_ok=True)
-    pack_manifest_path = orig_dir / "modpack/modpack.json"
+    print("Assuming minecraft location: " + str(mc_dir))
 
-    java_path = "java"
+    print("Creating temporary directory...")
+    with TemporaryDirectory() as temp_dir:
+        os.chdir(temp_dir)
 
-    os.chdir(temp_dir)
+        print("Extracting modpack...")
+        with ZipFile(modpack_path, "r") as modpack_zip:
+            modpack_zip.extractall("modpack")
 
-    pack_meta = None
+        print("Loading modpack manifest...")
+        modpack_meta = json.load("modpack/manifest.json")
 
-    print("Loading modpack metadata...")
+        for task in tasks:
+            TASK_MAP[task](modpack_meta, mc_dir)
 
-    with open(pack_manifest_path, "r") as file:
-        pack_meta = json.load(file)
-
-    if modlist_lock_path.exists():
-        print("Loading modlist information...")
-
-        with open(modlist_lock_path, "r") as file:
-            modlist_lock = json.load(file)
-    else:
-        print("Gathering modlist information...")
-
-        modlist_lock = {}
-
-        for mod_slug in pack_meta["curse_mods"]:
-            print("Fetching project information: " + mod_slug)
-            
-            modlist_lock[mod_slug] = curseforge.get_mod_lock_info(mod_slug, pack_meta["game_versions"], pack_meta["release_preference"])
-            
-            print((
-                "  Project ID: {project_id}\n" +
-                "  Project URL: {project_url}\n" + 
-                "  Project Name: {project_name}\n" +
-                "  File ID: {file_id}\n" +
-                "  File URL: {file_url}\n" +
-                "  File Name: {file_name}\n" +
-                "  Release Type: {release_type}"
-                ).format(**modlist_lock[mod_slug]))
-
-        print("Dumping modlist information...")
-
-        with open(modlist_lock_path, "w") as file:
-            json.dump(modlist_lock, file, indent=True)
-
-    print("Downloading mod files...")
-
-    for mod_info in modlist_lock.values():
-        mod_file_path = mods_dir / mod_info["file_name"]
-
-        if mod_file_path.exists() and mod_file_path.is_file():
-            print("Found existing mod file: " + mod_info["file_name"])
-            continue
-
-        utility.download_as_stream(mod_info["file_url"], mod_file_path, tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
-
-    print("Downloading external mod files...")
-
-    for mod_url in pack_meta["external_mods"]:
-        mod_file_name = mod_url.rsplit("/", 1)[1]
-
-        mod_file_path = mods_dir / mod_file_name
-
-        if mod_file_path.exists() and mod_file_path.is_file():
-            print("Found existing mod file: " + mod_info["file_name"])
-            continue
-
-        utility.download_as_stream(mod_url, mod_file_path, tracker=TqdmTracker(desc=mod_file_name, **TQDM_OPTIONS))
-
-    print("Downloading Minecraft Forge installer...")
-
-    forge_jar_name = pack_meta["forge_download"].rsplit("/", 1)[1]
-    forge_jar_path = temp_dir / forge_jar_name
-
-    utility.download_as_stream(pack_meta["forge_download"], forge_jar_path, tracker=TqdmTracker(desc=forge_jar_name, **TQDM_OPTIONS))
-
-    print("Executing Minecraft Forge installer...")
-
-    subprocess.run([java_path, "-jar", str(forge_jar_path)], stdout=subprocess.DEVNULL)
-
-    os.chdir(orig_dir)
-    temp_dir_manager.cleanup()
+    print("Completed all tasks successfully.")
+    input()
