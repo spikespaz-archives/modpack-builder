@@ -115,7 +115,13 @@ if __name__ == "__main__":
 class ModpackBuilder:
     def __init__(self, modpack_meta, mc_dir):
         self.meta = meta
-        self.mc_dir = mc_dir
+        self.mc_dir = Path(mc_dir)
+        self.profile_dir = self.mc_dir / "profiles" / modpack_meta["profile_id"]
+        self.mods_dir = self.profile_dir / "mods"
+        self.config_dir = self.profile_dir / "config"
+        self.modlist = None
+        self.modlist_path = self.profile_dir / "modlist.json"
+
 
     def install(self):
         self.clean()
