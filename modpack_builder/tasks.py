@@ -21,33 +21,6 @@ TQDM_OPTIONS = {
 }
 
 
-if __name__ == "__main__":
-    mc_dir = Path(os.getenv("appdata")) / ".minecraft"
-    profile_dir = mc_dir / "profiles"
-    temp_dir_manager = TemporaryDirectory()
-    temp_dir = Path(temp_dir_manager.name)
-    orig_dir = Path(os.getcwd())
-    modlist_lock_path = orig_dir / "modpack/modlist.lock.json"
-    modlist_lock = None
-    mods_dir = orig_dir / "mods"
-    mods_dir.mkdir(exist_ok=True)
-    pack_manifest_path = orig_dir / "modpack/modpack.json"
-
-    java_path = "java"
-
-    os.chdir(temp_dir)
-
-    pack_meta = None
-
-    print("Loading modpack metadata...")
-
-    with open(pack_manifest_path, "r") as file:
-        pack_meta = json.load(file)
-
-    os.chdir(orig_dir)
-    temp_dir_manager.cleanup()
-
-
 class ModpackBuilder:
     def __init__(self, meta, mc_dir):
         self.meta = meta
