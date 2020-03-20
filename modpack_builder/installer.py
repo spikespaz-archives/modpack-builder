@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 
 from pathlib import Path
@@ -65,9 +64,9 @@ def get_modpack_path(arguments):
     return modpack_path
 
 
-if __name__ == "__main__":
-    tasks = get_tasks(sys.argv)
-    modpack_path = get_modpack_path(sys.argv)
+def main(argv):
+    tasks = get_tasks(argv)
+    modpack_path = get_modpack_path(argv)
 
     print("Performing tasks: " + ", ".join(tasks))
     print("Modpack location: " + str(modpack_path))
