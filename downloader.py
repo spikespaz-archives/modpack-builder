@@ -124,8 +124,8 @@ def get_mod_lock_info(mod_slug, game_versions):
     mod_info = get_mod_info(mod_slug, game_versions)
     mod_release = None
 
-    for version_type in pack_meta["preferred_order"]:
-        if version_type in mod_info["releases"]:
+    for version_type in pack_meta["release_preference"]:
+        if not mod_release and version_type in mod_info["releases"]:
             mod_release = mod_info["releases"][version_type]
 
     file_id = str(mod_release["id"])
