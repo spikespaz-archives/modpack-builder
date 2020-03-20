@@ -15,7 +15,6 @@ TASK_MAP = {
     "install": lambda instance: ModpackBuilder.install(instance),
     "update": lambda instance: ModpackBuilder.update(instance),
     # Sub-tasks
-    "load_modlist": lambda instance: ModpackBuilder.load_modlist(instance),
     "create_modlist": lambda instance: ModpackBuilder.create_modlist(instance),
     "clean_mods": lambda instance: ModpackBuilder.clean_mods(instance),
     "clean_configs": lambda instance: ModpackBuilder.clean_configs(instance),
@@ -78,6 +77,7 @@ if __name__ == "__main__":
 
     print("Creating temporary directory...")
     with TemporaryDirectory() as temp_dir:
+        orig_dir = os.getcwd()
         os.chdir(temp_dir)
 
         print("Extracting modpack...")
@@ -85,11 +85,14 @@ if __name__ == "__main__":
             modpack_zip.extractall("modpack")
 
         print("Loading modpack manifest...")
-        modpack_meta = json.load("modpack/manifest.json")
+        with open("modpack/manifest.json", "r") as file:
+            modpack_meta = json.load(file)
+
         modpack_builder = ModpackBuilder(modpack_meta, mc_dir)
 
         for task in tasks:
             TASK_MAP[task](modpack_builder)
 
-    print("Completed all tasks successfully.")
-    input()
+        os.chdir(orig_dir)
+
+    print("Completed all tasks successfully!")
