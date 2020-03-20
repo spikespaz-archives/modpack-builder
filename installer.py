@@ -8,26 +8,21 @@ from tempfile import TemporaryDirectory
 
 from mpbldr import tasks
 
-TQDM_OPTIONS = {
-    "unit": "b",
-    "unit_scale": True,
-    "dynamic_ncols": True
-}
 
 TASK_MAP = {
     # Major tasks
+    "clean": lambda *_: print("Not yet implemented."),
     "install": lambda *_: print("Not yet implemented."),
     "update": lambda *_: print("Not yet implemented."),
-    "clean": lambda *_: print("Not yet implemented."),
     # Sub-tasks
-    "install_mods": lambda *_: print("Not yet implemented."),
-    "update_mods": lambda *_: print("Not yet implemented."),
     "clean_mods": lambda *_: print("Not yet implemented."),
-    "install_configs": lambda *_: print("Not yet implemented."),
-    "update_configs": lambda *_: print("Not yet implemented."),
     "clean_configs": lambda *_: print("Not yet implemented."),
-    "install_forge": lambda *_: print("Not yet implemented."),
+    "install_mods": lambda *_: print("Not yet implemented."),
+    "install_configs": lambda *_: print("Not yet implemented."),
+    "update_mods": lambda *_: print("Not yet implemented."),
+    "update_configs": lambda *_: print("Not yet implemented."),
     "install_runtime": lambda *_: print("Not yet implemented."),
+    "install_forge": lambda *_: print("Not yet implemented."),
     "install_profile": lambda *_: print("Not yet implemented."),
     "update_profile": lambda *_: print("Not yet implemented."),
     "uninstall": lambda *_: print("Not yet implemented."),
