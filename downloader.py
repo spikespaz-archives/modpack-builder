@@ -120,6 +120,27 @@ def get_mod_info(mod_slug, game_versions):
     return mod_data
 
 
+def get_mod_lock_info(mod_slug, game_versions):
+    mod_info = get_mod_info(mod_slug, game_versions)
+    mod_release = None
+
+    for version_type in pack_meta["preferred_order"]:
+        if version_type in mod_info["releases"]:
+            mod_release = mod_info["releases"][version_type]
+
+    file_id = str(mod_release["id"])
+    
+    return {
+        "project_id": str(mod_info["id"]),
+        "project_url": mod_info["urls"]["curseforge"],
+        "project_name": mod_info["title"],
+        "file_id": file_id,
+        "file_url": CURSE_DOWNLOAD_URL.format(file_id[:4], file_id[4:7], mod_release["name"]),
+        "file_name": mod_release["name"],
+        "release_type": mod_release["type"]
+    }
+
+
 def get_profile_id(id_file):
     """
     Create a 32 character hexadecimal token, and write it to the file. Fetch if the file exists.
