@@ -13,6 +13,8 @@ from . import curseforge
 
 from .utility import TqdmTracker
 
+import arrow
+
 
 TQDM_OPTIONS = {
     "unit": "b",
@@ -32,6 +34,10 @@ class ModpackBuilder:
         self.modlist = None
         self.modlist_path = self.profile_dir / "modlist.json"
         self.java_path = None
+
+        self.profiles_file = self.mc_dir / "launcher_profiles.json"
+        self.profile_id_file = self.profile_dir / "profile_id"
+        self.profile_id = None
 
     def install(self):
         self.clean()
@@ -177,7 +183,34 @@ class ModpackBuilder:
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def install_profile(self):
-        pass
+        print("Installing launcher profile...")
+        self.profile_id = utility.get_profile_id(self.profile_id_file)
+
+        with open(self.profiles_file, "r") as file:
+            profiles = json.load(file)
+
+        if self.profile_id in profiles["profiles"]:
+            print("Launcher profile already exists: " + self.profile_id)
+        else:
+            utc_now = str(arrow.utcnow()).replace("+00:00", "Z")
+
+            profiles["profiles"][self.profile_id] = {
+                "created": utc_now,
+                "gameDir": str(self.profile_dir.resolve()),
+                "icon": self.meta["profile_icon"],
+                "javaArgs": self.meta["java_args"],
+                "javaDir": str(self.java_path.resolve()),
+                "lastUsed": utc_now,
+                "lastVersionId": self.meta["version_label"],
+                "name": self.meta["profile_name"],
+                "type": "custom"
+            }
+
+            print("Setting selected launcher profile: " + self.profile_id)
+            profiles["selectedUser"]["profile"] = self.profile_id
+
+            with open(self.profiles_file, "w") as file:
+                json.dump(profiles, file, indent=2)
 
     def update_profile(self):
         pass

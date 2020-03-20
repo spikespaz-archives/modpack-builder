@@ -1,8 +1,14 @@
+import secrets
+
 import tqdm
 import requests
 
 
 class DownloadException(Exception):
+    pass
+
+
+class ProfileExistsException(Exception):
     pass
 
 
@@ -60,3 +66,19 @@ def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_siz
 
     if tracker.total != 0 and tracker.value != tracker.total:
         raise DownloadException("Downloaded bytes did not match 'content-length' header")
+
+
+def get_profile_id(id_file):
+    """
+    Create a 32 character hexadecimal token, and write it to the file. Fetch if the file exists.
+    """
+    if id_file.exists():
+        with open(id_file, "r") as file:
+            profile_id = file.read()
+    else:
+        profile_id = secrets.token_hex(16)
+
+        with open(id_file, "w") as file:
+            file.write(profile_id)
+
+    return profile_id
