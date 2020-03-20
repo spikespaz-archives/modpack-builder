@@ -6,7 +6,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from mpbldr.tasks import ModpackBuilder
+from modpack_builder.tasks import ModpackBuilder
 
 
 TASK_MAP = {
@@ -73,18 +73,21 @@ if __name__ == "__main__":
     print("Modpack location: " + str(modpack_path))
 
     mc_dir = Path(os.getenv("appdata")) / ".minecraft"
-    print("Assuming minecraft location: " + str(mc_dir))
 
+    print("Assuming minecraft location: " + str(mc_dir))
     print("Creating temporary directory...")
+
     with TemporaryDirectory() as temp_dir:
         orig_dir = os.getcwd()
         os.chdir(temp_dir)
 
         print("Extracting modpack...")
+
         with ZipFile(modpack_path, "r") as modpack_zip:
             modpack_zip.extractall("modpack")
 
         print("Loading modpack manifest...")
+
         with open("modpack/manifest.json", "r") as file:
             modpack_meta = json.load(file)
 

@@ -8,10 +8,10 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
-from mpbldr import curseforge
-from mpbldr import utility
+from modpack_builder import utility
+from modpack_builder import curseforge
 
-from mpbldr.utility import TqdmTracker
+from .utility import TqdmTracker
 
 
 TQDM_OPTIONS = {
