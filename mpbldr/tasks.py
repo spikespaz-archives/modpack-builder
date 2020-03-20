@@ -43,36 +43,6 @@ if __name__ == "__main__":
     with open(pack_manifest_path, "r") as file:
         pack_meta = json.load(file)
 
-    if modlist_lock_path.exists():
-        print("Loading modlist information...")
-
-        with open(modlist_lock_path, "r") as file:
-            modlist_lock = json.load(file)
-    else:
-        print("Gathering modlist information...")
-
-        modlist_lock = {}
-
-        for mod_slug in pack_meta["curse_mods"]:
-            print("Fetching project information: " + mod_slug)
-            
-            modlist_lock[mod_slug] = curseforge.get_mod_lock_info(mod_slug, pack_meta["game_versions"], pack_meta["release_preference"])
-            
-            print((
-                "  Project ID: {project_id}\n" +
-                "  Project URL: {project_url}\n" + 
-                "  Project Name: {project_name}\n" +
-                "  File ID: {file_id}\n" +
-                "  File URL: {file_url}\n" +
-                "  File Name: {file_name}\n" +
-                "  Release Type: {release_type}"
-                ).format(**modlist_lock[mod_slug]))
-
-        print("Dumping modlist information...")
-
-        with open(modlist_lock_path, "w") as file:
-            json.dump(modlist_lock, file, indent=True)
-
     print("Downloading mod files...")
 
     for mod_info in modlist_lock.values():
@@ -113,10 +83,10 @@ if __name__ == "__main__":
 
 
 class ModpackBuilder:
-    def __init__(self, modpack_meta, mc_dir):
+    def __init__(self, meta, mc_dir):
         self.meta = meta
         self.mc_dir = Path(mc_dir)
-        self.profile_dir = self.mc_dir / "profiles" / modpack_meta["profile_id"]
+        self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
         self.mods_dir = self.profile_dir / "mods"
         self.config_dir = self.profile_dir / "config"
         self.modlist = None
@@ -140,6 +110,46 @@ class ModpackBuilder:
     def clean(self):
         self.clean_mods()
         self.clean_configs()
+
+
+    def _fetch_modlist(self):
+        if self.modlist_path.exists() and self.modlist_path.is_file():
+            self.load_modlist()
+        else:
+            self.create_modlist()
+
+
+    def load_modlist(self):
+        print("Loading modlist indormation...")
+        with open(self.modlist_path, "r") as file:
+            self.modlist = json.load(file)
+
+
+    def create_modlist(self):
+        print("Creating modlist information...")
+        self.modlist = {}
+
+        for project_slug in self.meta["curse_mods"]:
+            print("Fetching project information: " + project_slug)
+            
+            self.modlist[project_slug] = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
+            
+            print((
+                "  Project ID: {project_id}\n" +
+                "  Project URL: {project_url}\n" + 
+                "  Project Name: {project_name}\n" +
+                "  File ID: {file_id}\n" +
+                "  File URL: {file_url}\n" +
+                "  File Name: {file_name}\n" +
+                "  Release Type: {release_type}"
+                ).format(**self.modlist[project_slug]))
+
+        print("Dumping modlist information...")
+
+        self.profile_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(self.modlist_path, "w") as file:
+            json.dump(self.modlist, file, indent=True)
 
 
     def clean_mods(self):
