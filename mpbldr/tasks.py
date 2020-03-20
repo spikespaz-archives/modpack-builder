@@ -1,6 +1,7 @@
 import os
 import sys
 import json
+import shutil
 import subprocess
 
 from pathlib import Path
@@ -43,30 +44,6 @@ if __name__ == "__main__":
     with open(pack_manifest_path, "r") as file:
         pack_meta = json.load(file)
 
-    print("Downloading mod files...")
-
-    for mod_info in modlist_lock.values():
-        mod_file_path = mods_dir / mod_info["file_name"]
-
-        if mod_file_path.exists() and mod_file_path.is_file():
-            print("Found existing mod file: " + mod_info["file_name"])
-            continue
-
-        utility.download_as_stream(mod_info["file_url"], mod_file_path, tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
-
-    print("Downloading external mod files...")
-
-    for mod_url in pack_meta["external_mods"]:
-        mod_file_name = mod_url.rsplit("/", 1)[1]
-
-        mod_file_path = mods_dir / mod_file_name
-
-        if mod_file_path.exists() and mod_file_path.is_file():
-            print("Found existing mod file: " + mod_info["file_name"])
-            continue
-
-        utility.download_as_stream(mod_url, mod_file_path, tracker=TqdmTracker(desc=mod_file_name, **TQDM_OPTIONS))
-
     print("Downloading Minecraft Forge installer...")
 
     forge_jar_name = pack_meta["forge_download"].rsplit("/", 1)[1]
@@ -92,7 +69,6 @@ class ModpackBuilder:
         self.modlist = None
         self.modlist_path = self.profile_dir / "modlist.json"
 
-
     def install(self):
         self.clean()
         self.install_mods()
@@ -101,16 +77,13 @@ class ModpackBuilder:
         self.install_forge()
         self.install_profile()
 
-
     def update(self):
         self.update_mods()
         self.update_configs()
 
-
     def clean(self):
         self.clean_mods()
         self.clean_configs()
-
 
     def _fetch_modlist(self):
         if self.modlist_path.exists() and self.modlist_path.is_file():
@@ -118,15 +91,15 @@ class ModpackBuilder:
         else:
             self.create_modlist()
 
-
     def load_modlist(self):
         print("Loading modlist indormation...")
+
         with open(self.modlist_path, "r") as file:
             self.modlist = json.load(file)
 
-
     def create_modlist(self):
         print("Creating modlist information...")
+
         self.modlist = {}
 
         for project_slug in self.meta["curse_mods"]:
@@ -151,46 +124,64 @@ class ModpackBuilder:
         with open(self.modlist_path, "w") as file:
             json.dump(self.modlist, file, indent=True)
 
-
     def clean_mods(self):
         pass
-
 
     def clean_configs(self):
         pass
 
-
     def install_mods(self):
         self.mods_dir.mkdir(parents=True, exist_ok=True)
+
+        if not self.modlist:
+            self._fetch_modlist()
+
+        print("Downloading CurseForge mod files...")
+
+        for mod_info in self.modlist.values():
+            mod_path = self.mods_dir / mod_info["file_name"]
+
+            if mod_path.exists() and mod_path.is_file():
+                print("Found existing mod file: " + mod_info["file_name"])
+                continue
+
+            utility.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
+            shutil.move(mod_info["file_name"], mod_path)
+
+        print("Downloading external mod files...")
+
+        for mod_url in self.meta["external_mods"]:
+            file_name = mod_url.rsplit("/", 1)[1]
+            mod_path = self.mods_dir / file_name
+
+            if mod_path.exists() and mod_path.is_file():
+                print("Found existing mod file: " + file_name)
+                continue
+            
+            utility.download_as_stream(mod_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
+            shutil.move(file_name, mod_path)
 
 
     def install_configs(self):
         self.configs_dir.mkdir(parents=True, exist_ok=True)
 
-
     def update_mods(self):
         pass
-
 
     def update_configs(self):
         pass
 
-
     def install_runtime(self):
         pass
-
 
     def install_forge(self):
         pass
 
-
     def install_profile(self):
         pass
 
-
     def update_profile(self):
         pass
-
 
     def uninstall(self):
         pass
