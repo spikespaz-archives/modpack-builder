@@ -44,8 +44,8 @@ class ModpackBuilder:
         self.clean()
         self.install_mods()
         self.install_externals()
-        self.install_runtime()
-        self.install_forge()
+        self._fetch_runtime()
+        self._fetch_forge()
         self.install_profile()
 
     def update(self):
@@ -101,7 +101,7 @@ class ModpackBuilder:
         self.profile_dir.mkdir(parents=True, exist_ok=True)
 
         with open(self.modlist_path, "w") as file:
-            json.dump(self.modlist, file, indent=True)
+            json.dump(self.modlist, file, indent=2)
 
     def clean_mods(self):
         pass
@@ -174,9 +174,21 @@ class ModpackBuilder:
 
         self.java_path = Path(next(self.runtime_dir.glob("**/bin/javaw*")))
 
+    def _fetch_runtime(self):
+        java_path = next(self.runtime_dir.glob("**/bin/javaw*"), None)
+
+        if java_path:
+            print("Java runtime already present, skipping download...")
+
+            self.java_path = Path(java_path)
+
+            return
+
+        self.install_runtime()
+
     def install_forge(self):
         if not self.java_path:
-            self.install_runtime()
+            self._fetch_runtime()
 
         print("Downloading Minecraft Forge installer...")
 
@@ -186,6 +198,16 @@ class ModpackBuilder:
         print("Executing Minecraft Forge installer...")
 
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
+
+    def _fetch_forge(self):
+        version_dir = self.mc_dir / "versions" / self.meta["version_label"]
+
+        if version_dir.exists() and version_dir.is_dir():
+            print("Forge version already installed, skipping download...")
+
+            return
+
+        self.install_forge()
 
     def install_profile(self):
         print("Installing launcher profile...")
