@@ -1,5 +1,6 @@
 import arrow
 import requests
+import email.utils
 
 
 API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
@@ -88,14 +89,13 @@ def get_mod_lock_info(mod_slug, game_versions, release_preference):
     }
 
 
-def print_mod_lock_info(**kwargs):
-    print((
-        "  Project ID: {project_id}\n" +
-        "  Project URL: {project_url}\n" + 
-        "  Project Name: {project_name}\n" +
-        "  File ID: {file_id}\n" +
-        "  File URL: {file_url}\n" +
-        "  File Name: {file_name}\n" +
-        "  Release Type: {release_type}\n"
-        "  Timestamp: {timestamp}"
-    ).format(**kwargs))
+def get_external_mod_lock_info(external_url):
+    response = requests.head(external_url)
+    response.raise_for_status()
+
+    return {
+        "file_name": external_url.rsplit("/", 1)[1],
+        "file_url": external_url,
+        "timestamp": int(email.utils.parsedate_to_datetime(response.headers.get("last-modified", None)).timestamp()),
+        "external": True
+    }

@@ -82,3 +82,25 @@ def get_profile_id(id_file):
             file.write(profile_id)
 
     return profile_id
+
+
+def print_mod_lock_info(**kwargs):
+    print((
+        "  Project ID: {project_id}\n" +
+        "  Project URL: {project_url}\n" + 
+        "  Project Name: {project_name}\n" +
+        "  File ID: {file_id}\n" +
+        "  File URL: {file_url}\n" +
+        "  File Name: {file_name}\n" +
+        "  Release Type: {release_type}\n"
+        "  Timestamp: {timestamp}"
+    ).format(**kwargs))
+
+
+def print_external_mod_lock_info(**kwargs):
+    print((
+        "  File URL: {file_url}\n" +
+        "  File Name: {file_name}\n" +
+        "  Timestamp: {timestamp}\n" +
+        "  External: {external}"
+    ).format(**kwargs))

@@ -69,36 +69,32 @@ class ModpackBuilder:
             self.modlist = json.load(file)
 
     def _create_modlist(self, client=False):
-        self.modlist = {}
+        modlist = {}
         key = "client" if client else "server"
 
         print(f"Fetching modlist information for CurseForge {key} mods...")
 
-        for project_slug, mod_lock_info in self.meta[key]["curseforge_mods"]:
-            print("Fetching project information: " + project_slug)
+        for project_slug in self.meta[key]["curseforge_mods"]:
+            print("Fetching CurseForge project information: " + project_slug)
 
-            mod_lock_info = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
-            utilities.print_mod_lock_info(**mod_lock_info)
-            self.modlist[project_slug] = mod_lock_info
+            modlist[project_slug] = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
+            utilities.print_mod_lock_info(**modlist[project_slug])
 
         print(f"Creating modlist information for external {key} mods...")
 
-        for project_slug, external_url in self.meta[{key}]["external_mods"]:
-            response = requests.head(external_url)
-            response.raise_for_status()
+        for project_slug, external_url in self.meta[key]["external_mods"].items():
+            print("Fetching external mod information: " + project_slug)
 
-            self.modlist[project_slug] = {
-                "external": True,
-                "file_name": external_url.rsplit("/", 1)[1],
-                "file_url": external_url,
-                "timestamp": arrow.get(response.headers.get("last-modified", None)).timestamp
-            }
+            modlist[project_slug] = curseforge.get_external_mod_lock_info(external_url)
+            utilities.print_external_mod_lock_info(**modlist[project_slug])
+
+        return modlist
 
     def create_modlist(self):
-        self.modlist = _create_modlist(client=False)
+        self.modlist = self._create_modlist(client=False)
 
         if self.client:
-            self.modlist = {**self.modlist, **_create_modlist(client=True)}
+            self.modlist = {**self.modlist, **self._create_modlist(client=True)}
 
         print("Dumping modlist information...")
 
