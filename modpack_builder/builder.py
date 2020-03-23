@@ -248,7 +248,7 @@ class ModpackBuilder:
             "created": utc_now,
             "gameDir": str(self.profile_dir.resolve()),
             "icon": self.meta["profile_icon"],
-            "javaArgs": self.meta["java_args"],
+            "javaArgs": self.meta["client"]["java_args"],
             "javaDir": str(self.java_path.resolve()),
             "lastUsed": utc_now,
             "lastVersionId": self.meta["version_label"],
