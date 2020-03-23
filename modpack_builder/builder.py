@@ -76,7 +76,7 @@ class ModpackBuilder:
         print(f"Fetching modlist information for CurseForge {key} mods...")
 
         for project_slug in self.meta[key]["curseforge_mods"]:
-            print("Fetching CurseForge project information: " + project_slug)
+            print(f"Fetching CurseForge project information: {project_slug}")
 
             modlist[project_slug] = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
             utilities.print_mod_lock_info(**modlist[project_slug])
@@ -84,7 +84,7 @@ class ModpackBuilder:
         print(f"Creating modlist information for external {key} mods...")
 
         for project_slug, external_url in self.meta[key]["external_mods"].items():
-            print("Fetching external mod information: " + project_slug)
+            print(f"Fetching external mod information: {project_slug}")
 
             modlist[project_slug] = curseforge.get_external_mod_lock_info(external_url)
             utilities.print_external_mod_lock_info(**modlist[project_slug])
@@ -114,7 +114,7 @@ class ModpackBuilder:
                 continue
 
             if file_path.name not in file_names:
-                print("Removing unlisted mod file: " + file_path.name)
+                print(f"Removing unlisted mod file: {file_path.name}")
 
                 file_path.unlink()
 
@@ -130,7 +130,7 @@ class ModpackBuilder:
             mod_path = self.mods_dir / mod_info["file_name"]
 
             if mod_path.exists() and mod_path.is_file():
-                print("Found existing mod file: " + mod_info["file_name"])
+                print(f"Found existing mod file: {mod_info['file_name']}")
                 continue
 
             utilities.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
@@ -148,10 +148,10 @@ class ModpackBuilder:
             dest_path = self.profile_dir / file_path
 
             if not overwrite and dest_path.exists() and dest_path.is_file():
-                print("Found existing external file: " + str(file_path))
+                print(f"Found existing external file: {file_path}")
                 continue
 
-            print("Copying external file: " + str(file_path))
+            print(f"Copying external file: {file_path}")
 
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file_path, dest_path)
@@ -188,7 +188,7 @@ class ModpackBuilder:
         java_path = next(self.runtime_dir.glob("**/bin/javaw*"), None)
 
         if java_path:
-            print("Java runtime already installed: " + str(java_path.relative_to(self.runtime_dir)))
+            print(f"Java runtime already installed: {java_path.relative_to(self.runtime_dir)}")
             self.java_path = Path(java_path)
             return
 
@@ -203,13 +203,13 @@ class ModpackBuilder:
         file_name = self.meta["forge_download"].rsplit("/", 1)[1]
         utilities.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
-        print("Executing Minecraft Forge installer: " + file_name)
+        print(f"Executing Minecraft Forge installer: {file_name}")
 
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def _fetch_forge(self):
         if self.version_dir.exists() and self.version_dir.is_dir():
-            print("Forge version already installed: " + self.meta["version_label"])
+            print(f"Forge version already installed: {self.meta['version_label']}")
             return
 
         self.install_forge()
@@ -223,7 +223,7 @@ class ModpackBuilder:
             profiles = json.load(file)
 
         if self.profile_id in profiles["profiles"]:
-            print("Launcher profile already exists: " + self.profile_id)
+            print(f"Launcher profile already exists: {self.profile_id}")
         else:
             utc_now = str(arrow.utcnow()).replace("+00:00", "Z")
 
@@ -239,7 +239,7 @@ class ModpackBuilder:
                 "type": "custom"
             }
 
-            print("Setting selected launcher profile: " + self.profile_id)
+            print(f"Setting selected launcher profile: {self.profile_id}")
             
             profiles["selectedUser"]["profile"] = self.profile_id
 

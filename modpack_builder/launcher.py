@@ -67,12 +67,12 @@ def main(argv):
     tasks = get_tasks(argv)
     modpack_path = get_modpack_path(argv)
 
-    print("Performing tasks: " + ", ".join(tasks))
-    print("Modpack location: " + str(modpack_path))
+    print(f"Performing tasks: {' '.join(tasks)}")
+    print(f"Modpack location: {modpack_path}")
 
     mc_dir = Path(os.getenv("appdata")) / ".minecraft"
 
-    print("Assuming minecraft location: " + str(mc_dir))
+    print(f"Assuming minecraft location: {mc_dir}")
     print("Creating temporary directory...")
 
     with TemporaryDirectory() as temp_dir:
