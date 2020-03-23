@@ -24,7 +24,8 @@ TASK_MAP = {
     "install_forge": lambda instance: ModpackBuilder.install_forge(instance),
     "install_profile": lambda instance: ModpackBuilder.install_profile(instance),
     "update_profile": lambda instance: ModpackBuilder.update_profile(instance),
-    "uninstall": lambda instance: ModpackBuilder.uninstalclean_externals
+    "remove_profile": lambda instance: ModpackBuilder.remove_profile(instance),
+    "uninstall": lambda instance: ModpackBuilder.uninstall(instance)
 }
 
 

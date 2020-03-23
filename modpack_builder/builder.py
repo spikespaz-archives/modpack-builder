@@ -136,31 +136,44 @@ class ModpackBuilder:
             utilities.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
             shutil.move(mod_info["file_name"], mod_path)
 
-    def _install_externals(self, client=False, overwrite=False):
-        key = "client" if client else "server"
-
-        print(f"{'Updating' if overwrite else 'Installing'} external files for {key}...")
-
-        for file_path in itertools.chain(*(Path().glob(pattern) for pattern in self.meta[key]["external_files"])):
-            if not file_path.is_file():
+    def _install_externals(self, patterns, overwrite=False):
+        # Loop through all file paths from all glob patterns in sequence
+        for file_path in itertools.chain(*(Path().glob(pattern) for pattern in patterns)):
+            if not file_path.is_file():  # Make sure the path returned by glob is actually a file
                 continue
 
             dest_path = self.profile_dir / file_path
 
-            if not overwrite and dest_path.exists() and dest_path.is_file():
-                print(f"Found existing external file: {file_path}")
-                continue
+            if dest_path.exists():
+                if overwrite:
+                    print(f"Overwriting external file: {file_path}")
+                else:
+                    print(f"Skipping existing external file: {file_path}")
+                    continue  # Skip to the next without overwriting the current file
+            else:
+                print(f"Copying external file: {file_path}")
 
-            print(f"Copying external file: {file_path}")
-
-            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            dest_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure that the parents dirs of the file exist
             shutil.copyfile(file_path, dest_path)
 
-    def install_externals(self, overwrite=False):
-        self._install_externals(client=False)
+    def install_externals(self, update=False):
+        log_verb = "Updating" if update else "Installing"
+
+        print(f"{log_verb} external files for server...")
+
+        # Install overwritable external server files and maybe overwrite existing
+        self._install_externals(self.meta["server"]["external_files"]["overwrite"], overwrite=update)
+        # Install immutable external client files and never overwrite existing
+        self._install_externals(self.meta["server"]["external_files"]["immutable"], overwrite=False)
 
         if self.client:
-            self._install_externals(client=True)
+            if not update:
+                print(f"{log_verb} external files for client...")
+
+            # Install overwritable external client files and maybe overwrite existing
+            self._install_externals(self.meta["client"]["external_files"]["overwrite"], overwrite=update)
+            # Install immutable external client files and never overwrite existing
+            self._install_externals(self.meta["client"]["external_files"]["immutable"], overwrite=False)
 
     def update_mods(self):
         self.create_modlist()
@@ -214,40 +227,83 @@ class ModpackBuilder:
 
         self.install_forge()
 
-    def install_profile(self):
-        print("Installing launcher profile...")
-
+    def install_profile(self, update=False):
         self.profile_id = utilities.get_profile_id(self.profile_id_file)
 
         with open(self.profiles_file, "r") as file:
             profiles = json.load(file)
 
         if self.profile_id in profiles["profiles"]:
-            print(f"Launcher profile already exists: {self.profile_id}")
+            if update:
+                print(f"Updating launcher profile: {self.profile_id}")
+            else:
+                print(f"Launcher profile already exists: {self.profile_id}")
+                return
         else:
-            utc_now = str(arrow.utcnow()).replace("+00:00", "Z")
+            print("Installing launcher profile...")
+        
+        utc_now = str(arrow.utcnow()).replace("+00:00", "Z")
 
-            profiles["profiles"][self.profile_id] = {
-                "created": utc_now,
-                "gameDir": str(self.profile_dir.resolve()),
-                "icon": self.meta["profile_icon"],
-                "javaArgs": self.meta["java_args"],
-                "javaDir": str(self.java_path.resolve()),
-                "lastUsed": utc_now,
-                "lastVersionId": self.meta["version_label"],
-                "name": self.meta["profile_name"],
-                "type": "custom"
-            }
+        profiles["profiles"][self.profile_id] = {
+            "created": utc_now,
+            "gameDir": str(self.profile_dir.resolve()),
+            "icon": self.meta["profile_icon"],
+            "javaArgs": self.meta["java_args"],
+            "javaDir": str(self.java_path.resolve()),
+            "lastUsed": utc_now,
+            "lastVersionId": self.meta["version_label"],
+            "name": self.meta["profile_name"],
+            "type": "custom"
+        }
 
-            print(f"Setting selected launcher profile: {self.profile_id}")
-            
-            profiles["selectedUser"]["profile"] = self.profile_id
+        print(f"Setting selected launcher profile: {self.profile_id}")
+        
+        profiles["selectedUser"]["profile"] = self.profile_id
 
-            with open(self.profiles_file, "w") as file:
-                json.dump(profiles, file, indent=2)
+        with open(self.profiles_file, "w") as file:
+            json.dump(profiles, file, indent=2)
 
     def update_profile(self):
-        pass
+        self.install_profile(update=True)
+
+    def remove_profile(self):
+        self.profile_id = utilities.get_profile_id(self.profile_id_file)
+        print(f"Uninstalling launcher profile: {self.profile_id}")
+
+        with open(self.profiles_file, "r") as file:
+            profiles = json.load(file)
+
+        del profiles["profiles"][self.profile_id]
+
+        selected_profile = next(iter(profiles["profiles"]))
+
+        print(f"Setting selected launcher profile: {selected_profile}")
+        profiles["selectedUser"]["profile"] = selected_profile
+
+        with open(self.profiles_file, "w") as file:
+            json.dump(profiles, file, indent=2)
 
     def uninstall(self):
-        pass
+        try:
+            self.remove_profile()
+        except KeyError:
+            print(f"Launcher profile not found: {self.profile_id}")
+
+        print("Removing modpack files...")
+
+        directories = []
+
+        for path in self.profile_dir.glob("**/*"):
+            if path.is_dir():
+                directories.append(path)
+                continue
+
+            print(f"Deleting file: {path.relative_to(self.profile_dir)}")
+            path.unlink()
+
+        for path in reversed(directories):
+            print(f"Deleting directory: {path.relative_to(self.profile_dir)}")
+            path.rmdir()
+
+        print("Deleting profile directory...")
+        self.profile_dir.rmdir()
