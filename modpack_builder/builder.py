@@ -110,12 +110,12 @@ class ModpackBuilder:
         pass
 
     def install_mods(self):
-        self.mods_dir.mkdir(parents=True, exist_ok=True)
-
         if not self.modlist:
             self._fetch_modlist()
 
         print("Downloading CurseForge mod files...")
+
+        self.mods_dir.mkdir(parents=True, exist_ok=True)
 
         for mod_info in self.modlist.values():
             mod_path = self.mods_dir / mod_info["file_name"]
@@ -132,18 +132,17 @@ class ModpackBuilder:
 
         print(f"Installing external files for {key}...")
 
-        for file_path in itertools.chain(*(Path().resolve().glob(pattern) for pattern in self.meta[key]["external_files"])):
+        for file_path in itertools.chain(*(Path().glob(pattern) for pattern in self.meta[key]["external_files"])):
             if not file_path.is_file():
                 continue
 
-            short_path = file_path.relative_to(Path().resolve())
-            dest_path = self.profile_dir / short_path
+            dest_path = self.profile_dir / file_path
 
             if dest_path.exists() and dest_path.is_file():
-                print("Found existing external file: " + str(short_path))
+                print("Found existing external file: " + str(file_path))
                 continue
 
-            print("Copying external file: " + str(short_path))
+            print("Copying external file: " + str(file_path))
 
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file_path, dest_path)
@@ -178,10 +177,8 @@ class ModpackBuilder:
         java_path = next(self.runtime_dir.glob("**/bin/javaw*"), None)
 
         if java_path:
-            print("Java runtime already present, skipping download...")
-
+            print("Java runtime already installed: " + str(java_path.relative_to(self.runtime_dir)))
             self.java_path = Path(java_path)
-
             return
 
         self.install_runtime()
@@ -195,7 +192,7 @@ class ModpackBuilder:
         file_name = self.meta["forge_download"].rsplit("/", 1)[1]
         utilities.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
-        print("Executing Minecraft Forge installer...")
+        print("Executing Minecraft Forge installer: " + file_name)
 
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
@@ -203,8 +200,7 @@ class ModpackBuilder:
         version_dir = self.mc_dir / "versions" / self.meta["version_label"]
 
         if version_dir.exists() and version_dir.is_dir():
-            print("Forge version already installed, skipping download...")
-
+            print("Forge version already installed: " + self.meta["version_label"])
             return
 
         self.install_forge()

@@ -22,17 +22,14 @@ def get_latest_mod_files(mod_files, game_versions):
     mod_files = sorted(mod_files, key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
     releases = {}
 
-    for mod_file in mod_files:
-        if len(releases) == 3:
-            break
+    for mod_file, version in itertools.product(mod_files, game_versions):
+        if version in mod_file["versions"] and mod_file["type"] not in releases:
+            releases[mod_file["type"]] = mod_file
 
-        for version in game_versions:
             if len(releases) == 3:
                 break
 
-            if version in mod_file["versions"] and mod_file["type"] not in releases:
-                releases[mod_file["type"]] = mod_file
-                continue
+            continue
     
     if not releases:
         raise VersionException("Unable to find a compatible version")
@@ -94,8 +91,8 @@ def get_external_mod_lock_info(external_url):
     response.raise_for_status()
 
     return {
-        "file_name": external_url.rsplit("/", 1)[1],
         "file_url": external_url,
+        "file_name": external_url.rsplit("/", 1)[1],
         "timestamp": int(email.utils.parsedate_to_datetime(response.headers.get("last-modified", None)).timestamp()),
         "external": True
     }
