@@ -25,9 +25,10 @@ TQDM_OPTIONS = {
 
 
 class ModpackBuilder:
-    def __init__(self, meta, mc_dir):
+    def __init__(self, meta, mc_dir, client=True):
         self.meta = meta
         self.mc_dir = Path(mc_dir)
+        self.client = client
         self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
         self.mods_dir = self.profile_dir / "mods"
         self.runtime_dir = self.profile_dir / "runtime"
@@ -67,26 +68,37 @@ class ModpackBuilder:
         with open(self.modlist_path, "r") as file:
             self.modlist = json.load(file)
 
-    def create_modlist(self):
-        print("Creating modlist information...")
-
+    def _create_modlist(self, client=False):
         self.modlist = {}
+        key = "client" if client else "server"
 
-        for project_slug in self.meta["curse_mods"]:
+        print(f"Fetching modlist information for CurseForge {key} mods...")
+
+        for project_slug, mod_lock_info in self.meta[key]["curseforge_mods"]:
             print("Fetching project information: " + project_slug)
-            
-            self.modlist[project_slug] = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
-            
-            print((
-                "  Project ID: {project_id}\n" +
-                "  Project URL: {project_url}\n" + 
-                "  Project Name: {project_name}\n" +
-                "  File ID: {file_id}\n" +
-                "  File URL: {file_url}\n" +
-                "  File Name: {file_name}\n" +
-                "  Release Type: {release_type}\n"
-                "  Timestamp: {timestamp}"
-                ).format(**self.modlist[project_slug]))
+
+            mod_lock_info = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
+            utilities.print_mod_lock_info(**mod_lock_info)
+            self.modlist[project_slug] = mod_lock_info
+
+        print(f"Creating modlist information for external {key} mods...")
+
+        for project_slug, external_url in self.meta[{key}]["external_mods"]:
+            response = requests.head(external_url)
+            response.raise_for_status()
+
+            self.modlist[project_slug] = {
+                "external": True,
+                "file_name": external_url.rsplit("/", 1)[1],
+                "file_url": external_url,
+                "timestamp": arrow.get(response.headers.get("last-modified", None)).timestamp
+            }
+
+    def create_modlist(self):
+        self.modlist = _create_modlist(client=False)
+
+        if self.client:
+            self.modlist = {**self.modlist, **_create_modlist(client=True)}
 
         print("Dumping modlist information...")
 
@@ -119,24 +131,12 @@ class ModpackBuilder:
             utilities.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
             shutil.move(mod_info["file_name"], mod_path)
 
-        print("Downloading external mod files...")
+    def _install_externals(self, client=False):
+        key = "client" if client else "server"
 
-        for mod_url in self.meta["external_mods"]:
-            file_name = mod_url.rsplit("/", 1)[1]
-            mod_path = self.mods_dir / file_name
+        print(f"Installing external files for {key}...")
 
-            if mod_path.exists() and mod_path.is_file():
-                print("Found existing mod file: " + file_name)
-                continue
-            
-            utilities.download_as_stream(mod_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
-            shutil.move(file_name, mod_path)
-
-
-    def install_externals(self):
-        print("Installing external files...")
-
-        for file_path in itertools.chain(*(Path().resolve().glob(pattern) for pattern in self.meta["external_files"])):
+        for file_path in itertools.chain(*(Path().resolve().glob(pattern) for pattern in self.meta[key]["external_files"])):
             if not file_path.is_file():
                 continue
 
@@ -148,8 +148,15 @@ class ModpackBuilder:
                 continue
 
             print("Copying external file: " + str(short_path))
+
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file_path, dest_path)
+
+    def install_externals(self):
+        self._install_externals(client=False)
+
+        if self.client:
+            self._install_externals(client=True)
 
     def update_mods(self):
         pass
@@ -159,11 +166,13 @@ class ModpackBuilder:
 
     def install_runtime(self):
         print("Downloading Java runtime...")
+
         file_url = self.meta["java_download"][{"win32": "win", "darwin": "mac"}.get(sys.platform, sys.platform)]
         file_name = file_url.rsplit("/", 1)[1]
         utilities.download_as_stream(file_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
         print("Extracting Java runtime...")
+
         with ZipFile(file_name) as java_zip:
             java_zip.extractall(self.runtime_dir)
 
@@ -174,14 +183,17 @@ class ModpackBuilder:
             self.install_runtime()
 
         print("Downloading Minecraft Forge installer...")
+
         file_name = self.meta["forge_download"].rsplit("/", 1)[1]
         utilities.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
         print("Executing Minecraft Forge installer...")
+
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def install_profile(self):
         print("Installing launcher profile...")
+
         self.profile_id = utilities.get_profile_id(self.profile_id_file)
 
         with open(self.profiles_file, "r") as file:
@@ -205,6 +217,7 @@ class ModpackBuilder:
             }
 
             print("Setting selected launcher profile: " + self.profile_id)
+            
             profiles["selectedUser"]["profile"] = self.profile_id
 
             with open(self.profiles_file, "w") as file:
