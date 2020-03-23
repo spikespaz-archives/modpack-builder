@@ -32,6 +32,7 @@ class ModpackBuilder:
         self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
         self.mods_dir = self.profile_dir / "mods"
         self.runtime_dir = self.profile_dir / "runtime"
+        self.version_dir = self.mc_dir / "versions" / self.meta["version_label"]
         self.modlist = None
         self.modlist_path = self.profile_dir / "modlist.json"
         self.java_path = None
@@ -49,12 +50,12 @@ class ModpackBuilder:
         self.install_profile()
 
     def update(self):
+        self.clean()
         self.update_mods()
         self.update_externals()
 
     def clean(self):
         self.clean_mods()
-        self.clean_externals()
 
     def _fetch_modlist(self):
         if self.modlist_path.exists() and self.modlist_path.is_file():
@@ -104,10 +105,18 @@ class ModpackBuilder:
             json.dump(self.modlist, file, indent=2)
 
     def clean_mods(self):
-        pass
+        print("Cleaning mod directory of unlisted files...")
 
-    def clean_externals(self):
-        pass
+        file_names = (mod_info["file_name"] for mod_info in self.modlist)
+
+        for file_path in self.mods_dir.glob("*.jar"):
+            if not file_path.is_file():
+                continue
+
+            if file_path.name not in file_names:
+                print("Removing unlisted mod file: " + file_path.name)
+
+                file_path.unlink()
 
     def install_mods(self):
         if not self.modlist:
@@ -127,10 +136,10 @@ class ModpackBuilder:
             utilities.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
             shutil.move(mod_info["file_name"], mod_path)
 
-    def _install_externals(self, client=False):
+    def _install_externals(self, client=False, overwrite=False):
         key = "client" if client else "server"
 
-        print(f"Installing external files for {key}...")
+        print(f"{'Updating' if overwrite else 'Installing'} external files for {key}...")
 
         for file_path in itertools.chain(*(Path().glob(pattern) for pattern in self.meta[key]["external_files"])):
             if not file_path.is_file():
@@ -138,7 +147,7 @@ class ModpackBuilder:
 
             dest_path = self.profile_dir / file_path
 
-            if dest_path.exists() and dest_path.is_file():
+            if not overwrite and dest_path.exists() and dest_path.is_file():
                 print("Found existing external file: " + str(file_path))
                 continue
 
@@ -147,17 +156,19 @@ class ModpackBuilder:
             dest_path.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(file_path, dest_path)
 
-    def install_externals(self):
+    def install_externals(self, overwrite=False):
         self._install_externals(client=False)
 
         if self.client:
             self._install_externals(client=True)
 
     def update_mods(self):
-        pass
+        self.create_modlist()
+        self.clean_mods()
+        self.install_mods()
 
     def update_externals(self):
-        pass
+        self.install_externals(overwrite=True)
 
     def install_runtime(self):
         print("Downloading Java runtime...")
@@ -197,9 +208,7 @@ class ModpackBuilder:
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def _fetch_forge(self):
-        version_dir = self.mc_dir / "versions" / self.meta["version_label"]
-
-        if version_dir.exists() and version_dir.is_dir():
+        if self.version_dir.exists() and self.version_dir.is_dir():
             print("Forge version already installed: " + self.meta["version_label"])
             return
 

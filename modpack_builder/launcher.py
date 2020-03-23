@@ -16,7 +16,6 @@ TASK_MAP = {
     # Sub-tasks
     "create_modlist": lambda instance: ModpackBuilder.create_modlist(instance),
     "clean_mods": lambda instance: ModpackBuilder.clean_mods(instance),
-    "clean_externals": lambda instance: ModpackBuilder.clean_externals(instance),
     "install_mods": lambda instance: ModpackBuilder.install_mods(instance),
     "install_externals": lambda instance: ModpackBuilder.install_externals(instance),
     "update_mods": lambda instance: ModpackBuilder.update_mods(instance),
