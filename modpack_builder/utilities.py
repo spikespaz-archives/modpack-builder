@@ -1,7 +1,13 @@
 import secrets
 
 import tqdm
+import arrow
 import requests
+
+from pathlib import Path
+
+
+RELEASE_TYPES = ("release", "beta", "alpha")
 
 
 class DownloadException(Exception):
@@ -72,6 +78,9 @@ def get_profile_id(id_file):
     """
     Create a 32 character hexadecimal token, and write it to the file. Fetch if the file exists.
     """
+    if not isinstance(id_file, Path):
+        id_file = Path(id_file)
+
     if id_file.exists():
         with open(id_file, "r") as file:
             profile_id = file.read()
@@ -104,3 +113,20 @@ def print_external_mod_lock_info(**kwargs):
         "  Timestamp: {timestamp}\n" +
         "  External: {external}"
     ).format(**kwargs))
+
+
+def get_suitable_release(releases, preference):
+    """
+    Returns the best possible release according to upload date and release type.
+    If the preference is "beta" and there is a newer "release", the newer will be returned.
+
+    preference: The preferred release type, either "release", "beta", or "alpha".
+    """
+    if not isinstance(releases, list):
+        releases = list(releases)
+
+    releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]))
+    releases.sort(key=lambda release: arrow.get(release["uploaded_at"]), reversed=True)
+    releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]) > RELEASE_TYPES.index(preference))
+
+    return releases[0]

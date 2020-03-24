@@ -1,6 +1,9 @@
 import arrow
 import requests
+import itertools
 import email.utils
+
+from . import utilities
 
 
 API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
@@ -60,18 +63,7 @@ def get_mod_info(mod_slug, game_versions):
 
 def get_mod_lock_info(mod_slug, game_versions, release_preference):
     mod_info = get_mod_info(mod_slug, game_versions)
-    selected_file = None
-
-    if len(mod_info["releases"]) == 1:
-        selected_file = mod_info["releases"][0]
-    else:
-        sorted_files = sorted(mod_info["releases"], key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
-
-        for mod_file in sorted_files:
-            if mod_file["type"] in release_preference[:2]:
-                selected_file = mod_file
-                break
-
+    selected_file = utilities.get_suitable_release(mod_info["releases"], release_preference)
     file_id_str = str(selected_file["id"])
     
     return {

@@ -50,9 +50,13 @@ class ModpackBuilder:
         self.install_profile()
 
     def update(self):
+        self._fetch_modlist()
         self.clean()
         self.update_mods()
         self.update_externals()
+        self._fetch_runtime()
+        self._fetch_forge()
+        self.update_profile()
 
     def clean(self):
         self.clean_mods()
@@ -106,8 +110,7 @@ class ModpackBuilder:
 
     def clean_mods(self):
         print("Cleaning mod directory of unlisted files...")
-
-        file_names = (mod_info["file_name"] for mod_info in self.modlist)
+        file_names = [mod_info["file_name"] for mod_info in self.modlist.values()]
 
         for file_path in self.mods_dir.glob("*.jar"):
             if not file_path.is_file():
@@ -181,7 +184,7 @@ class ModpackBuilder:
         self.install_mods()
 
     def update_externals(self):
-        self.install_externals(overwrite=True)
+        self.install_externals(update=True)
 
     def install_runtime(self):
         print("Downloading Java runtime...")
