@@ -75,44 +75,31 @@ class ModpackBuilder:
         with open(self.modlist_path, "r") as file:
             self.modlist = json.load(file)
 
-    def __get_curseforge_mod_lock_info(self, project_slug):
-        print(f"Fetching CurseForge project information: {project_slug}")
-
-        mod_info = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
-        utilities.print_mod_lock_info(**mod_info)
-
-        return mod_info
-
-    @staticmethod
-    def __get_external_mod_lock_info(project_slug, external_url):
-        print(f"Fetching external mod information: {project_slug}")
-
-        mod_info = utilities.get_external_mod_lock_info(external_url)
-        utilities.print_external_mod_lock_info(**mod_info)
-
-        return mod_info
-
     def _create_modlist(self, client=False):
         modlist = {}
         key = "client" if client else "server"
 
         with ThreadPoolExecutor(max_workers=CONCURRENT_REQUESTS) as executor:
-            futures_map = {}
+            print(f"Fetching modlist information for {key} mods...")
 
-            print(f"Fetching modlist information for CurseForge {key} mods...")
+            futures_map = {}
             
             for project_slug in self.meta[key]["curseforge_mods"]:
-                future = executor.submit(self.__get_curseforge_mod_lock_info, project_slug)
+                future = executor.submit(curseforge.get_mod_lock_info, project_slug, self.meta["game_versions"], self.meta["release_preference"])
                 futures_map[future] = project_slug
-
-            print(f"Creating modlist information for external {key} mods...")
             
             for project_slug, external_url in self.meta[key]["external_mods"].items():
-                future = executor.submit(self.__get_external_mod_lock_info, project_slug, external_url)
+                future = executor.submit(utilities.get_external_mod_lock_info, external_url)
                 futures_map[future] = project_slug
             
             for future in concurrent.futures.as_completed(futures_map):
-                modlist[futures_map[future]] = future.result()
+                project_slug = futures_map[future]
+                modlist[project_slug] = future.result()
+
+                if project_slug in self.meta[key]["external_mods"]:
+                    utilities.print_external_mod_lock_info(project_slug, **modlist[project_slug])
+                else:
+                    utilities.print_curseforge_mod_lock_info(project_slug, **modlist[project_slug])
 
         return modlist
 

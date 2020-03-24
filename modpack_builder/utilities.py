@@ -106,8 +106,9 @@ def get_external_mod_lock_info(external_url):
     }
 
 
-def print_mod_lock_info(**kwargs):
+def print_curseforge_mod_lock_info(project_slug, **kwargs):
     print((
+        f"CurseForge mod information for: {project_slug}\n" +
         "  Project ID: {project_id}\n" +
         "  Project URL: {project_url}\n" + 
         "  Project Name: {project_name}\n" +
@@ -119,8 +120,9 @@ def print_mod_lock_info(**kwargs):
     ).format(**kwargs))
 
 
-def print_external_mod_lock_info(**kwargs):
+def print_external_mod_lock_info(project_slug, **kwargs):
     print((
+        f"External mod information for: {project_slug}\n" +
         "  File URL: {file_url}\n" +
         "  File Name: {file_name}\n" +
         "  Timestamp: {timestamp}\n" +
