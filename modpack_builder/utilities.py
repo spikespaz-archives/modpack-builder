@@ -3,6 +3,7 @@ import secrets
 import tqdm
 import arrow
 import requests
+import email.utils
 
 from pathlib import Path
 
@@ -93,6 +94,18 @@ def get_profile_id(id_file):
     return profile_id
 
 
+def get_external_mod_lock_info(external_url):
+    response = requests.head(external_url)
+    response.raise_for_status()
+
+    return {
+        "file_url": external_url,
+        "file_name": external_url.rsplit("/", 1)[1],
+        "timestamp": int(email.utils.parsedate_to_datetime(response.headers.get("last-modified", None)).timestamp()),
+        "external": True
+    }
+
+
 def print_mod_lock_info(**kwargs):
     print((
         "  Project ID: {project_id}\n" +
@@ -126,7 +139,7 @@ def get_suitable_release(releases, preference):
         releases = list(releases)
 
     releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]))
-    releases.sort(key=lambda release: arrow.get(release["uploaded_at"]), reversed=True)
+    releases.sort(key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
     releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]) > RELEASE_TYPES.index(preference))
 
     return releases[0]

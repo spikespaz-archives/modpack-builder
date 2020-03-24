@@ -4,10 +4,12 @@ import json
 import shutil
 import itertools
 import subprocess
+import concurrent.futures
 
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
+from concurrent.futures import ThreadPoolExecutor
 
 from . import utilities
 from . import curseforge
@@ -17,6 +19,7 @@ from .utilities import TqdmTracker
 import arrow
 
 
+CONCURRENT_REQUESTS = 8
 TQDM_OPTIONS = {
     "unit": "b",
     "unit_scale": True,
@@ -42,7 +45,6 @@ class ModpackBuilder:
         self.profile_id = None
 
     def install(self):
-        self.clean()
         self.install_mods()
         self.install_externals()
         self._fetch_runtime()
@@ -73,25 +75,44 @@ class ModpackBuilder:
         with open(self.modlist_path, "r") as file:
             self.modlist = json.load(file)
 
+    def __get_curseforge_mod_lock_info(self, project_slug):
+        print(f"Fetching CurseForge project information: {project_slug}")
+
+        mod_info = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
+        utilities.print_mod_lock_info(**mod_info)
+
+        return mod_info
+
+    @staticmethod
+    def __get_external_mod_lock_info(project_slug, external_url):
+        print(f"Fetching external mod information: {project_slug}")
+
+        mod_info = utilities.get_external_mod_lock_info(external_url)
+        utilities.print_external_mod_lock_info(**mod_info)
+
+        return mod_info
+
     def _create_modlist(self, client=False):
         modlist = {}
         key = "client" if client else "server"
 
-        print(f"Fetching modlist information for CurseForge {key} mods...")
+        with ThreadPoolExecutor(max_workers=CONCURRENT_REQUESTS) as executor:
+            futures_map = {}
 
-        for project_slug in self.meta[key]["curseforge_mods"]:
-            print(f"Fetching CurseForge project information: {project_slug}")
+            print(f"Fetching modlist information for CurseForge {key} mods...")
+            
+            for project_slug in self.meta[key]["curseforge_mods"]:
+                future = executor.submit(self.__get_curseforge_mod_lock_info, project_slug)
+                futures_map[future] = project_slug
 
-            modlist[project_slug] = curseforge.get_mod_lock_info(project_slug, self.meta["game_versions"], self.meta["release_preference"])
-            utilities.print_mod_lock_info(**modlist[project_slug])
-
-        print(f"Creating modlist information for external {key} mods...")
-
-        for project_slug, external_url in self.meta[key]["external_mods"].items():
-            print(f"Fetching external mod information: {project_slug}")
-
-            modlist[project_slug] = curseforge.get_external_mod_lock_info(external_url)
-            utilities.print_external_mod_lock_info(**modlist[project_slug])
+            print(f"Creating modlist information for external {key} mods...")
+            
+            for project_slug, external_url in self.meta[key]["external_mods"].items():
+                future = executor.submit(self.__get_external_mod_lock_info, project_slug, external_url)
+                futures_map[future] = project_slug
+            
+            for future in concurrent.futures.as_completed(futures_map):
+                modlist[futures_map[future]] = future.result()
 
         return modlist
 

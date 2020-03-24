@@ -1,7 +1,6 @@
 import arrow
 import requests
 import itertools
-import email.utils
 
 from . import utilities
 
@@ -75,16 +74,4 @@ def get_mod_lock_info(mod_slug, game_versions, release_preference):
         "file_name": selected_file["name"],
         "release_type": selected_file["type"],
         "timestamp": arrow.get(selected_file["uploaded_at"]).timestamp
-    }
-
-
-def get_external_mod_lock_info(external_url):
-    response = requests.head(external_url)
-    response.raise_for_status()
-
-    return {
-        "file_url": external_url,
-        "file_name": external_url.rsplit("/", 1)[1],
-        "timestamp": int(email.utils.parsedate_to_datetime(response.headers.get("last-modified", None)).timestamp()),
-        "external": True
     }
