@@ -2,6 +2,6 @@
 
 title Minecraft Modpack Installer by Jacob Birkett
 
-call "modpack_builder.dist\modpack_builder.exe" install "modpack.zip"
+call "modpack_builder.dist\modpack_builder.exe" uninstall "modpack.zip"
 
 set /p=Press ENTER to exit.
