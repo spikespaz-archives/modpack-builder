@@ -18,12 +18,17 @@ from .utilities import TqdmTracker
 
 import arrow
 
+from tqdm import tqdm
+
 
 CONCURRENT_REQUESTS = 8
+CONCURRENT_DOWNLOADS = 8
 TQDM_OPTIONS = {
+    "file": sys.stdout,
     "unit": "b",
     "unit_scale": True,
-    "dynamic_ncols": True
+    "dynamic_ncols": True,
+    "miniters": -1
 }
 
 
@@ -133,9 +138,9 @@ class ModpackBuilder:
         if not self.modlist:
             self._fetch_modlist()
 
-        print("Downloading CurseForge mod files...")
+        print("Checking for existing mod files...")
 
-        self.mods_dir.mkdir(parents=True, exist_ok=True)
+        download_mods = []
 
         for mod_info in self.modlist.values():
             mod_path = self.mods_dir / mod_info["file_name"]
@@ -144,8 +149,30 @@ class ModpackBuilder:
                 print(f"Found existing mod file: {mod_info['file_name']}")
                 continue
 
-            utilities.download_as_stream(mod_info["file_url"], mod_info["file_name"], tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS))
-            shutil.move(mod_info["file_name"], mod_path)
+            download_mods.append(mod_info)
+
+        with ThreadPoolExecutor(
+            max_workers=CONCURRENT_DOWNLOADS,
+            initializer=tqdm.set_lock,
+            initargs=(tqdm.get_lock(),)
+        ) as executor:
+            print("Downloading missing mod files...")
+
+            self.mods_dir.mkdir(parents=True, exist_ok=True)
+
+            futures_map = {}
+
+            for mod_info in download_mods:
+                future = executor.submit(
+                    utilities.download_as_stream,
+                    file_url=mod_info["file_url"],
+                    file_path=mod_info["file_name"],
+                    tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS)
+                )
+                futures_map[future] = mod_info["file_name"]
+
+            for future in concurrent.futures.as_completed(futures_map):
+                shutil.move(futures_map[future], self.mods_dir)
 
     def _install_externals(self, patterns, overwrite=False):
         # Loop through all file paths from all glob patterns in sequence
