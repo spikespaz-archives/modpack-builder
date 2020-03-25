@@ -145,3 +145,35 @@ def get_suitable_release(releases, preference):
     releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]) > RELEASE_TYPES.index(preference))
 
     return releases[0]
+
+
+# Gratefully borrowed from https://stackoverflow.com/a/13940780
+def set_cmd_font(face_name, font_size, font_weight=400):
+    import ctypes
+
+    LF_FACESIZE = 32
+    STD_OUTPUT_HANDLE = -11
+    TMPF_TRUETYPE = 4
+
+    class COORD(ctypes.Structure):
+        _fields_ = [("X", ctypes.c_short), ("Y", ctypes.c_short)]
+
+    class CONSOLE_FONT_INFOEX(ctypes.Structure):
+        _fields_ = [("cbSize", ctypes.c_ulong),
+                    ("nFont", ctypes.c_ulong),
+                    ("dwFontSize", COORD),
+                    ("FontFamily", ctypes.c_uint),
+                    ("FontWeight", ctypes.c_uint),
+                    ("FaceName", ctypes.c_wchar * LF_FACESIZE)]
+
+    font = CONSOLE_FONT_INFOEX()
+    font.cbSize = ctypes.sizeof(CONSOLE_FONT_INFOEX)
+    font.nFont = 0
+    font.dwFontSize.X = 0
+    font.dwFontSize.Y = font_size
+    font.FontFamily = TMPF_TRUETYPE
+    font.FontWeight = font_weight
+    font.FaceName = face_name
+
+    handle = ctypes.windll.kernel32.GetStdHandle(STD_OUTPUT_HANDLE)
+    ctypes.windll.kernel32.SetCurrentConsoleFontEx(handle, ctypes.c_long(False), ctypes.pointer(font))

@@ -65,6 +65,13 @@ def get_modpack_path(arguments):
 
 
 def main(argv):
+    if os.name == "nt":
+        from modpack_builder import utilities
+
+        os.system("title Minecraft Modpack Installer by Jacob Birkett")
+        utilities.set_cmd_font("Source Code Pro", 14, 400)
+        os.system("mode con: cols=120 lines=34")
+
     tasks = get_tasks(argv)
     modpack_path = get_modpack_path(argv)
 
