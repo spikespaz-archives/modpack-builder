@@ -3,16 +3,18 @@ import json
 
 from pathlib import Path
 from zipfile import ZipFile
+from argparse import ArgumentParser
 from tempfile import TemporaryDirectory
 
 from modpack_builder.builder import ModpackBuilder
 
-
-TASK_MAP = {
-    # Major tasks
+MODE_MAP = {
     "clean": lambda instance: ModpackBuilder.clean(instance),
-    "install": lambda instance: ModpackBuilder.install(instance),
     "update": lambda instance: ModpackBuilder.update(instance),
+    "install": lambda instance: ModpackBuilder.install(instance),
+    "uninstall": lambda instance: ModpackBuilder.uninstall(instance)
+}
+TASK_MAP = {
     # Sub-tasks
     "create_modlist": lambda instance: ModpackBuilder.create_modlist(instance),
     "clean_mods": lambda instance: ModpackBuilder.clean_mods(instance),
@@ -24,44 +26,51 @@ TASK_MAP = {
     "install_forge": lambda instance: ModpackBuilder.install_forge(instance),
     "install_profile": lambda instance: ModpackBuilder.install_profile(instance),
     "update_profile": lambda instance: ModpackBuilder.update_profile(instance),
-    "remove_profile": lambda instance: ModpackBuilder.remove_profile(instance),
-    "uninstall": lambda instance: ModpackBuilder.uninstall(instance)
+    "remove_profile": lambda instance: ModpackBuilder.remove_profile(instance)
 }
 
+PARSER = ArgumentParser(description="Minecraft Modpack Builder and Installer by Jacob Birkett")
+ARGUMENTS = {
+    "mode": {
+        "flags": ("-m", "--mode"),
+        "action": "store",
+        "choices": tuple(MODE_MAP.keys()),
+        "default": "install"
+    },
+    "tasks": {
+        "flags": ("-t", "--tasks"),
+        "action": "append",
+        "choices": tuple(TASK_MAP.keys()),
+        "default": []
+    },
+    "server": {
+        "flags": ("-s", "--server"),
+        "action": "store_true"
+    },
+    "destination": {
+        "flags": ("-d", "--dest", "--destination"),
+        "action": "store",
+        "type": Path
+    },
+    "zipfile": {
+        "flags": ("-z", "--zip", "--zipfile"),
+        "action": "store",
+        "type": Path
+    }
+}
 
 class ArgumentError(Exception):
     pass
 
 
-def get_tasks(arguments):
-    """
-    Get a validated and sorted task list from program arguments.
-    """
-    if len(arguments) > 2:
-        tasks = arguments[1:len(arguments) - 1]
+def assemble_args(parser, arguments):
+    for dest, kwargs in arguments.items():
+        flags = kwargs.pop("flags")
 
-        for task in tasks:
-            if task not in TASK_MAP:
-                raise ArgumentError("Unrecognized task: " + task)
-
-        return sorted(tasks, key=lambda task: tuple(TASK_MAP.keys()).index(task))
-    else:
-        return ("install",)
-
-
-def get_modpack_path(arguments):
-    """
-    Get a validated path to a modpack zip file from program arguments.
-    """
-    if not len(arguments) > 1:
-        raise ArgumentError("Too few arguments, must include at least modpack path")
-
-    modpack_path = Path(arguments[-1]).resolve()
-
-    if not (modpack_path.exists() and modpack_path.is_file()):
-        raise FileNotFoundError("Modpack path does not exist or is not a file")
-
-    return modpack_path
+        if isinstance(flags, str):
+            parser.add_argument(flags, **kwargs)
+        else:
+            parser.add_argument(*flags, dest=dest, **kwargs)
 
 
 def main(argv):
@@ -72,15 +81,24 @@ def main(argv):
         utilities.set_cmd_font("Source Code Pro", 14, 400)
         os.system("mode con: cols=120 lines=34")
 
-    tasks = get_tasks(argv)
-    modpack_path = get_modpack_path(argv)
+    assemble_args(PARSER, ARGUMENTS)
+    args = PARSER.parse_args(argv[1:])
 
-    print(f"Performing tasks: {' '.join(tasks)}")
-    print(f"Modpack location: {modpack_path}")
+    if not args.destination:
+        if args.server:
+            raise ArgumentError("If server mode is specified the destination must also be specified")
+        else:
+            args.destination = Path(os.getenv("appdata")) / ".minecraft"
 
-    mc_dir = Path(os.getenv("appdata")) / ".minecraft"
+    args.destination = args.destination.resolve()
+    args.zipfile = args.zipfile.resolve()
 
-    print(f"Assuming minecraft location: {mc_dir}")
+    args.tasks = sorted(args.tasks, key=lambda task: tuple(TASK_MAP.keys()).index(task))
+
+    print(f"Performing tasks: {' '.join(args.tasks) if args.tasks else args.mode}")
+    print(f"Minecraft location: {args.destination}")
+    print(f"Server only: {args.server}")
+
     print("Creating temporary directory...")
 
     with TemporaryDirectory() as temp_dir:
@@ -89,7 +107,7 @@ def main(argv):
 
         print("Extracting modpack...")
 
-        with ZipFile(modpack_path, "r") as modpack_zip:
+        with ZipFile(args.zipfile, "r") as modpack_zip:
             modpack_zip.extractall()
 
         print("Loading modpack manifest...")
@@ -97,10 +115,13 @@ def main(argv):
         with open("manifest.json", "r") as file:
             modpack_meta = json.load(file)
 
-        modpack_builder = ModpackBuilder(modpack_meta, mc_dir)
+        modpack_builder = ModpackBuilder(modpack_meta, args.destination, client=not args.server)
 
-        for task in tasks:
-            TASK_MAP[task](modpack_builder)
+        if args.tasks:
+            for task in args.tasks:
+                TASK_MAP[task](modpack_builder)
+        else:
+            MODE_MAP[args.mode](modpack_builder)
 
         os.chdir(orig_dir)
 
