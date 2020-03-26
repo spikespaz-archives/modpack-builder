@@ -2,7 +2,6 @@
 
 title Minecraft Modpack Installer by Jacob Birkett
 
-call "font\install_font.bat"
-call "modpack_builder.dist\modpack_builder.exe" update "modpack.zip"
+call "modpack_builder.dist\modpack_builder.exe" -m update -z "modpack.zip"
 
 set /p=Press ENTER to exit.
