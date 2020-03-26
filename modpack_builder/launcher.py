@@ -100,8 +100,20 @@ def main(argv):
 
         print("Extracting modpack...")
 
-        with ZipFile(args.zipfile, "r") as modpack_zip:
-            modpack_zip.extractall()
+        if args.zipfile.is_dir():
+            import shutil
+
+            for path in args.zipfile.glob("**/*"):
+                dest = temp_dir / path.relative_to(args.zipfile)
+
+                if path.is_dir():
+                    dest.mkdir(parents=True, exist_ok=True)
+                    continue
+
+                shutil.copyfile(path, dest)
+        else:
+            with ZipFile(args.zipfile, "r") as modpack_zip:
+                modpack_zip.extractall()
 
         print("Loading modpack manifest...")
 
