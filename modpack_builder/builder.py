@@ -37,7 +37,12 @@ class ModpackBuilder:
         self.meta = meta
         self.mc_dir = Path(mc_dir)
         self.client = client
-        self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
+
+        if self.client:
+            self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
+        else:
+            self.profile_dir = self.mc_dir
+
         self.mods_dir = self.profile_dir / "mods"
         self.runtime_dir = self.profile_dir / "runtime"
         self.version_dir = self.mc_dir / "versions" / self.meta["version_label"]
@@ -54,7 +59,9 @@ class ModpackBuilder:
         self.install_externals()
         self._fetch_runtime()
         self._fetch_forge()
-        self.install_profile()
+
+        if not self.client:
+            self.install_profile()
 
     def update(self):
         self._fetch_modlist()
@@ -63,7 +70,9 @@ class ModpackBuilder:
         self.update_externals()
         self._fetch_runtime()
         self._fetch_forge()
-        self.update_profile()
+        
+        if not self.client:
+            self.update_profile()
 
     def clean(self):
         self.clean_mods()
