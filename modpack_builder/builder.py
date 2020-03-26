@@ -60,7 +60,7 @@ class ModpackBuilder:
         self._fetch_runtime()
         self._fetch_forge()
 
-        if not self.client:
+        if self.client:
             self.install_profile()
 
     def update(self):
@@ -71,7 +71,7 @@ class ModpackBuilder:
         self._fetch_runtime()
         self._fetch_forge()
         
-        if not self.client:
+        if self.client:
             self.update_profile()
 
     def clean(self):
