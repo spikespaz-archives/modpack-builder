@@ -48,21 +48,28 @@ def get_mod_info(mod_slug, game_versions):
     response = requests.get(API_BASE_URL.format(mod_slug))
     response.raise_for_status()
     mod_data = response.json()
-    releases = get_latest_mod_files(mod_data["files"], game_versions)
+    mod_data["releases"] = get_latest_mod_files(mod_data["files"], game_versions)
 
     del mod_data["downloads"]
-    del mod_data["files"]
-    del mod_data["versions"]
     del mod_data["download"]
-
-    mod_data["releases"] = releases
+    del mod_data["versions"]
 
     return mod_data
 
 
 def get_mod_lock_info(mod_slug, game_versions, release_preference):
     mod_info = get_mod_info(mod_slug, game_versions)
-    selected_file = utilities.get_suitable_release(mod_info["releases"], release_preference)
+    
+    if isinstance(release_preference, int):
+        for mod_file in mod_info["files"]:
+            if mod_file["id"] == release_preference:
+                selected_file = mod_file
+                break
+        else:
+            raise VersionException(f"Mod file '{release_preference}' for '{mod_slug}' not found")
+    else:
+        selected_file = utilities.get_suitable_release(mod_info["releases"], release_preference)
+
     file_id_str = str(selected_file["id"])
     
     return {

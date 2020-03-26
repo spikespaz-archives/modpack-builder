@@ -89,8 +89,16 @@ class ModpackBuilder:
 
             futures_map = {}
             
-            for project_slug in self.meta[key]["curseforge_mods"]:
-                future = executor.submit(curseforge.get_mod_lock_info, project_slug, self.meta["game_versions"], self.meta["release_preference"])
+            for identifier in self.meta[key]["curseforge_mods"]:
+                if ":" in identifier:
+                    project_slug, release_preference = map(str.strip, identifier.split(":"))
+                    
+                    if release_preference not in utilities.RELEASE_TYPES:
+                        release_preference = int(release_preference)
+                else:
+                    project_slug, release_preference = identifier, self.meta["release_preference"]
+
+                future = executor.submit(curseforge.get_mod_lock_info, project_slug, self.meta["game_versions"], release_preference)
                 futures_map[future] = project_slug
             
             for project_slug, external_url in self.meta[key]["external_mods"].items():
