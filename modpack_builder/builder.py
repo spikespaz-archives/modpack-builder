@@ -21,8 +21,6 @@ import arrow
 from tqdm import tqdm
 
 
-CONCURRENT_REQUESTS = 8
-CONCURRENT_DOWNLOADS = 8
 TQDM_OPTIONS = {
     "file": sys.stdout,
     "unit": "b",
@@ -33,10 +31,12 @@ TQDM_OPTIONS = {
 
 
 class ModpackBuilder:
-    def __init__(self, meta, mc_dir, client=True):
+    def __init__(self, meta, mc_dir, client=True, concurrent_requests=8, concurrent_downloads=8):
         self.meta = meta
         self.mc_dir = Path(mc_dir)
         self.client = client
+        self.concurrent_requests = concurrent_requests
+        self.concurrent_downloads = concurrent_downloads
 
         if self.client:
             self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
@@ -93,7 +93,7 @@ class ModpackBuilder:
         modlist = {}
         key = "client" if client else "server"
 
-        with ThreadPoolExecutor(max_workers=CONCURRENT_REQUESTS) as executor:
+        with ThreadPoolExecutor(max_workers=self.concurrent_requests) as executor:
             print(f"Fetching modlist information for {key} mods...")
 
             futures_map = {}
@@ -169,7 +169,7 @@ class ModpackBuilder:
             download_mods.append(mod_info)
 
         with ThreadPoolExecutor(
-            max_workers=CONCURRENT_DOWNLOADS,
+            max_workers=self.concurrent_downloads,
             initializer=tqdm.set_lock,
             initargs=(tqdm.get_lock(),)
         ) as executor:

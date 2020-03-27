@@ -56,6 +56,18 @@ ARGUMENTS = {
         "flags": ("-z", "--zip", "--zipfile"),
         "action": "store",
         "type": Path
+    },
+    "concurrent_requests": {
+        "flags": "--concurrent-requests",
+        "action": "store",
+        "type": int,
+        "default": 8
+    },
+    "concurrent_downloads": {
+        "flags": "--concurrent-downloads",
+        "action": "store",
+        "type": int,
+        "default": 8
     }
 }
 
@@ -120,7 +132,13 @@ def main(argv):
         with open("manifest.json", "r") as file:
             modpack_meta = json.load(file)
 
-        modpack_builder = ModpackBuilder(modpack_meta, args.destination, client=not args.server)
+        modpack_builder = ModpackBuilder(
+            meta=modpack_meta,
+            mc_dir=args.destination,
+            client=not args.server,
+            concurrent_requests=args.concurrent_requests,
+            concurrent_downloads=args.concurrent_downloads
+        )
 
         if args.tasks:
             for task in args.tasks:
