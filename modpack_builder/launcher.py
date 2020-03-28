@@ -9,7 +9,6 @@ from tempfile import TemporaryDirectory
 from modpack_builder.builder import ModpackBuilder
 
 MODE_MAP = {
-    "clean": lambda instance: ModpackBuilder.clean(instance),
     "update": lambda instance: ModpackBuilder.update(instance),
     "install": lambda instance: ModpackBuilder.install(instance),
     "uninstall": lambda instance: ModpackBuilder.uninstall(instance)
@@ -70,6 +69,7 @@ ARGUMENTS = {
         "default": 8
     }
 }
+
 
 class ArgumentError(Exception):
     pass

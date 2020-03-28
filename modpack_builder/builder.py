@@ -65,7 +65,6 @@ class ModpackBuilder:
 
     def update(self):
         self._fetch_modlist()
-        self.clean()
         self.update_mods()
         self.update_externals()
         self._fetch_runtime()
@@ -73,9 +72,6 @@ class ModpackBuilder:
         
         if self.client:
             self.update_profile()
-
-    def clean(self):
-        self.clean_mods()
 
     def _fetch_modlist(self):
         if self.modlist_path.exists() and self.modlist_path.is_file():
@@ -116,12 +112,18 @@ class ModpackBuilder:
             
             for future in concurrent.futures.as_completed(futures_map):
                 project_slug = futures_map[future]
-                modlist[project_slug] = future.result()
+                mod_info = future.result()
+                
+                if project_slug in self.meta["load_priority"]:
+                    priority_index = self.meta["load_priority"].index(project_slug)
+                    mod_info["file_name"] = f"_{priority_index}-{mod_info['file_name']}"
+
+                modlist[project_slug] = mod_info
 
                 if project_slug in self.meta[key]["external_mods"]:
-                    utilities.print_external_mod_lock_info(project_slug, **modlist[project_slug])
+                    utilities.print_external_mod_lock_info(project_slug, **mod_info)
                 else:
-                    utilities.print_curseforge_mod_lock_info(project_slug, **modlist[project_slug])
+                    utilities.print_curseforge_mod_lock_info(project_slug, **mod_info)
 
         return modlist
 
