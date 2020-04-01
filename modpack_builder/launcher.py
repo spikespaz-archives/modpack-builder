@@ -147,12 +147,9 @@ def main(argv):
                     TASK_MAP[task](modpack_builder)
             else:
                 MODE_MAP[args.mode](modpack_builder)
+
+            print("Completed all tasks successfully!")
         except KeyboardInterrupt:
-            os.chdir(orig_dir)
-            
             print("Recieved keyboard interrupt, exiting...", file=sys.stderr)
-            return
 
-    os.chdir(orig_dir)
-
-    print("Completed all tasks successfully!")
+        os.chdir(orig_dir)
