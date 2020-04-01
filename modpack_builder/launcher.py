@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 
 from pathlib import Path
@@ -140,12 +141,18 @@ def main(argv):
             concurrent_downloads=args.concurrent_downloads
         )
 
-        if args.tasks:
-            for task in args.tasks:
-                TASK_MAP[task](modpack_builder)
-        else:
-            MODE_MAP[args.mode](modpack_builder)
+        try:
+            if args.tasks:
+                for task in args.tasks:
+                    TASK_MAP[task](modpack_builder)
+            else:
+                MODE_MAP[args.mode](modpack_builder)
+        except KeyboardInterrupt:
+            os.chdir(orig_dir)
+            
+            print("Recieved keyboard interrupt, exiting...", file=sys.stderr)
+            return
 
-        os.chdir(orig_dir)
+    os.chdir(orig_dir)
 
     print("Completed all tasks successfully!")

@@ -54,6 +54,20 @@ class ModpackBuilder:
         self.profile_id_file = self.profile_dir / "profile_id"
         self.profile_id = None
 
+        self.__exit = False
+
+    def __thread(self, target):
+        def __wrapper(*args, **kwargs):
+            if self.__exit:
+                return
+
+            return target(*args, **kwargs)
+
+        return __wrapper
+
+    def stop(self):
+        self.__exit = True
+
     def install(self):
         self.install_mods()
         self.install_externals()
@@ -103,27 +117,31 @@ class ModpackBuilder:
                 else:
                     project_slug, release_preference = identifier, self.meta["release_preference"]
 
-                future = executor.submit(curseforge.get_mod_lock_info, project_slug, self.meta["game_versions"], release_preference)
+                future = executor.submit(self.__thread(curseforge.get_mod_lock_info), project_slug, self.meta["game_versions"], release_preference)
                 futures_map[future] = project_slug
             
             for project_slug, external_url in self.meta[key]["external_mods"].items():
-                future = executor.submit(utilities.get_external_mod_lock_info, external_url)
+                future = executor.submit(self.__thread(utilities.get_external_mod_lock_info), external_url)
                 futures_map[future] = project_slug
             
-            for future in concurrent.futures.as_completed(futures_map):
-                project_slug = futures_map[future]
-                mod_info = future.result()
-                
-                if project_slug in self.meta["load_priority"]:
-                    priority_index = self.meta["load_priority"].index(project_slug)
-                    mod_info["file_name"] = f"_{priority_index}-{mod_info['file_name']}"
+            try:
+                for future in concurrent.futures.as_completed(futures_map):
+                    project_slug = futures_map[future]
+                    mod_info = future.result()
+                    
+                    if project_slug in self.meta["load_priority"]:
+                        priority_index = self.meta["load_priority"].index(project_slug)
+                        mod_info["file_name"] = f"_{priority_index}-{mod_info['file_name']}"
 
-                modlist[project_slug] = mod_info
+                    modlist[project_slug] = mod_info
 
-                if project_slug in self.meta[key]["external_mods"]:
-                    utilities.print_external_mod_lock_info(project_slug, **mod_info)
-                else:
-                    utilities.print_curseforge_mod_lock_info(project_slug, **mod_info)
+                    if project_slug in self.meta[key]["external_mods"]:
+                        utilities.print_external_mod_lock_info(project_slug, **mod_info)
+                    else:
+                        utilities.print_curseforge_mod_lock_info(project_slug, **mod_info)
+            except KeyboardInterrupt as error:
+                self.stop()
+                raise error
 
         return modlist
 
@@ -183,15 +201,19 @@ class ModpackBuilder:
 
             for mod_info in download_mods:
                 future = executor.submit(
-                    utilities.download_as_stream,
+                    self.__thread(utilities.download_as_stream),
                     file_url=mod_info["file_url"],
                     file_path=mod_info["file_name"],
                     tracker=TqdmTracker(desc=mod_info["file_name"], **TQDM_OPTIONS)
                 )
                 futures_map[future] = mod_info["file_name"]
 
-            for future in concurrent.futures.as_completed(futures_map):
-                shutil.move(futures_map[future], self.mods_dir)
+            try:
+                for future in concurrent.futures.as_completed(futures_map):
+                    shutil.move(futures_map[future], self.mods_dir)
+            except KeyboardInterrupt as error:
+                self.stop()
+                raise error
 
     def _install_externals(self, patterns, overwrite=False):
         # Loop through all file paths from all glob patterns in sequence
