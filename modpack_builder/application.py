@@ -47,6 +47,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setZoomFactor(0.75)
 
         self.__bind_spin_boxes_and_sliders()
+        self.__bind_file_and_directory_picker_buttons()
 
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
@@ -69,6 +70,55 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.concurrent_downloads_spin_box.valueChanged)
         def __on_concurrent_downloads_spin_box_value_changed(value):
             self.builder.concurrent_downloads = value
+
+    def __bind_file_and_directory_picker_buttons(self):
+        @helpers.make_slot()
+        @helpers.connect_slot(self.modpack_package_select_button.clicked)
+        def __on_modpack_package_select_button_clicked():
+            modpack_package_path = helpers.pick_file(
+                parent=self,
+                title="Select Modpack Package",
+                path=Path(self.modpack_package_line_edit.text()),
+                types=("Zip Archive (*.zip)",)
+            ).resolve()
+
+            self.modpack_package_line_edit.setText(str(modpack_package_path))
+
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.profile_icon_path_select_button.clicked)
+        def __on_profile_icon_path_select_button_clicked():
+            profile_icon_path = helpers.pick_file(
+                parent=self,
+                title="Select Profile Icon",
+                path=Path(self.profile_icon_path_line_edit.text()),
+                types=("Portable Network Graphics (*.png)",)
+            ).resolve()
+
+            self.profile_icon_path_line_edit.setText(str(profile_icon_path))
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.minecraft_directory_select_button.clicked)
+        def __on_minecraft_directory_select_button_clicked():
+            minecraft_directory = helpers.pick_directory(
+                parent=self,
+                title="Select Minecraft Directory",
+                path=Path(self.minecraft_directory_line_edit.text())
+            ).resolve()
+
+            self.minecraft_directory_line_edit.setText(str(minecraft_directory))
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.minecraft_launcher_select_button.clicked)
+        def __on_minecraft_launcher_select_button_clicked():
+            minecraft_launcher_path = helpers.pick_file(
+                parent=self,
+                title="Select Minecraft Launcher",
+                path=Path(self.minecraft_launcher_line_edit.text()),
+                types=("Executable Files (*.exe)",)
+            ).resolve()
+
+            self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
 
     def show_information_markdown(self, readme_path):
         with open((Path(__file__).parent / "markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
