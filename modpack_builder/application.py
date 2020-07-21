@@ -162,6 +162,18 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.__should_reset_profile_icon_path = True
 
+    def __load_values_from_builder(self):
+        # self.show_information_markdown((Path(__file__).parent.parent / "modpack/README.md").resolve())
+
+        # Set the value for concurrent requests and downloads spin boxes
+        self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
+        self.concurrent_downloads_spin_box.setValue(self.builder.concurrent_downloads)
+
+        # Set default values
+        self.allocated_memory_spin_box.setValue(self.builder.java_runtime_memory)
+        self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
+        self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
+
     def show_information_markdown(self, readme_path):
         with open((Path(__file__).parent / "markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
             markdown_css = markdown_css_file.read()
@@ -198,7 +210,6 @@ if __name__ == "__main__":
     app = QApplication([])
     builder = ModpackBuilder()
     window = ModpackBuilderWindow(builder)
-    window.show_information_markdown((Path(__file__).parent.parent / "modpack/README.md").resolve())
 
     window.show()
     sys.exit(app.exec_())
