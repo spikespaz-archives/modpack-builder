@@ -1,15 +1,17 @@
 import os
 import sys
+import base64
+import binascii
 
 from pathlib import Path
 
-os.environ["QT_API"] = "pyqt5"
-
 import markdown2
+
+os.environ["QT_API"] = "pyqt5"
 
 from qtpy.QtWidgets import QApplication, QMainWindow
 from qtpy.QtWebEngineWidgets import QWebEnginePage
-from qtpy.QtGui import QDesktopServices
+from qtpy.QtGui import QDesktopServices, QPixmap
 from qtpy import QtCore
 from qtpy import uic
 
@@ -96,6 +98,10 @@ class ModpackBuilderWindow(QMainWindow):
             ).resolve()
 
             self.profile_icon_path_line_edit.setText(str(profile_icon_path))
+            self.__should_reset_profile_icon_path = False
+
+            with open(profile_icon_path, "rb") as image:
+                self.profile_icon_base64_line_edit.setText(base64.b64encode(image.read()).decode())
 
         @helpers.make_slot()
         @helpers.connect_slot(self.minecraft_directory_select_button.clicked)
@@ -119,6 +125,27 @@ class ModpackBuilderWindow(QMainWindow):
             ).resolve()
 
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
+
+    def __bind_other_synchronized_line_edits(self):
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.profile_icon_base64_line_edit.textChanged)
+        def __on_profile_icon_base64_line_edit_text_changed(text):
+            try:
+                qpixmap = QPixmap()
+                qpixmap.loadFromData(base64.b64decode(text), "png")
+                qpixmap = qpixmap.scaledToHeight(
+                    self.profile_icon_image_label.contentsRect().height(),
+                    QtCore.Qt.SmoothTransformation
+                )
+                self.profile_icon_image_label.setPixmap(qpixmap)
+                self.builder.profile_icon_base64 = text
+            except binascii.Error:
+                pass
+
+            if self.__should_reset_profile_icon_path:
+                self.profile_icon_path_line_edit.setText("")
+
+            self.__should_reset_profile_icon_path = True
 
     def show_information_markdown(self, readme_path):
         with open((Path(__file__).parent / "markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
