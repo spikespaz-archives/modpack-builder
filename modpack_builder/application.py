@@ -13,6 +13,8 @@ from qtpy.QtGui import QDesktopServices
 from qtpy import QtCore
 from qtpy import uic
 
+import helpers
+
 
 class QLockedWebEnginePage(QWebEnginePage):
     def acceptNavigationRequest(self, url, nav_type, is_main_frame):
@@ -43,6 +45,30 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setPage(self.information_web_engine_page)
         self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
+
+        self.__bind_spin_boxes_and_sliders()
+
+    def __bind_spin_boxes_and_sliders(self):
+        @helpers.make_slot(float)
+        @helpers.connect_slot(self.allocated_memory_spin_box.valueChanged)
+        def __on_allocated_memory_spin_box_value_changed(value):
+            self.allocated_memory_slider.setValue(value * 2)
+            self.builder.java_runtime_memory = value * 1024
+
+        @helpers.make_slot(int)
+        @helpers.connect_slot(self.allocated_memory_slider.valueChanged)
+        def __on_allocated_memory_slider_value_changed(value):
+            self.allocated_memory_spin_box.setValue(value / 2)
+
+        @helpers.make_slot(int)
+        @helpers.connect_slot(self.concurrent_requests_spin_box.valueChanged)
+        def __on_concurrent_requests_spin_box_value_changed(value):
+            self.builder.concurrent_requests = value
+
+        @helpers.make_slot(int)
+        @helpers.connect_slot(self.concurrent_downloads_spin_box.valueChanged)
+        def __on_concurrent_downloads_spin_box_value_changed(value):
+            self.builder.concurrent_downloads = value
 
     def show_information_markdown(self, readme_path):
         with open((Path(__file__).parent / "markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
