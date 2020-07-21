@@ -17,6 +17,8 @@ from qtpy import uic
 
 import helpers
 
+from builder2 import ModpackBuilder
+
 
 class QLockedWebEnginePage(QWebEnginePage):
     def acceptNavigationRequest(self, url, nav_type, is_main_frame):
@@ -181,7 +183,8 @@ class ModpackBuilderWindow(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication([])
-    window = ModpackBuilderWindow(None)
+    builder = ModpackBuilder()
+    window = ModpackBuilderWindow(builder)
     window.show_information_markdown((Path(__file__).parent.parent / "modpack/README.md").resolve())
 
     window.show()
