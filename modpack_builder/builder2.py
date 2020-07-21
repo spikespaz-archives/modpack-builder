@@ -48,7 +48,7 @@ class ModpackBuilder:
         self.external_resource_globs = []
 
         self.minecraft_directory = self._get_default_minecraft_directory()
-        self.minecraft_launcher_path = None
+        self.minecraft_launcher_path = self._get_minecraft_launcher_path()
 
         self.concurrent_requests = 8
         self.concurrent_downloads = 8
@@ -117,3 +117,43 @@ class ModpackBuilder:
             return minecraft_directory.resolve()
 
         return None
+
+    @staticmethod
+    def _get_minecraft_launcher_path():
+        if PLATFORM == "Windows":
+            import win32com.client
+
+            shell = win32com.client.Dispatch("WScript.Shell")
+
+            def __find_minecraft_launcher_path(directory):
+                for link_file in directory.glob("**/*.lnk"):
+                    shortcut = shell.CreateShortcut(str(link_file))
+
+                    if shortcut.Targetpath.lower().endswith("minecraftlauncher.exe"):
+                        return Path(shortcut.Targetpath).resolve()
+
+                return None
+
+            programs_directory = Path(os.environ["programdata"], "Microsoft\\Windows\\Start Menu\\Programs")
+            minecraft_launcher_path = __find_minecraft_launcher_path(programs_directory)
+
+            if minecraft_launcher_path is not None and minecraft_launcher_path.exists() and minecraft_launcher_path.is_file():
+                return minecraft_launcher_path
+
+            import winreg
+
+            user_shell_folders_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
+                                                    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders")
+            programs_directory = Path(os.path.expandvars(winreg.QueryValueEx(user_shell_folders_key, "Programs")[0]))
+            user_shell_folders_key.Close()
+
+            minecraft_launcher_path = __find_minecraft_launcher_path(programs_directory)
+
+            if minecraft_launcher_path is not None and minecraft_launcher_path.exists() and minecraft_launcher_path.is_file():
+                return minecraft_launcher_path
+
+        elif PLATFORM == "Darwin":
+            return None
+
+        elif PLATFORM == "Linux":
+            return None
