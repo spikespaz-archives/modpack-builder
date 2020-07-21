@@ -47,7 +47,7 @@ class ModpackBuilder:
 
         self.external_resource_globs = []
 
-        self.minecraft_directory = None
+        self.minecraft_directory = self._get_default_minecraft_directory()
         self.minecraft_launcher_path = None
 
         self.concurrent_requests = 8
@@ -101,3 +101,19 @@ class ModpackBuilder:
             return system_memory - 2
         else:
             return min(system_memory / 2, ModpackBuilder._max_recommended_java_runtime_memory)
+
+    @staticmethod
+    def _get_default_minecraft_directory():
+        minecraft_directory = None
+
+        if PLATFORM == "Windows":
+            minecraft_directory = Path(os.environ["appdata"], ".minecraft")
+        elif PLATFORM == "Darwin":
+            minecraft_directory = Path.home().joinpath("/Library/Application Support/minecraft")
+        elif PLATFORM == "Linux":
+            minecraft_directory = Path.home().joinpath(".minecraft")
+
+        if minecraft_directory.exists() and minecraft_directory.is_dir():
+            return minecraft_directory.resolve()
+
+        return None
