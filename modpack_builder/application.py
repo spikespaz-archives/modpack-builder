@@ -51,6 +51,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setZoomFactor(0.75)
 
         self.__bind_spin_boxes_and_sliders()
+        self.__set_spin_box_and_slider_ranges()
         self.__bind_file_and_directory_picker_buttons()
 
     def __bind_spin_boxes_and_sliders(self):
@@ -74,6 +75,18 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.concurrent_downloads_spin_box.valueChanged)
         def __on_concurrent_downloads_spin_box_value_changed(value):
             self.builder.concurrent_downloads = value
+
+    def __set_spin_box_and_slider_ranges(self):
+        # Set the min and max range for concurrent requests and downloads sliders/spin boxes
+        self.concurrent_requests_spin_box.setRange(1, ModpackBuilder._max_concurrent_requests)
+        self.concurrent_requests_slider.setRange(1, ModpackBuilder._max_concurrent_requests)
+        self.concurrent_downloads_spin_box.setRange(1, ModpackBuilder._max_concurrent_downloads)
+        self.concurrent_downloads_slider.setRange(1, ModpackBuilder._max_concurrent_downloads)
+
+        # Set the min and max range for the Java runtime allocated memory slider and spin box
+        max_recommended_memory = ModpackBuilder._get_max_recommended_memory()
+        self.allocated_memory_spin_box.setRange(1, max_recommended_memory)
+        self.allocated_memory_slider.setRange(2, max_recommended_memory * 2)
 
     def __bind_file_and_directory_picker_buttons(self):
         @helpers.make_slot()
