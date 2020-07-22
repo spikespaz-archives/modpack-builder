@@ -133,6 +133,15 @@ class MultiProgressDialog(QDialog):
             if self.__scroll_bar_was_at_bottom:
                 progress_log_scroll_bar.setValue(max_value)
 
+    def __reporter_done_callback(self, reporter):
+        progress_bar = self.__reporter_map[reporter]
+        self.progress_bar_container_layout.removeWidget(progress_bar)
+        progress_bar.deleteLater()
+        del self.__reporter_map[reporter]
+
+        if not any(self.__reporter_map.values()):
+            self.progress_bar_container_widget.setVisible(False)
+            self.progress_bar_divider_line.setVisible(False)
     def keyPressEvent(self, event):
         if event.key() != QtCore.Qt.Key_Escape:
             super().keyPressEvent(event)
