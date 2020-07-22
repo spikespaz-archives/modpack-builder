@@ -142,6 +142,28 @@ class MultiProgressDialog(QDialog):
         if not any(self.__reporter_map.values()):
             self.progress_bar_container_widget.setVisible(False)
             self.progress_bar_divider_line.setVisible(False)
+
+    def __bind_reporter_created(self):
+        @helpers.make_slot(MultiProgressDialog.ProgressBarReporter)
+        @helpers.connect_slot(self.reporter_created)
+        def __on_reporter_created(reporter):
+            initial_geometry = self.geometry()
+
+            self.progress_bar_container_widget.setVisible(True)
+            self.progress_bar_divider_line.setVisible(True)
+
+            progress_bar = QProgressBar(self.progress_bar_container_widget)
+            progress_bar.setAlignment(QtCore.Qt.AlignCenter)
+
+            reporter.progress_bar = progress_bar
+            self.__reporter_map[reporter] = progress_bar
+            self.progress_bar_container_layout.addWidget(progress_bar)
+            progress_bar.show()
+
+            current_geometry = self.geometry()
+            current_geometry.moveCenter(initial_geometry.center())
+            self.setGeometry(current_geometry)
+
     def keyPressEvent(self, event):
         if event.key() != QtCore.Qt.Key_Escape:
             super().keyPressEvent(event)
@@ -166,6 +188,14 @@ class MultiProgressDialog(QDialog):
 
     def log(self, message):
         self.__progress_log_model.appendRow(QStandardItem(message))
+
+    def reporter(self):
+        progress_reporter = MultiProgressDialog.ProgressBarReporter(callback=self.__reporter_done_callback)
+        self.__reporter_map[progress_reporter] = None
+
+        self.reporter_created.emit(progress_reporter)
+
+        return progress_reporter
 
     @property
     def main_reporter(self):
