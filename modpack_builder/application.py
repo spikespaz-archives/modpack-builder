@@ -17,6 +17,7 @@ from qtpy import uic
 
 from . import helpers
 
+from .helpers import ProgressReporter
 from .builder2 import ModpackBuilder
 
 
