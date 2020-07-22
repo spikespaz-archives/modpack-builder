@@ -77,10 +77,12 @@ class MultiProgressDialog(QDialog):
     cancel_request = QtCore.Signal()
     cancel_completed = QtCore.Signal()
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
+    cancel_confirmation_title = "Cancel Confirmation"
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.__allow_close = False
         self.__cancel_requested = False
 
         uic.loadUi(str((Path(__file__).parent / "multiprogressdialog.ui").resolve()), self)
@@ -126,6 +128,28 @@ class MultiProgressDialog(QDialog):
         def __on_progress_log_scroll_bar_range_changed(_, max_value):
             if self.__scroll_bar_was_at_bottom:
                 progress_log_scroll_bar.setValue(max_value)
+
+    def keyPressEvent(self, event):
+        if event.key() != QtCore.Qt.Key_Escape:
+            super().keyPressEvent(event)
+
+    def closeEvent(self, event):
+        if self.__allow_close:
+            super().closeEvent(event)
+        elif self.__cancel_requested:
+            event.ignore()
+        else:
+            event.ignore()
+
+            confirm_response = QMessageBox.question(
+                self,
+                self.cancel_confirmation_title,
+                self.cancel_confirmation_text,
+                QMessageBox.Yes | QMessageBox.No
+            )
+
+            if confirm_response == QMessageBox.Yes:
+                self.cancel_request.emit()
 
     def log(self, message):
         self.__progress_log_model.appendRow(QStandardItem(message))
