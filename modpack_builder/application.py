@@ -72,6 +72,10 @@ class MultiProgressDialog(QDialog):
 
             if self.__progress_bar:
                 self.__progress_bar.setFormat(value)
+
+    reporter_created = QtCore.Signal(ProgressBarReporter)
+    cancel_request = QtCore.Signal()
+    cancel_completed = QtCore.Signal()
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
 
     def __init__(self, *args, **kwargs):
