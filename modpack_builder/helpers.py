@@ -1,11 +1,12 @@
 from pathlib import Path
+from threading import Thread
 
 from qtpy import QtCore
 from qtpy.QtWidgets import QFileDialog
 
 
 class ProgressReporter:
-    def __init__(self, callback):
+    def __init__(self, callback=None):
         self._maximum = 100
         self._value = 0
         self._done = False
@@ -79,5 +80,12 @@ def connect_slot(signal, *args, **kwargs):
         signal.connect(func)
 
         return func
+
+    return wrapper
+
+
+def make_thread(*args, **kwargs):
+    def wrapper(func):
+        return Thread(target=func, *args, **kwargs)
 
     return wrapper
