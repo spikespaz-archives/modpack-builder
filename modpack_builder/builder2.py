@@ -16,6 +16,39 @@ class ReleaseType(Enum):
     alpha = "alpha"
 
 
+class ProgressReporter:
+    def __init__(self, callback):
+        self._maximum = 100
+        self._value = 0
+        self._done = False
+        self.__callback = callback
+
+    @property
+    def maximum(self):
+        return self._maximum
+
+    @maximum.setter
+    def maximum(self, value):
+        self._maximum = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+
+    def done(self):
+        self._done = True
+
+        if self.__callback:
+            self.__callback(self)
+
+    def is_done(self):
+        return self._done
+
+
 class ModpackBuilder:
     _max_concurrent_requests = 16
     _max_concurrent_downloads = 16
