@@ -9,15 +9,15 @@ import markdown2
 
 os.environ["QT_API"] = "pyqt5"
 
-from qtpy.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
+from qtpy.QtWidgets import QApplication, QMainWindow
 from qtpy.QtWebEngineWidgets import QWebEnginePage
-from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem
+from qtpy.QtGui import QDesktopServices, QPixmap
 from qtpy import QtCore
 from qtpy import uic
 
-import helpers
+from . import helpers
 
-from builder2 import ModpackBuilder
+from .builder2 import ModpackBuilder
 
 
 class LockedWebEnginePage(QWebEnginePage):
