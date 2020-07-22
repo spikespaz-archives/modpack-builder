@@ -81,6 +81,8 @@ class MultiProgressDialog(QDialog):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.__cancel_requested = False
+
         uic.loadUi(str((Path(__file__).parent / "multiprogressdialog.ui").resolve()), self)
 
         self.__progress_bar_widgets = []
@@ -90,7 +92,23 @@ class MultiProgressDialog(QDialog):
         self.progress_log_list_view.setFocusPolicy(QtCore.Qt.ClickFocus)
 
         self.cancel_button.clicked.connect(self.close)
+        self.__bind_cancel_request_and_completed()
         self.__bind_auto_scroll_handlers()
+        self.__bind_reporter_created()
+
+    def __bind_cancel_request_and_completed(self):
+        @helpers.make_slot()
+        @helpers.connect_slot(self.cancel_request)
+        def __on_cancel_request():
+            self.__cancel_requested = True
+            self.cancel_button.setEnabled(False)
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.cancel_completed)
+        def __on_cancel_completed():
+            self.__allow_close = True
+            self.cancel_button.setText("Close")
+            self.cancel_button.setEnabled(True)
 
     def __bind_auto_scroll_handlers(self):
         progress_log_scroll_bar = self.progress_log_list_view.verticalScrollBar()
