@@ -87,6 +87,7 @@ class MultiProgressDialog(QDialog):
 
         self.__progress_bar_widgets = []
         self.__progress_log_scroll_repositioned = False
+        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
         self.__progress_log_model = QStandardItemModel()
         self.progress_log_list_view.setModel(self.__progress_log_model)
         self.progress_log_list_view.setFocusPolicy(QtCore.Qt.ClickFocus)
