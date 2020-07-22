@@ -20,7 +20,7 @@ import helpers
 from builder2 import ModpackBuilder
 
 
-class QLockedWebEnginePage(QWebEnginePage):
+class LockedWebEnginePage(QWebEnginePage):
     def acceptNavigationRequest(self, url, nav_type, is_main_frame):
         if nav_type == QWebEnginePage.NavigationTypeTyped:
             return super().acceptNavigationRequest(url, nav_type, is_main_frame)
@@ -98,7 +98,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         # Set up the QWebEngineView for the markdown information view
         self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
-        self.information_web_engine_page = QLockedWebEnginePage()
+        self.information_web_engine_page = LockedWebEnginePage()
         self.information_web_engine_view.setPage(self.information_web_engine_page)
         self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
