@@ -90,6 +90,10 @@ class MultiProgressDialog(QDialog):
         self.__progress_bar_widgets = []
         self.__progress_log_scroll_repositioned = False
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+
+        self.progress_bar_container_widget.setVisible(False)
+        self.progress_bar_divider_line.setVisible(False)
+
         self.__progress_log_model = QStandardItemModel()
         self.progress_log_list_view.setModel(self.__progress_log_model)
         self.progress_log_list_view.setFocusPolicy(QtCore.Qt.ClickFocus)
@@ -115,7 +119,6 @@ class MultiProgressDialog(QDialog):
 
     def __bind_auto_scroll_handlers(self):
         progress_log_scroll_bar = self.progress_log_list_view.verticalScrollBar()
-
         self.__scroll_bar_was_at_bottom = False
 
         @helpers.make_slot()
