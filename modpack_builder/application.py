@@ -30,8 +30,48 @@ class LockedWebEnginePage(QWebEnginePage):
 
 
 class MultiProgressDialog(QDialog):
-    cancel_requested = QtCore.Signal()
-    cancel_finished = QtCore.Signal()
+    class ProgressBarReporter(ProgressReporter):
+        def __init__(self, *args, **kwargs):
+            super().__init__(*args, **kwargs)
+
+            self.__progress_bar = None
+            self._text = "%p%"
+
+        @property
+        def progress_bar(self):
+            return self.__progress_bar
+
+        @progress_bar.setter
+        def progress_bar(self, widget):
+            self.__progress_bar = widget
+            self.__progress_bar.setMaximum(self._maximum)
+            self.__progress_bar.setValue(self._value)
+            self.__progress_bar.setFormat(self._text)
+
+        @ProgressReporter.maximum.setter
+        def maximum(self, value):
+            ProgressReporter.maximum.fset(self, value)
+
+            if self.__progress_bar:
+                self.__progress_bar.setMaximum(value)
+
+        @ProgressReporter.value.setter
+        def value(self, value):
+            ProgressReporter.value.fset(self, value)
+
+            if self.__progress_bar:
+                self.__progress_bar.setValue(value)
+
+        @property
+        def text(self):
+            return self._text
+
+        @text.setter
+        def text(self, value):
+            self._text = value
+
+            if self.__progress_bar:
+                self.__progress_bar.setFormat(value)
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
 
     def __init__(self, *args, **kwargs):
