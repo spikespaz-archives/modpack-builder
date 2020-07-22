@@ -89,22 +89,8 @@ class MultiProgressDialog(QDialog):
         self.progress_log_list_view.setModel(self.__progress_log_model)
         self.progress_log_list_view.setFocusPolicy(QtCore.Qt.ClickFocus)
 
-        self.__bind_cancel_button_()
+        self.cancel_button.clicked.connect(self.close)
         self.__bind_auto_scroll_handlers()
-
-    def __bind_cancel_button_(self):
-        @helpers.make_slot()
-        @helpers.connect_slot(self.cancel_button.clicked)
-        def _on_cancel_button_clicked():
-            confirm_response = QMessageBox.question(
-                self,
-                "Cancel Confirmation",
-                self.cancel_confirmation_text,
-                QMessageBox.Yes | QMessageBox.No
-            )
-
-            if confirm_response == QMessageBox.Yes:
-                self.cancel_requested.emit()
 
     def __bind_auto_scroll_handlers(self):
         progress_log_scroll_bar = self.progress_log_list_view.verticalScrollBar()
