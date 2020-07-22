@@ -130,6 +130,10 @@ class MultiProgressDialog(QDialog):
     def log(self, message):
         self.__progress_log_model.appendRow(QStandardItem(message))
 
+    @property
+    def cancel_requested(self):
+        return self.__cancel_requested
+
 
 class ModpackBuilderWindow(QMainWindow):
     __should_reset_profile_icon_path = False
