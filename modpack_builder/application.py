@@ -9,9 +9,9 @@ import markdown2
 
 os.environ["QT_API"] = "pyqt5"
 
-from qtpy.QtWidgets import QApplication, QMainWindow
+from qtpy.QtWidgets import QApplication, QMainWindow, QDialog, QMessageBox
 from qtpy.QtWebEngineWidgets import QWebEnginePage
-from qtpy.QtGui import QDesktopServices, QPixmap
+from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem
 from qtpy import QtCore
 from qtpy import uic
 
@@ -27,6 +27,59 @@ class QLockedWebEnginePage(QWebEnginePage):
 
         QDesktopServices.openUrl(url)
         return False
+
+
+class MultiProgressDialog(QDialog):
+    cancel_requested = QtCore.Signal()
+    cancel_finished = QtCore.Signal()
+    cancel_confirmation_text = "Are you sure you want to cancel the current task?"
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        uic.loadUi(str((Path(__file__).parent / "multiprogressdialog.ui").resolve()), self)
+
+        self.__progress_bar_widgets = []
+        self.__progress_log_scroll_repositioned = False
+        self.__progress_log_model = QStandardItemModel()
+        self.progress_log_list_view.setModel(self.__progress_log_model)
+        self.progress_log_list_view.setFocusPolicy(QtCore.Qt.ClickFocus)
+
+        self.__bind_cancel_button_()
+        self.__bind_auto_scroll_handlers()
+
+    def __bind_cancel_button_(self):
+        @helpers.make_slot()
+        @helpers.connect_slot(self.cancel_button.clicked)
+        def _on_cancel_button_clicked():
+            confirm_response = QMessageBox.question(
+                self,
+                "Cancel Confirmation",
+                self.cancel_confirmation_text,
+                QMessageBox.Yes | QMessageBox.No
+            )
+
+            if confirm_response == QMessageBox.Yes:
+                self.cancel_requested.emit()
+
+    def __bind_auto_scroll_handlers(self):
+        progress_log_scroll_bar = self.progress_log_list_view.verticalScrollBar()
+
+        self.__scroll_bar_was_at_bottom = False
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.__progress_log_model.rowsAboutToBeInserted)
+        def __on_progress_log_model_rows_about_to_be_inserted():
+            self.__scroll_bar_was_at_bottom = progress_log_scroll_bar.value() == progress_log_scroll_bar.maximum()
+
+        @helpers.make_slot(int, int)
+        @helpers.connect_slot(progress_log_scroll_bar.rangeChanged)
+        def __on_progress_log_scroll_bar_range_changed(_, max_value):
+            if self.__scroll_bar_was_at_bottom:
+                progress_log_scroll_bar.setValue(max_value)
+
+    def log(self, message):
+        self.__progress_log_model.appendRow(QStandardItem(message))
 
 
 class ModpackBuilderWindow(QMainWindow):
