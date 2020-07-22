@@ -87,13 +87,14 @@ class MultiProgressDialog(QDialog):
 
         uic.loadUi(str((Path(__file__).parent / "multiprogressdialog.ui").resolve()), self)
 
-        self.__progress_bar_widgets = []
-        self.__progress_log_scroll_repositioned = False
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
         self.progress_bar_container_widget.setVisible(False)
         self.progress_bar_divider_line.setVisible(False)
 
+        self.__main_reporter = MultiProgressDialog.ProgressBarReporter(None)
+        self.__main_reporter.progress_bar = self.main_progress_bar
+        self.__reporter_map = {}
         self.__progress_log_model = QStandardItemModel()
         self.progress_log_list_view.setModel(self.__progress_log_model)
         self.progress_log_list_view.setFocusPolicy(QtCore.Qt.ClickFocus)
@@ -156,6 +157,10 @@ class MultiProgressDialog(QDialog):
 
     def log(self, message):
         self.__progress_log_model.appendRow(QStandardItem(message))
+
+    @property
+    def main_reporter(self):
+        return self.__main_reporter
 
     @property
     def cancel_requested(self):
