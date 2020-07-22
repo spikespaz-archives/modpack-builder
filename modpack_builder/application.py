@@ -19,6 +19,7 @@ from . import helpers
 
 from .helpers import ProgressReporter
 from .builder2 import ModpackBuilder
+from .multi_progress_dialog import MultiProgressDialog
 
 
 class LockedWebEnginePage(QWebEnginePage):
@@ -38,7 +39,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.builder = builder
 
-        uic.loadUi(str((Path(__file__).parent / "interface.ui").resolve()), self)
+        uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
 
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":

@@ -74,7 +74,7 @@ class MultiProgressDialog(QDialog):
         self.__allow_close = False
         self.__cancel_requested = False
 
-        uic.loadUi(str((Path(__file__).parent / "multiprogressdialog.ui").resolve()), self)
+        uic.loadUi(str((Path(__file__).parent / "ui/multi_progress_dialog.ui").resolve()), self)
 
         self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
 
