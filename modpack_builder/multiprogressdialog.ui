@@ -10,7 +10,7 @@
     <x>0</x>
     <y>0</y>
     <width>600</width>
-    <height>400</height>
+    <height>370</height>
    </rect>
   </property>
   <property name="sizeGripEnabled">
@@ -27,7 +27,22 @@
      </property>
      <layout class="QVBoxLayout" name="progress_bar_group_box_layout">
       <item>
-       <layout class="QVBoxLayout" name="progress_bar_layout"/>
+       <widget class="QWidget" name="progress_bar_container_widget" native="true">
+        <layout class="QVBoxLayout" name="progress_bar_container_layout">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+        </layout>
+       </widget>
       </item>
       <item>
        <widget class="Line" name="progress_bar_divider_line">
@@ -52,11 +67,17 @@
    <item>
     <widget class="QGroupBox" name="progress_log_group_box">
      <property name="title">
-      <string>Progress Log</string>
+      <string>Status Log</string>
      </property>
      <layout class="QVBoxLayout" name="progress_log_group_box_layout">
       <item>
        <widget class="QListView" name="progress_log_list_view">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>200</height>
+         </size>
+        </property>
         <property name="focusPolicy">
          <enum>Qt::ClickFocus</enum>
         </property>
