@@ -55,6 +55,8 @@ class ModpackBuilder:
     _max_recommended_java_runtime_memory = 8
 
     def __init__(self):
+        self.__logger = print
+        self.__reporter = ProgressReporter(None)
         self.modpack_package = None
 
         self.profile_name = ""
@@ -85,6 +87,12 @@ class ModpackBuilder:
 
         self.concurrent_requests = 8
         self.concurrent_downloads = 8
+
+    def set_logger(self, logger):
+        self.__logger = logger
+
+    def set_reporter(self, reporter):
+        self.__reporter = reporter
 
     def install_modpack(self):
         pass
