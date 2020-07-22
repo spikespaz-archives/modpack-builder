@@ -5,6 +5,7 @@ import platform
 
 from enum import Enum
 from pathlib import Path
+from tempfile import TemporaryDirectory
 
 
 PLATFORM = platform.system()
@@ -57,6 +58,13 @@ class ModpackBuilder:
     def __init__(self):
         self.__logger = print
         self.__reporter = ProgressReporter(None)
+        self.__temporary_directory = TemporaryDirectory()
+
+        self.temporary_directory = Path(self.__temporary_directory.name)
+
+        self.__package_contents_path = self.temporary_directory / "extracted_package"
+        self.__package_contents_path.mkdir()
+
         self.modpack_package = None
 
         self.profile_name = ""
@@ -87,6 +95,9 @@ class ModpackBuilder:
 
         self.concurrent_requests = 8
         self.concurrent_downloads = 8
+
+    def __del__(self):
+        self.__temporary_directory.cleanup()
 
     def set_logger(self, logger):
         self.__logger = logger
