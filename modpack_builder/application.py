@@ -193,8 +193,8 @@ class ModpackBuilderWindow(QMainWindow):
         __builder_load_package_thread.start()
 
     def __load_values_from_builder(self):
-        if self.builder.modpack_readme_path:
-            self.show_information_markdown(self.builder.modpack_readme_path)
+        if self.builder.readme_path:
+            self.show_information_markdown(self.builder.readme_path)
 
         # Set the value for concurrent requests and downloads spin boxes
         self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)

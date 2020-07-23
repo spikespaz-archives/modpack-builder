@@ -3,6 +3,7 @@ import math
 import json
 import psutil
 import platform
+import collections
 
 from enum import Enum
 from pathlib import Path
@@ -21,54 +22,112 @@ class ReleaseType(Enum):
     alpha = "alpha"
 
 
+class ModpackManifest:
+    __curseforge_mod_url = "https://www.curseforge.com/minecraft/mc-mods/{}"
+
+    JavaDownloads = collections.namedtuple("JavaDownloads", ("win", "mac", "linux"))
+    ExternalFile = collections.namedtuple("ExternalFile", ("pattern", "immutable"))
+    ExternalMod = collections.namedtuple("ExternalMod", ("identifier", "name", "version", "url", "server"))
+    CurseForgeMod = collections.namedtuple("CurseForgeMod", ("identifier", "url", "server"))
+
+    def __init__(self, data):
+        self.profile_name = data.get("profile_name")
+        self.profile_id = data.get("profile_id")
+        self.profile_icon = data.get("profile_icon")
+        self.game_versions = set(data.get("game_versions", tuple()))
+        self.java_downloads = ModpackManifest.JavaDownloads(**data.get("java_downloads"))
+        self.forge_download = data.get("forge_download")
+        self.version_label = data.get("version_label")
+        self.release_preference = ReleaseType(data.get("release_preference"))
+        self.load_priority = set(data.get("load_priority", tuple()))
+
+        client_data = data.get("client", {})
+        server_data = data.get("server", {})
+
+        self.client_java_args = client_data.get("java_args")
+        self.client_external_files = set()
+
+        self.server_java_args = server_data.get("java_args")
+        self.server_external_files = set()
+
+        for entry in client_data.get("external_files", {}).get("overwrite", tuple()):
+            self.client_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False))
+
+        for entry in client_data.get("external_files", {}).get("immutable", tuple()):
+            self.client_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True))
+
+        for entry in server_data.get("external_files", {}).get("overwrite", tuple()):
+            self.server_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False))
+
+        for entry in server_data.get("external_files", {}).get("immutable", tuple()):
+            self.server_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True))
+
+        self.external_mods = set()
+
+        for identifier, entry in client_data.get("external_mods", {}).items():
+            corrected_entry = {"name": None, "version": None}
+            corrected_entry.update(entry)
+            self.client_external_files.add(ModpackManifest.ExternalMod(
+                identifier=identifier,
+                **corrected_entry,
+                server=False
+            ))
+
+        for identifier, entry in server_data.get("external_mods", {}).items():
+            corrected_entry = {"name": None, "version": None}
+            corrected_entry.update(entry)
+            self.server_external_files.add(ModpackManifest.ExternalMod(
+                identifier=identifier,
+                **corrected_entry,
+                server=True
+            ))
+
+        self.curseforge_mods = set()
+
+        for identifier in client_data.get("curseforge_mods", tuple()):
+            self.curseforge_mods.add(ModpackManifest.CurseForgeMod(
+                identifier=identifier,
+                url=self.__curseforge_mod_url.format(identifier),
+                server=False
+            ))
+
+        for identifier in server_data.get("curseforge_mods", tuple()):
+            self.curseforge_mods.add(ModpackManifest.CurseForgeMod(
+                identifier=identifier,
+                url=self.__curseforge_mod_url.format(identifier),
+                server=True
+            ))
+
+
 class ModpackBuilder:
     _max_concurrent_requests = 16
     _max_concurrent_downloads = 16
     _max_recommended_java_runtime_memory = 8
-    _markdown_file_extensions = ("txt", "md", "mkd", "mkdn", "mdown", "markdown")
+    _markdown_file_extensions = (".txt", ".md", ".mkd", ".mkdn", ".mdown", ".markdown")
 
     def __init__(self):
         self.__logger = print
         self.__reporter = ProgressReporter(None)
+
         self.__temporary_directory = TemporaryDirectory()
 
         self.temporary_directory = Path(self.__temporary_directory.name)
 
-        self.__package_contents_path = self.temporary_directory / "extracted_package"
-        self.__package_contents_path.mkdir()
+        self.__package_contents_directory = self.temporary_directory / "extracted_package"
+        self.__package_contents_directory.mkdir()
 
-        self.modpack_package = None
-        self.modpack_readme_path = None
-        self.manifest_json = None
+        self.concurrent_requests = 8
+        self.concurrent_downloads = 8
 
-        self.profile_name = ""
-        self.profile_directory = None
-        self.profile_id = ""
-        self.profile_icon_base64 = ""
+        self.package_path = None
+        self.readme_path = None
 
-        self.compatible_minecraft_versions = []
-        self.preferred_mod_release_type = ReleaseType.release
-
-        self.curseforge_mods = {}
-        self.external_mods = {}
-
-        self.mod_loading_priority = []
-
-        self.forge_minecraft_version = ""
-        self.forge_version = ""
-
-        self.java_runtime_memory = self._get_recommended_memory()
-        self.java_runtime_arguments = []
-
-        self.java_download_urls = {}
-
-        self.external_resource_globs = []
+        self.manifest = None
 
         self.minecraft_directory = self._get_default_minecraft_directory()
         self.minecraft_launcher_path = self._get_minecraft_launcher_path()
 
-        self.concurrent_requests = 8
-        self.concurrent_downloads = 8
+        self.profile_directory = None
 
     def __del__(self):
         self.__temporary_directory.cleanup()
@@ -101,15 +160,15 @@ class ModpackBuilder:
             package_info_list = package_zip.infolist()
 
             self.__reporter.maximum = len(package_info_list)
-            self.__logger(f"Extracting package to: {self.__package_contents_path}")
+            self.__logger(f"Extracting package to: {self.__package_contents_directory}")
 
             for member_info in package_info_list:
                 self.__logger("Extracting member: " + member_info.filename)
                 self.__reporter.value += 1
 
-                package_zip.extract(member_info, self.__package_contents_path)
+                package_zip.extract(member_info, self.__package_contents_directory)
 
-            self.__logger("Done extracting package.")
+            self.__logger("Done extracting package!")
             self.__reporter.done()
 
     def load_package(self, path):
@@ -117,16 +176,16 @@ class ModpackBuilder:
 
         self.__logger("Loading package manifest...")
 
-        with open(self.__package_contents_path / "manifest.json", "r") as manifest_file:
-            self.manifest_json = json.load(manifest_file)
+        with open(self.__package_contents_directory / "manifest.json", "r") as manifest_file:
+            self.manifest = ModpackManifest(json.load(manifest_file))
 
-        for file_path in self.__package_contents_path.iterdir():
+        for file_path in self.__package_contents_directory.iterdir():
             if not file_path.is_file() or not file_path.suffix:
                 continue
 
             if file_path.stem.lower() == "readme" and file_path.suffix.lower() in self._markdown_file_extensions:
                 self.__logger(f"Found README file: {file_path.name}")
-                self.modpack_readme_path = file_path
+                self.readme_path = file_path
         else:
             self.__logger("No README file found in package!")
 
