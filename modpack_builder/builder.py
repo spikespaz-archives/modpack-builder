@@ -128,7 +128,12 @@ class ModpackBuilder:
             try:
                 for future in concurrent.futures.as_completed(futures_map):
                     project_slug = futures_map[future]
-                    mod_info = future.result()
+
+                    try:
+                        mod_info = future.result()
+                    except Exception as exception:
+                        print("Exception occurred while fetching information for mod: " + project_slug, file=self.stdout)
+                        raise exception
                     
                     if project_slug in self.meta["load_priority"]:
                         priority_index = self.meta["load_priority"].index(project_slug)
