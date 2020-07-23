@@ -7,7 +7,10 @@ from zipfile import ZipFile
 from argparse import ArgumentParser
 from tempfile import TemporaryDirectory
 
-from modpack_builder.builder import ModpackBuilder
+from . import builder
+from . import utilities
+
+from .builder import ModpackBuilder
 
 MODE_MAP = {
     "update": lambda instance: ModpackBuilder.update(instance),
