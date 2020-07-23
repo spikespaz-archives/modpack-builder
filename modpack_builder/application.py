@@ -36,9 +36,9 @@ class ModpackBuilderWindow(QMainWindow):
     def __init__(self, builder, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
-        self.builder = builder
-
         uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
+
+        self.builder = builder
 
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":
@@ -60,15 +60,26 @@ class ModpackBuilderWindow(QMainWindow):
 
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
-        @helpers.connect_slot(self.allocated_memory_spin_box.valueChanged)
-        def __on_allocated_memory_spin_box_value_changed(value):
-            self.allocated_memory_slider.setValue(int(value * 2))
-            self.builder.java_runtime_memory = value * 1024
+        @helpers.connect_slot(self.client_allocated_memory_spin_box.valueChanged)
+        def __on_client_allocated_memory_spin_box_value_changed(value):
+            self.client_allocated_memory_slider.setValue(int(value * 2))
+            self.builder.client_allocated_memory = value
 
         @helpers.make_slot(int)
-        @helpers.connect_slot(self.allocated_memory_slider.valueChanged)
-        def __on_allocated_memory_slider_value_changed(value):
-            self.allocated_memory_spin_box.setValue(int(value / 2))
+        @helpers.connect_slot(self.client_allocated_memory_slider.valueChanged)
+        def __on_client_allocated_memory_slider_value_changed(value):
+            self.client_allocated_memory_spin_box.setValue(value / 2)
+        
+        @helpers.make_slot(float)
+        @helpers.connect_slot(self.server_allocated_memory_spin_box.valueChanged)
+        def __on_server_allocated_memory_spin_box_value_changed(value):
+            self.server_allocated_memory_slider.setValue(int(value * 2))
+            self.builder.server_allocated_memory = value
+
+        @helpers.make_slot(int)
+        @helpers.connect_slot(self.server_allocated_memory_slider.valueChanged)
+        def __on_server_allocated_memory_slider_value_changed(value):
+            self.server_allocated_memory_spin_box.setValue(value / 2)
 
         @helpers.make_slot(int)
         @helpers.connect_slot(self.concurrent_requests_spin_box.valueChanged)
@@ -88,9 +99,11 @@ class ModpackBuilderWindow(QMainWindow):
         self.concurrent_downloads_slider.setRange(1, ModpackBuilder._max_concurrent_downloads)
 
         # Set the min and max range for the Java runtime allocated memory slider and spin box
-        max_recommended_memory = ModpackBuilder._get_max_recommended_memory()
-        self.allocated_memory_spin_box.setRange(1, max_recommended_memory)
-        self.allocated_memory_slider.setRange(2, max_recommended_memory * 2)
+        maximum_memory = ModpackBuilder._get_maximum_memory()
+        self.client_allocated_memory_spin_box.setRange(2, maximum_memory)
+        self.client_allocated_memory_slider.setRange(4, maximum_memory * 2)
+        self.server_allocated_memory_spin_box.setRange(2, maximum_memory)
+        self.server_allocated_memory_slider.setRange(4, maximum_memory * 2)
 
     def __bind_file_and_directory_picker_buttons(self):
         @helpers.make_slot()

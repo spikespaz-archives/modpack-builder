@@ -111,13 +111,6 @@
              </property>
             </widget>
            </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="profile_directory_dropdown">
-             <property name="editable">
-              <bool>true</bool>
-             </property>
-            </widget>
-           </item>
            <item row="2" column="0">
             <widget class="QLabel" name="profile_id_label">
              <property name="text">
@@ -126,11 +119,31 @@
             </widget>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="profile_id_line_edit">
-             <property name="enabled">
-              <bool>false</bool>
+            <widget class="QLineEdit" name="profile_id_line_edit"/>
+           </item>
+           <item row="1" column="1">
+            <layout class="QHBoxLayout" name="profile_directory_layout">
+             <item>
+              <widget class="QLineEdit" name="profile_directory_line_edit"/>
+             </item>
+             <item>
+              <widget class="QToolButton" name="profile_directory_select_button">
+               <property name="text">
+                <string>...</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+           <item row="3" column="0">
+            <widget class="QLabel" name="version_label_label">
+             <property name="text">
+              <string>Version Label</string>
              </property>
             </widget>
+           </item>
+           <item row="3" column="1">
+            <widget class="QComboBox" name="version_label_combo_box"/>
            </item>
           </layout>
          </widget>
@@ -396,7 +409,7 @@
          </layout>
         </item>
         <item>
-         <widget class="QListView" name="listView"/>
+         <widget class="QListView" name="loading_priority_list_view"/>
         </item>
         <item>
          <layout class="QHBoxLayout" name="loading_priority_actions_layout">
@@ -486,54 +499,122 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QGroupBox" name="allocated_memory_group_box">
-          <property name="title">
-           <string>Allocated Memory</string>
+         <widget class="QTabWidget" name="java_runtime_client_server_tab_widget">
+          <property name="currentIndex">
+           <number>0</number>
           </property>
-          <layout class="QFormLayout" name="formLayout_3">
-           <item row="1" column="1">
-            <widget class="QSlider" name="allocated_memory_slider">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="tickPosition">
-              <enum>QSlider::TicksAbove</enum>
-             </property>
-             <property name="tickInterval">
-              <number>2</number>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QDoubleSpinBox" name="allocated_memory_spin_box">
-             <property name="suffix">
-              <string> GB</string>
-             </property>
-             <property name="decimals">
-              <number>1</number>
-             </property>
-             <property name="singleStep">
-              <double>0.500000000000000</double>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <widget class="QWidget" name="java_runtime_client_tab">
+           <attribute name="title">
+            <string>Client</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_14">
+            <item>
+             <widget class="QGroupBox" name="client_allocated_memory_group_box">
+              <property name="title">
+               <string>Client Allocated Memory</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_3">
+               <item row="1" column="1">
+                <widget class="QSlider" name="client_allocated_memory_slider">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::TicksAbove</enum>
+                 </property>
+                 <property name="tickInterval">
+                  <number>2</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QDoubleSpinBox" name="client_allocated_memory_spin_box">
+                 <property name="suffix">
+                  <string> GB</string>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.500000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="client_jvm_arguments_group_box">
+              <property name="title">
+               <string>Client JVM Arguments</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_4">
+               <item>
+                <widget class="QPlainTextEdit" name="client_jvm_arguments_text_edit"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+          <widget class="QWidget" name="java_runtime_server_tab">
+           <attribute name="title">
+            <string>Server</string>
+           </attribute>
+           <layout class="QVBoxLayout" name="verticalLayout_16">
+            <item>
+             <widget class="QGroupBox" name="server_allocated_memory_group_box">
+              <property name="title">
+               <string>Server Allocated Memory</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_5">
+               <item row="1" column="1">
+                <widget class="QSlider" name="server_allocated_memory_slider">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::TicksAbove</enum>
+                 </property>
+                 <property name="tickInterval">
+                  <number>2</number>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QDoubleSpinBox" name="server_allocated_memory_spin_box">
+                 <property name="suffix">
+                  <string> GB</string>
+                 </property>
+                 <property name="decimals">
+                  <number>1</number>
+                 </property>
+                 <property name="singleStep">
+                  <double>0.500000000000000</double>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="server_jvm_arguments_group_box">
+              <property name="title">
+               <string>Server JVM Arguments</string>
+              </property>
+              <layout class="QVBoxLayout" name="verticalLayout_15">
+               <item>
+                <widget class="QPlainTextEdit" name="server_jvm_arguments_text_edit"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="jvm_arguments_group_box">
-          <property name="title">
-           <string>JVM Arguments</string>
-          </property>
-          <layout class="QVBoxLayout" name="verticalLayout_4">
-           <item>
-            <widget class="QPlainTextEdit" name="jvm_arguments_text_edit"/>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="groupBox_4">
+         <widget class="QGroupBox" name="download_urls_group_box">
           <property name="title">
            <string>Download URLs</string>
           </property>
