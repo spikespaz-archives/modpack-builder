@@ -7,8 +7,6 @@ from pathlib import Path
 
 import markdown2
 
-os.environ["QT_API"] = "pyqt5"
-
 from qtpy.QtWidgets import QApplication, QMainWindow
 from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem
@@ -298,12 +296,3 @@ class ModpackBuilderWindow(QMainWindow):
         """
 
         self.information_web_engine_page.setHtml(readme_html)
-
-
-if __name__ == "__main__":
-    app = QApplication([])
-    builder = ModpackBuilder()
-    window = ModpackBuilderWindow(builder)
-
-    window.show()
-    sys.exit(app.exec_())

@@ -1,5 +1,15 @@
-import sys
+from .builder2 import ModpackBuilder
 
-from modpack_builder import launcher
+if __name__ == "__main__":
+    import sys
 
-launcher.main(sys.argv)
+    from qtpy.QtWidgets import QApplication
+
+    from .application import ModpackBuilderWindow
+
+    app = QApplication([])
+    builder = ModpackBuilder()
+    window = ModpackBuilderWindow(builder)
+
+    window.show()
+    sys.exit(app.exec_())
