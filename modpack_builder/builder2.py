@@ -1,13 +1,16 @@
 import os
 import math
+import json
 import psutil
 import platform
 
 from enum import Enum
 from pathlib import Path
+from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
 from .helpers import ProgressReporter
+
 
 PLATFORM = platform.system()
 
@@ -22,6 +25,7 @@ class ModpackBuilder:
     _max_concurrent_requests = 16
     _max_concurrent_downloads = 16
     _max_recommended_java_runtime_memory = 8
+    _markdown_file_extensions = ("txt", "md", "mkd", "mkdn", "mdown", "markdown")
 
     def __init__(self):
         self.__logger = print
@@ -34,6 +38,8 @@ class ModpackBuilder:
         self.__package_contents_path.mkdir()
 
         self.modpack_package = None
+        self.modpack_readme_path = None
+        self.manifest_json = None
 
         self.profile_name = ""
         self.profile_directory = None
@@ -84,6 +90,44 @@ class ModpackBuilder:
 
     def launch_minecraft(self):
         pass
+
+    def dump_manifest(self):
+        pass
+
+    def load_package(self, path):
+        self.__logger("Reading package contents: " + path.name)
+
+        with ZipFile(path, "r") as package_zip:
+            package_info_list = package_zip.infolist()
+
+            self.__reporter.maximum = len(package_info_list)
+            self.__logger(f"Extracting package to: {self.__package_contents_path}")
+
+            for member_info in package_info_list:
+                self.__logger("Extracting member: " + member_info.filename)
+                self.__reporter.value += 1
+
+                package_zip.extract(member_info, self.__package_contents_path)
+
+            self.__logger("Loading package manifest...")
+
+            with open(self.__package_contents_path / "manifest.json", "r") as manifest_file:
+                self.manifest_json = json.load(manifest_file)
+
+            for file_path in self.__package_contents_path.iterdir():
+                if not file_path.is_file() or not file_path.suffix:
+                    continue
+
+                file_name, file_extension = file_path.name.rsplit(".", 1)
+
+                if file_name.lower() == "readme" and file_extension.lower() in self._markdown_file_extensions:
+                    self.__logger(f"Found README file: {file_path.name}")
+                    self.modpack_readme_path = file_path
+            else:
+                self.__logger("No README file found in package!")
+
+            self.__logger("Done extracting package.")
+            self.__reporter.done()
 
     def export_package(self):
         pass
