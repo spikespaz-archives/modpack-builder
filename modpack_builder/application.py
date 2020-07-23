@@ -55,6 +55,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
+        self.__bind_synchronized_line_edits()
 
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
@@ -157,7 +158,33 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
 
-    def __bind_other_synchronized_line_edits(self):
+    def __bind_synchronized_line_edits(self):
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.profile_name_line_edit.textChanged)
+        def __on_profile_name_line_edit_text_changed(text):
+            if not text:
+                return
+
+            self.profile_id_line_edit.setText(helpers.make_slug(text, size=32))
+            self.builder.manifest.profile_name = text
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.profile_id_line_edit.textChanged)
+        def __on_profile_id_line_edit_text_changed(text):
+            if not text:
+                return
+
+            profile_directory = Path(self.profile_directory_line_edit.text())
+            profile_directory = profile_directory.parent / text
+            self.profile_directory_line_edit.setText(str(profile_directory))
+            self.builder.manifest.profile_id = text
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.profile_directory_line_edit.textChanged)
+        def __on_profile_directory_line_edit_text_changed(text):
+            profile_directory = Path(text)
+            self.profile_id_line_edit.setText(profile_directory.stem)
+
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_icon_base64_line_edit.textChanged)
         def __on_profile_icon_base64_line_edit_text_changed(text):

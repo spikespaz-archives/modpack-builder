@@ -1,3 +1,7 @@
+import re
+import string
+import random
+
 from pathlib import Path
 from threading import Thread
 
@@ -89,3 +93,15 @@ def make_thread(*args, **kwargs):
         return Thread(target=func, *args, **kwargs)
 
     return wrapper
+
+
+def generate_id(size=6, chars=string.ascii_lowercase + string.digits):
+    return "".join(random.choice(chars) for _ in range(size))
+
+
+def make_slug(title, prefix=None, size=20, allowed_chars=string.ascii_lowercase + string.digits):
+    slug = re.sub(r"[^" + allowed_chars + "]", "-", title.lower())
+    slug = re.sub(r"-{2,}", "-", slug)
+    slug = slug.strip()
+
+    return prefix or "" + (slug[:size] if size and len(slug) > size else slug)
