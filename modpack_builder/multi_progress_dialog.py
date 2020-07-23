@@ -14,54 +14,55 @@ from . import helpers
 from .builder2 import ProgressReporter
 
 
+class ProgressBarReporter(ProgressReporter, QtCore.QObject):
+    set_maximum = QtCore.Signal(int)
+    set_value = QtCore.Signal(int)
+    set_text = QtCore.Signal(str)
+
+    def __init__(self, parent=None, *args, **kwargs):
+        ProgressReporter.__init__(self, *args, **kwargs)
+        QtCore.QObject.__init__(self, parent)
+
+        self.__progress_bar = None
+        self._text = "%p%"
+
+    @property
+    def progress_bar(self):
+        return self.__progress_bar
+
+    @progress_bar.setter
+    def progress_bar(self, widget):
+        self.__progress_bar = widget
+
+        self.set_maximum.connect(self.__progress_bar.setMaximum)
+        self.set_value.connect(self.__progress_bar.setValue)
+        self.set_text.connect(self.__progress_bar.setFormat)
+
+        self.__progress_bar.setMaximum(self._maximum)
+        self.__progress_bar.setValue(self._value)
+        self.__progress_bar.setFormat(self._text)
+
+    @ProgressReporter.maximum.setter
+    def maximum(self, value):
+        ProgressReporter.maximum.fset(self, value)
+        self.set_maximum.emit(value)
+
+    @ProgressReporter.value.setter
+    def value(self, value):
+        ProgressReporter.value.fset(self, value)
+        self.set_value.emit(value)
+
+    @property
+    def text(self):
+        return self._text
+
+    @text.setter
+    def text(self, value):
+        self._text = value
+        self.set_text.emit(value)
+
+
 class MultiProgressDialog(QDialog):
-    class ProgressBarReporter(ProgressReporter, QtCore.QObject):
-        set_maximum = QtCore.Signal(int)
-        set_value = QtCore.Signal(int)
-        set_text = QtCore.Signal(str)
-
-        def __init__(self, parent=None, *args, **kwargs):
-            ProgressReporter.__init__(self, *args, **kwargs)
-            QtCore.QObject.__init__(self, parent)
-
-            self.__progress_bar = None
-            self._text = "%p%"
-
-        @property
-        def progress_bar(self):
-            return self.__progress_bar
-
-        @progress_bar.setter
-        def progress_bar(self, widget):
-            self.__progress_bar = widget
-
-            self.set_maximum.connect(self.__progress_bar.setMaximum)
-            self.set_value.connect(self.__progress_bar.setValue)
-            self.set_text.connect(self.__progress_bar.setFormat)
-
-            self.__progress_bar.setMaximum(self._maximum)
-            self.__progress_bar.setValue(self._value)
-            self.__progress_bar.setFormat(self._text)
-
-        @ProgressReporter.maximum.setter
-        def maximum(self, value):
-            ProgressReporter.maximum.fset(self, value)
-            self.set_maximum.emit(value)
-
-        @ProgressReporter.value.setter
-        def value(self, value):
-            ProgressReporter.value.fset(self, value)
-            self.set_value.emit(value)
-
-        @property
-        def text(self):
-            return self._text
-
-        @text.setter
-        def text(self, value):
-            self._text = value
-            self.set_text.emit(value)
-
     reporter_created = QtCore.Signal(ProgressBarReporter)
     cancel_request = QtCore.Signal()
     completed = QtCore.Signal()
@@ -81,7 +82,7 @@ class MultiProgressDialog(QDialog):
         self.progress_bar_container_widget.setVisible(False)
         self.progress_bar_divider_line.setVisible(False)
 
-        self.__main_reporter = MultiProgressDialog.ProgressBarReporter()
+        self.__main_reporter = ProgressBarReporter()
         self.__main_reporter.progress_bar = self.main_progress_bar
         self.__reporter_map = {}
         self.__progress_log_model = QStandardItemModel()
@@ -133,7 +134,7 @@ class MultiProgressDialog(QDialog):
             self.progress_bar_divider_line.setVisible(False)
 
     def __bind_reporter_created(self):
-        @helpers.make_slot(MultiProgressDialog.ProgressBarReporter)
+        @helpers.make_slot(ProgressBarReporter)
         @helpers.connect_slot(self.reporter_created)
         def __on_reporter_created(reporter):
             initial_geometry = self.geometry()
@@ -179,7 +180,7 @@ class MultiProgressDialog(QDialog):
         self.__progress_log_model.appendRow(QStandardItem(message))
 
     def reporter(self):
-        progress_reporter = MultiProgressDialog.ProgressBarReporter(callback=self.__reporter_done_callback)
+        progress_reporter = ProgressBarReporter(callback=self.__reporter_done_callback)
         self.__reporter_map[progress_reporter] = None
 
         self.reporter_created.emit(progress_reporter)
