@@ -31,12 +31,13 @@ TQDM_OPTIONS = {
 
 
 class ModpackBuilder:
-    def __init__(self, meta, mc_dir, client=True, concurrent_requests=8, concurrent_downloads=8):
+    def __init__(self, meta, mc_dir, client=True, concurrent_requests=8, concurrent_downloads=8, stdout=sys.stdout):
         self.meta = meta
         self.mc_dir = Path(mc_dir)
         self.client = client
         self.concurrent_requests = concurrent_requests
         self.concurrent_downloads = concurrent_downloads
+        self.stdout = stdout
 
         if self.client:
             self.profile_dir = self.mc_dir / "profiles" / self.meta["profile_id"]
@@ -94,7 +95,7 @@ class ModpackBuilder:
             self.create_modlist()
 
     def load_modlist(self):
-        print("Loading modlist indormation...")
+        print("Loading modlist indormation...", file=self.stdout)
 
         with open(self.modlist_path, "r") as file:
             self.modlist = json.load(file)
@@ -104,7 +105,7 @@ class ModpackBuilder:
         key = "client" if client else "server"
 
         with ThreadPoolExecutor(max_workers=self.concurrent_requests) as executor:
-            print(f"Fetching modlist information for {key} mods...")
+            print(f"Fetching modlist information for {key} mods...", file=self.stdout)
 
             futures_map = {}
             
@@ -151,7 +152,7 @@ class ModpackBuilder:
         if self.client:
             self.modlist = {**self.modlist, **self._create_modlist(client=True)}
 
-        print("Dumping modlist information...")
+        print("Dumping modlist information...", file=self.stdout)
 
         self.profile_dir.mkdir(parents=True, exist_ok=True)
 
@@ -159,7 +160,7 @@ class ModpackBuilder:
             json.dump(self.modlist, file, indent=2)
 
     def clean_mods(self):
-        print("Cleaning mod directory of unlisted files...")
+        print("Cleaning mod directory of unlisted files...", file=self.stdout)
         file_names = [mod_info["file_name"] for mod_info in self.modlist.values()]
 
         for file_path in self.mods_dir.glob("*.jar"):
@@ -167,7 +168,7 @@ class ModpackBuilder:
                 continue
 
             if file_path.name not in file_names:
-                print(f"Removing unlisted mod file: {file_path.name}")
+                print(f"Removing unlisted mod file: {file_path.name}", file=self.stdout)
 
                 file_path.unlink()
 
@@ -175,7 +176,7 @@ class ModpackBuilder:
         if not self.modlist:
             self._fetch_modlist()
 
-        print("Checking for existing mod files...")
+        print("Checking for existing mod files...", file=self.stdout)
 
         download_mods = []
 
@@ -183,7 +184,7 @@ class ModpackBuilder:
             mod_path = self.mods_dir / mod_info["file_name"]
 
             if mod_path.exists() and mod_path.is_file():
-                print(f"Found existing mod file: {mod_info['file_name']}")
+                print(f"Found existing mod file: {mod_info['file_name']}", file=self.stdout)
                 continue
 
             download_mods.append(mod_info)
@@ -193,7 +194,7 @@ class ModpackBuilder:
             initializer=tqdm.set_lock,
             initargs=(tqdm.get_lock(),)
         ) as executor:
-            print("Downloading missing mod files...")
+            print("Downloading missing mod files...", file=self.stdout)
 
             self.mods_dir.mkdir(parents=True, exist_ok=True)
 
@@ -225,12 +226,12 @@ class ModpackBuilder:
 
             if dest_path.exists():
                 if overwrite:
-                    print(f"Overwriting external file: {file_path}")
+                    print(f"Overwriting external file: {file_path}", file=self.stdout)
                 else:
-                    print(f"Skipping existing external file: {file_path}")
+                    print(f"Skipping existing external file: {file_path}", file=self.stdout)
                     continue  # Skip to the next without overwriting the current file
             else:
-                print(f"Copying external file: {file_path}")
+                print(f"Copying external file: {file_path}", file=self.stdout)
 
             dest_path.parent.mkdir(parents=True, exist_ok=True)  # Ensure that the parents dirs of the file exist
             shutil.copyfile(file_path, dest_path)
@@ -238,7 +239,7 @@ class ModpackBuilder:
     def install_externals(self, update=False):
         log_verb = "Updating" if update else "Installing"
 
-        print(f"{log_verb} external files for server...")
+        print(f"{log_verb} external files for server...", file=self.stdout)
 
         # Install overwritable external server files and maybe overwrite existing
         self._install_externals(self.meta["server"]["external_files"]["overwrite"], overwrite=update)
@@ -247,7 +248,7 @@ class ModpackBuilder:
 
         if self.client:
             if not update:
-                print(f"{log_verb} external files for client...")
+                print(f"{log_verb} external files for client...", file=self.stdout)
 
             # Install overwritable external client files and maybe overwrite existing
             self._install_externals(self.meta["client"]["external_files"]["overwrite"], overwrite=update)
@@ -263,13 +264,13 @@ class ModpackBuilder:
         self.install_externals(update=True)
 
     def install_runtime(self):
-        print("Downloading Java runtime...")
+        print("Downloading Java runtime...", file=self.stdout)
 
         file_url = self.meta["java_download"][{"win32": "win", "darwin": "mac"}.get(sys.platform, sys.platform)]
         file_name = file_url.rsplit("/", 1)[1]
         utilities.download_as_stream(file_url, file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
-        print("Extracting Java runtime...")
+        print("Extracting Java runtime...", file=self.stdout)
 
         with ZipFile(file_name) as java_zip:
             java_zip.extractall(self.runtime_dir)
@@ -280,7 +281,7 @@ class ModpackBuilder:
         java_path = next(self.runtime_dir.glob("**/bin/javaw*"), None)
 
         if java_path:
-            print(f"Java runtime already installed: {java_path.relative_to(self.runtime_dir)}")
+            print(f"Java runtime already installed: {java_path.relative_to(self.runtime_dir)}", file=self.stdout)
             self.java_path = Path(java_path)
             return
 
@@ -290,18 +291,18 @@ class ModpackBuilder:
         if not self.java_path:
             self._fetch_runtime()
 
-        print("Downloading Minecraft Forge installer...")
+        print("Downloading Minecraft Forge installer...", file=self.stdout)
 
         file_name = self.meta["forge_download"].rsplit("/", 1)[1]
         utilities.download_as_stream(self.meta["forge_download"], file_name, tracker=TqdmTracker(desc=file_name, **TQDM_OPTIONS))
 
-        print(f"Executing Minecraft Forge installer: {file_name}")
+        print(f"Executing Minecraft Forge installer: {file_name}", file=self.stdout)
 
         subprocess.run([str(self.java_path), "-jar", file_name], stdout=subprocess.DEVNULL)
 
     def _fetch_forge(self):
         if self.version_dir.exists() and self.version_dir.is_dir():
-            print(f"Forge version already installed: {self.meta['version_label']}")
+            print(f"Forge version already installed: {self.meta['version_label']}", file=self.stdout)
             return
 
         self.install_forge()
@@ -314,12 +315,12 @@ class ModpackBuilder:
 
         if self.profile_id in profiles["profiles"]:
             if update:
-                print(f"Updating launcher profile: {self.profile_id}")
+                print(f"Updating launcher profile: {self.profile_id}", file=self.stdout)
             else:
-                print(f"Launcher profile already exists: {self.profile_id}")
+                print(f"Launcher profile already exists: {self.profile_id}", file=self.stdout)
                 return
         else:
-            print("Installing launcher profile...")
+            print("Installing launcher profile...", file=self.stdout)
         
         utc_now = str(arrow.utcnow()).replace("+00:00", "Z")
 
@@ -335,7 +336,7 @@ class ModpackBuilder:
             "type": "custom"
         }
 
-        print(f"Setting selected launcher profile: {self.profile_id}")
+        print(f"Setting selected launcher profile: {self.profile_id}", file=self.stdout)
         
         profiles["selectedUser"]["profile"] = self.profile_id
 
@@ -347,7 +348,7 @@ class ModpackBuilder:
 
     def remove_profile(self):
         self.profile_id = utilities.get_profile_id(self.profile_id_file)
-        print(f"Uninstalling launcher profile: {self.profile_id}")
+        print(f"Uninstalling launcher profile: {self.profile_id}", file=self.stdout)
 
         with open(self.profiles_file, "r") as file:
             profiles = json.load(file)
@@ -356,7 +357,7 @@ class ModpackBuilder:
 
         selected_profile = next(iter(profiles["profiles"]))
 
-        print(f"Setting selected launcher profile: {selected_profile}")
+        print(f"Setting selected launcher profile: {selected_profile}", file=self.stdout)
         profiles["selectedUser"]["profile"] = selected_profile
 
         with open(self.profiles_file, "w") as file:
@@ -366,9 +367,9 @@ class ModpackBuilder:
         try:
             self.remove_profile()
         except KeyError:
-            print(f"Launcher profile not found: {self.profile_id}")
+            print(f"Launcher profile not found: {self.profile_id}", file=self.stdout)
 
-        print("Removing modpack files...")
+        print("Removing modpack files...", file=self.stdout)
 
         directories = []
 
@@ -377,12 +378,12 @@ class ModpackBuilder:
                 directories.append(path)
                 continue
 
-            print(f"Deleting file: {path.relative_to(self.profile_dir)}")
+            print(f"Deleting file: {path.relative_to(self.profile_dir)}", file=self.stdout)
             path.unlink()
 
         for path in reversed(directories):
-            print(f"Deleting directory: {path.relative_to(self.profile_dir)}")
+            print(f"Deleting directory: {path.relative_to(self.profile_dir)}", file=self.stdout)
             path.rmdir()
 
-        print("Deleting profile directory...")
+        print("Deleting profile directory...", file=self.stdout)
         self.profile_dir.rmdir()
