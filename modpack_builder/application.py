@@ -17,7 +17,6 @@ from qtpy import uic
 
 from . import helpers
 
-from .helpers import ProgressReporter
 from .builder2 import ModpackBuilder
 from .multi_progress_dialog import MultiProgressDialog
 
@@ -60,13 +59,13 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot(float)
         @helpers.connect_slot(self.allocated_memory_spin_box.valueChanged)
         def __on_allocated_memory_spin_box_value_changed(value):
-            self.allocated_memory_slider.setValue(value * 2)
+            self.allocated_memory_slider.setValue(int(value * 2))
             self.builder.java_runtime_memory = value * 1024
 
         @helpers.make_slot(int)
         @helpers.connect_slot(self.allocated_memory_slider.valueChanged)
         def __on_allocated_memory_slider_value_changed(value):
-            self.allocated_memory_spin_box.setValue(value / 2)
+            self.allocated_memory_spin_box.setValue(int(value / 2))
 
         @helpers.make_slot(int)
         @helpers.connect_slot(self.concurrent_requests_spin_box.valueChanged)
@@ -102,6 +101,7 @@ class ModpackBuilderWindow(QMainWindow):
             ).resolve()
 
             self.modpack_package_line_edit.setText(str(modpack_package_path))
+            self.__load_package(modpack_package_path)
 
 
         @helpers.make_slot()
@@ -164,8 +164,36 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.__should_reset_profile_icon_path = True
 
+    def __load_package(self, path):
+        progress_dialog = MultiProgressDialog(parent=self)
+
+        progress_dialog.setWindowTitle("Extracting Modpack Package")
+        progress_dialog.main_reporter.text = f"Extracting {path.name}: %p%"
+
+        self.builder.set_reporter(progress_dialog.main_reporter)
+        self.builder.set_logger(progress_dialog.log)
+
+        @helpers.make_slot()
+        @helpers.connect_slot(progress_dialog.completed)
+        def __on_progress_dialog_completed():
+            self.__load_values_from_builder()
+            progress_dialog.close()
+
+        @helpers.make_thread(daemon=True)
+        def __builder_load_package_thread():
+            self.builder.load_package(path)
+            progress_dialog.completed.emit()
+
+        # @helpers.make_slot()
+        # @helpers.connect_slot(progress_dialog.cancel_request)
+        # def __on_cancel_request():
+        #     progress_dialog.completed.emit()
+
+        progress_dialog.show()
+        __builder_load_package_thread.start()
+
     def __load_values_from_builder(self):
-        # self.show_information_markdown((Path(__file__).parent.parent / "modpack/README.md").resolve())
+        self.show_information_markdown(self.builder.modpack_readme_path)
 
         # Set the value for concurrent requests and downloads spin boxes
         self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
@@ -176,11 +204,11 @@ class ModpackBuilderWindow(QMainWindow):
         self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
         self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
 
-    def show_information_markdown(self, readme_path):
+    def show_information_markdown(self, path):
         with open((Path(__file__).parent / "markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
             markdown_css = markdown_css_file.read()
 
-        with open(readme_path, "r", encoding="utf-8") as readme_file:
+        with open(path, "r", encoding="utf-8") as readme_file:
             readme_markdown = readme_file.read()
 
         readme_html = markdown2.markdown(
