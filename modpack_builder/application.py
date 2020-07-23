@@ -193,7 +193,8 @@ class ModpackBuilderWindow(QMainWindow):
         __builder_load_package_thread.start()
 
     def __load_values_from_builder(self):
-        self.show_information_markdown(self.builder.modpack_readme_path)
+        if self.builder.modpack_readme_path:
+            self.show_information_markdown(self.builder.modpack_readme_path)
 
         # Set the value for concurrent requests and downloads spin boxes
         self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
@@ -205,7 +206,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
 
     def show_information_markdown(self, path):
-        with open((Path(__file__).parent / "markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
+        with open((Path(__file__).parent / "ui/markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
             markdown_css = markdown_css_file.read()
 
         with open(path, "r", encoding="utf-8") as readme_file:
