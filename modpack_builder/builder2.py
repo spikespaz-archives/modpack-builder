@@ -102,7 +102,7 @@ class ModpackManifest:
 class ModpackBuilder:
     _max_concurrent_requests = 16
     _max_concurrent_downloads = 16
-    _max_recommended_java_runtime_memory = 8
+    _max_recommended_memory = 8
     _markdown_file_extensions = (".txt", ".md", ".mkd", ".mkdn", ".mdown", ".markdown")
 
     def __init__(self):
@@ -128,6 +128,9 @@ class ModpackBuilder:
         self.minecraft_launcher_path = self._get_minecraft_launcher_path()
 
         self.profile_directory = None
+
+        self.client_allocated_memory = self._get_recommended_memory()
+        self.server_allocated_memory = self._get_recommended_memory(maximum=0)
 
     def __del__(self):
         self.__temporary_directory.cleanup()
@@ -179,6 +182,9 @@ class ModpackBuilder:
         with open(self.__package_contents_directory / "manifest.json", "r") as manifest_file:
             self.manifest = ModpackManifest(json.load(manifest_file))
 
+        if self.minecraft_directory:
+            self.profile_directory = self.minecraft_directory / "profiles" / self.manifest.profile_id
+
         for file_path in self.__package_contents_directory.iterdir():
             if not file_path.is_file() or not file_path.suffix:
                 continue
@@ -212,19 +218,21 @@ class ModpackBuilder:
         return math.ceil(psutil.virtual_memory().total / 1024 / 1024 / 1024)
 
     @staticmethod
-    def _get_max_recommended_memory():
+    def _get_maximum_memory():
         return ModpackBuilder._get_system_memory() - 1
 
     @staticmethod
-    def _get_recommended_memory():
+    def _get_recommended_memory(maximum=_max_recommended_memory):
         system_memory = ModpackBuilder._get_system_memory()
 
         if system_memory == 4:
             return 3
         elif system_memory < 8:
             return system_memory - 2
+        elif maximum:
+            return min(system_memory / 2, maximum)
         else:
-            return min(system_memory / 2, ModpackBuilder._max_recommended_java_runtime_memory)
+            return system_memory / 2
 
     @staticmethod
     def _get_default_minecraft_directory():
@@ -266,8 +274,10 @@ class ModpackBuilder:
 
             import winreg
 
-            user_shell_folders_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER,
-                                                    "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders")
+            user_shell_folders_key = winreg.OpenKey(
+                winreg.HKEY_CURRENT_USER,
+                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders"
+            )
             programs_directory = Path(os.path.expandvars(winreg.QueryValueEx(user_shell_folders_key, "Programs")[0]))
             user_shell_folders_key.Close()
 

@@ -51,8 +51,11 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
 
-        self.__bind_spin_boxes_and_sliders()
+        self.__loading_priority_item_model = QStandardItemModel()
+        self.loading_priority_list_view.setModel(self.__loading_priority_item_model)
+
         self.__set_spin_box_and_slider_ranges()
+        self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
 
     def __bind_spin_boxes_and_sliders(self):
@@ -193,17 +196,64 @@ class ModpackBuilderWindow(QMainWindow):
         __builder_load_package_thread.start()
 
     def __load_values_from_builder(self):
+        # *** Information ***
+
         if self.builder.readme_path:
             self.show_information_markdown(self.builder.readme_path)
+
+        # *** Profile Options ***
+
+        if self.builder.manifest.profile_name:
+            self.profile_name_line_edit.setText(self.builder.manifest.profile_name)
+
+        if self.builder.profile_directory:
+            self.profile_directory_line_edit.setText(str(self.builder.profile_directory))
+
+        if self.builder.manifest.profile_id:
+            self.profile_id_line_edit.setText(self.builder.manifest.profile_id)
+
+        if self.builder.manifest.version_label:
+            if self.version_label_combo_box.findText(self.builder.manifest.version_label) == -1:
+                self.version_label_combo_box.addItem(self.builder.manifest.version_label)
+
+            self.version_label_combo_box.setCurrentText(self.builder.manifest.version_label)
+
+        if self.builder.manifest.profile_icon:
+            self.profile_icon_base64_line_edit.setText(self.builder.manifest.profile_icon)
+
+        # ***CurseForge Mods***
+
+        # ***External Mods***
+
+        # ***Loading Priority***
+
+        for identifier in self.builder.manifest.load_priority:
+            self.__loading_priority_item_model.appendRow(QStandardItem(identifier))
+
+        # ***Minecraft Forge***
+
+        # ***Java Runtime***
+
+        print(self.builder.client_allocated_memory)
+        self.client_allocated_memory_spin_box.setValue(self.builder.client_allocated_memory)
+        self.server_allocated_memory_spin_box.setValue(self.builder.server_allocated_memory)
+
+        self.client_jvm_arguments_text_edit.setPlainText(self.builder.manifest.client_java_args)
+        self.server_jvm_arguments_text_edit.setPlainText(self.builder.manifest.server_java_args)
+
+        # ***External Resources***
+
+        # *** Application Settings ***
+
+        if self.builder.minecraft_directory:
+            self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
+
+        if self.builder.minecraft_launcher_path:
+            self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
 
         # Set the value for concurrent requests and downloads spin boxes
         self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
         self.concurrent_downloads_spin_box.setValue(self.builder.concurrent_downloads)
-
-        # Set default values
-        self.allocated_memory_spin_box.setValue(self.builder.java_runtime_memory)
-        self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
-        self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
 
     def show_information_markdown(self, path):
         with open((Path(__file__).parent / "ui/markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
