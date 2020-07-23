@@ -136,6 +136,17 @@ class ModpackBuilderWindow(QMainWindow):
                 self.profile_icon_base64_line_edit.setText(base64.b64encode(image.read()).decode())
 
         @helpers.make_slot()
+        @helpers.connect_slot(self.profile_directory_select_button.clicked)
+        def __on_profile_directory_select_button_clicked():
+            minecraft_directory = helpers.pick_directory(
+                parent=self,
+                title="Select Launcher Profile Directory",
+                path=Path(self.profile_directory_line_edit.text())
+            ).resolve()
+
+            self.profile_directory_line_edit.setText(str(minecraft_directory))
+
+        @helpers.make_slot()
         @helpers.connect_slot(self.minecraft_directory_select_button.clicked)
         def __on_minecraft_directory_select_button_clicked():
             minecraft_directory = helpers.pick_directory(
