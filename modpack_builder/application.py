@@ -11,7 +11,7 @@ os.environ["QT_API"] = "pyqt5"
 
 from qtpy.QtWidgets import QApplication, QMainWindow
 from qtpy.QtWebEngineWidgets import QWebEnginePage
-from qtpy.QtGui import QDesktopServices, QPixmap
+from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem
 from qtpy import QtCore
 from qtpy import uic
 
