@@ -62,7 +62,11 @@ class ModpackBuilder:
             if self.__exit:
                 return
 
-            return target(*args, **kwargs)
+            try:
+                return target(*args, **kwargs)
+            except Exception as exception:
+                self.stop()
+                raise exception
 
         return __wrapper
 
