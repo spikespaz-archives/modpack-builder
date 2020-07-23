@@ -15,7 +15,7 @@ from qtpy import uic
 
 from . import helpers
 
-from .builder2 import ModpackBuilder
+from .builder import ModpackBuilder
 from .multi_progress_dialog import MultiProgressDialog
 
 

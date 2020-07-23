@@ -11,7 +11,7 @@ from qtpy import uic
 
 from . import helpers
 
-from .builder2 import ProgressReporter
+from .builder import ProgressReporter
 
 
 class ProgressBarReporter(ProgressReporter, QtCore.QObject):
