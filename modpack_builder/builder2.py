@@ -94,7 +94,7 @@ class ModpackBuilder:
     def dump_manifest(self):
         pass
 
-    def load_package(self, path):
+    def extract_package(self, path):
         self.__logger("Reading package contents: " + path.name)
 
         with ZipFile(path, "r") as package_zip:
@@ -109,25 +109,26 @@ class ModpackBuilder:
 
                 package_zip.extract(member_info, self.__package_contents_path)
 
-            self.__logger("Loading package manifest...")
-
-            with open(self.__package_contents_path / "manifest.json", "r") as manifest_file:
-                self.manifest_json = json.load(manifest_file)
-
-            for file_path in self.__package_contents_path.iterdir():
-                if not file_path.is_file() or not file_path.suffix:
-                    continue
-
-                file_name, file_extension = file_path.name.rsplit(".", 1)
-
-                if file_name.lower() == "readme" and file_extension.lower() in self._markdown_file_extensions:
-                    self.__logger(f"Found README file: {file_path.name}")
-                    self.modpack_readme_path = file_path
-            else:
-                self.__logger("No README file found in package!")
-
             self.__logger("Done extracting package.")
             self.__reporter.done()
+
+    def load_package(self, path):
+        self.extract_package(path)
+
+        self.__logger("Loading package manifest...")
+
+        with open(self.__package_contents_path / "manifest.json", "r") as manifest_file:
+            self.manifest_json = json.load(manifest_file)
+
+        for file_path in self.__package_contents_path.iterdir():
+            if not file_path.is_file() or not file_path.suffix:
+                continue
+
+            if file_path.stem.lower() == "readme" and file_path.suffix.lower() in self._markdown_file_extensions:
+                self.__logger(f"Found README file: {file_path.name}")
+                self.modpack_readme_path = file_path
+        else:
+            self.__logger("No README file found in package!")
 
     def export_package(self):
         pass
