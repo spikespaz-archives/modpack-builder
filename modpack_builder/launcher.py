@@ -57,6 +57,10 @@ ARGUMENTS = {
         "action": "store",
         "type": Path
     },
+    "zipurl": {
+        "flags": ("-u", "--url", "--zipurl"),
+        "action": "store"
+    },
     "concurrent_requests": {
         "flags": "--concurrent-requests",
         "action": "store",
@@ -95,6 +99,11 @@ def main(argv):
             raise ArgumentError("If server mode is specified the destination must also be specified")
         else:
             args.destination = Path(os.getenv("appdata")) / ".minecraft"
+
+    if args.zipurl:
+        print("Downloading modpack package...")
+        utilities.download_as_stream(args.zipurl, "modpack.zip", tracker=utilities.TqdmTracker(**builder.TQDM_OPTIONS))
+        args.zipfile = Path("modpack.zip")
 
     args.destination = args.destination.resolve()
     args.zipfile = args.zipfile.resolve()
