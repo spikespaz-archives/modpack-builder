@@ -93,6 +93,14 @@ class MultiProgressDialog(QDialog):
         self.__bind_auto_scroll_handlers()
         self.__bind_reporter_created()
 
+    def __getattr__(self, name):
+        if name == "main_reporter":
+            return self.__main_reporter
+        elif name == "cancel_requested":
+            return self.__cancel_requested
+        else:
+            return super().__getattr__(name)
+
     def __bind_cancel_request_and_completed(self):
         @helpers.make_slot()
         @helpers.connect_slot(self.cancel_request)
@@ -185,14 +193,6 @@ class MultiProgressDialog(QDialog):
         self.reporter_created.emit(progress_reporter)
 
         return progress_reporter
-
-    @property
-    def main_reporter(self):
-        return self.__main_reporter
-
-    @property
-    def cancel_requested(self):
-        return self.__cancel_requested
 
 
 if __name__ == "__main__":

@@ -135,11 +135,13 @@ class ModpackBuilder:
     def __del__(self):
         self.__temporary_directory.cleanup()
 
-    def set_logger(self, logger):
-        self.__logger = logger
-
-    def set_reporter(self, reporter):
-        self.__reporter = reporter
+    def __setattr__(self, name, value):
+        if name == "logger":
+            self.__logger = value
+        elif name == "reporter":
+            self.__reporter = value
+        else:
+            super().__setattr__(name, value)
 
     def install_modpack(self):
         pass

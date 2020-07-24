@@ -230,8 +230,8 @@ class ModpackBuilderWindow(QMainWindow):
         progress_dialog.setWindowTitle("Extracting Modpack Package")
         progress_dialog.main_reporter.text = f"Extracting {path.name}: %p%"
 
-        self.builder.set_reporter(progress_dialog.main_reporter)
-        self.builder.set_logger(progress_dialog.log)
+        self.builder.reporter = progress_dialog.main_reporter
+        self.builder.logger = progress_dialog.log
 
         @helpers.make_slot()
         @helpers.connect_slot(progress_dialog.completed)
