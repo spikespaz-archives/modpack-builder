@@ -239,6 +239,16 @@ class ModpackBuilderWindow(QMainWindow):
         # ***Java Runtime***
 
         @helpers.make_slot(str)
+        @helpers.connect_slot(self.client_jvm_arguments_text_edit.textChanged)
+        def __on_client_jvm_arguments_text_edit_text_changed(text):
+            self.builder.manifest.client_java_args = " ".join(shlex.split(text))
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.server_jvm_arguments_text_edit.textChanged)
+        def __on_server_jvm_arguments_text_edit_text_changed(text):
+            self.builder.manifest.server_java_args = " ".join(shlex.split(text))
+
+        @helpers.make_slot(str)
         @helpers.connect_slot(self.java_download_url_mac_line_edit.textChanged)
         def __on_java_download_url_mac_line_edit_text_changed(text):
             self.builder.manifest.java_downloads.darwin = text
