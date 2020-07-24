@@ -3,12 +3,13 @@ import math
 import json
 import psutil
 import platform
-import collections
 
 from enum import Enum
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
+
+import recordclass
 
 from .helpers import ProgressReporter
 
@@ -25,10 +26,10 @@ class ReleaseType(Enum):
 class ModpackManifest:
     __curseforge_mod_url = "https://www.curseforge.com/minecraft/mc-mods/{}"
 
-    JavaDownloads = collections.namedtuple("JavaDownloads", ("windows", "darwin", "linux"))
-    ExternalFile = collections.namedtuple("ExternalFile", ("pattern", "immutable"))
-    ExternalMod = collections.namedtuple("ExternalMod", ("identifier", "name", "version", "url", "server"))
-    CurseForgeMod = collections.namedtuple("CurseForgeMod", ("identifier", "url", "server"))
+    JavaDownloads = recordclass.recordclass("JavaDownloads", ("windows", "darwin", "linux"))
+    ExternalFile = recordclass.recordclass("ExternalFile", ("pattern", "immutable"), hashable=True)
+    ExternalMod = recordclass.recordclass("ExternalMod", ("identifier", "name", "version", "url", "server"), hashable=True)
+    CurseForgeMod = recordclass.recordclass("CurseForgeMod", ("identifier", "url", "server"), hashable=True)
 
     def __init__(self, data):
         self.profile_name = data.get("profile_name")
