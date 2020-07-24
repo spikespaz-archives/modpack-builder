@@ -178,6 +178,10 @@ class ModpackBuilderWindow(QMainWindow):
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
 
     def __bind_synchronized_line_edits(self):
+        # *** Information ***
+
+        # *** Profile Options ***
+
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_name_line_edit.textChanged)
         def __on_profile_name_line_edit_text_changed(text):
@@ -223,6 +227,35 @@ class ModpackBuilderWindow(QMainWindow):
                 self.profile_icon_path_line_edit.setText("")
 
             self.__should_reset_profile_icon_path = True
+
+        # ***CurseForge Mods***
+
+        # ***External Mods***
+
+        # ***Loading Priority***
+
+        # ***Minecraft Forge***
+
+        # ***Java Runtime***
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.java_download_url_mac_line_edit.textChanged)
+        def __on_java_download_url_mac_line_edit_text_changed(text):
+            self.builder.manifest.java_downloads.darwin = text
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.java_download_url_linux_line_edit.textChanged)
+        def __on_java_download_url_linux_line_edit_text_changed(text):
+            self.builder.manifest.java_downloads.linux = text
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.java_download_url_windows_line_edit.textChanged)
+        def __on_java_download_url_windows_line_edit_text_changed(text):
+            self.builder.manifest.java_downloads.windows = text
+
+        # ***External Resources***
+
+        # *** Application Settings ***
 
     def __load_package(self, path):
         progress_dialog = MultiProgressDialog(parent=self)
