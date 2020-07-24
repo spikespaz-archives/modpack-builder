@@ -614,36 +614,36 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="download_urls_group_box">
+         <widget class="QGroupBox" name="java_download_urls_group_box">
           <property name="title">
            <string>Download URLs</string>
           </property>
           <layout class="QFormLayout" name="formLayout_2">
            <item row="0" column="0">
-            <widget class="QLabel" name="download_urls_mac_label">
+            <widget class="QLabel" name="java_download_url_mac_label">
              <property name="text">
               <string>Mac</string>
              </property>
             </widget>
            </item>
            <item row="0" column="1">
-            <widget class="QLineEdit" name="download_urls_mac_line_edit"/>
+            <widget class="QLineEdit" name="java_download_url_mac_line_edit"/>
            </item>
            <item row="1" column="0">
-            <widget class="QLabel" name="download_urls_linux_label">
+            <widget class="QLabel" name="java_download_url_linux_label">
              <property name="text">
               <string>Linux</string>
              </property>
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QLineEdit" name="download_urls_linux_line_edit"/>
+            <widget class="QLineEdit" name="java_download_url_linux_line_edit"/>
            </item>
            <item row="2" column="1">
-            <widget class="QLineEdit" name="download_urls_windows_line_edit"/>
+            <widget class="QLineEdit" name="java_download_url_windows_line_edit"/>
            </item>
            <item row="2" column="0">
-            <widget class="QLabel" name="download_urls_windows_label">
+            <widget class="QLabel" name="java_download_url_windows_label">
              <property name="text">
               <string>Windows</string>
              </property>

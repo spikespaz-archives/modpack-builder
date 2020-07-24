@@ -301,6 +301,10 @@ class ModpackBuilderWindow(QMainWindow):
             "    ".join(shlex.split(self.builder.manifest.server_java_args))
         )
 
+        self.java_download_url_mac_line_edit.setText(self.builder.manifest.java_downloads.darwin)
+        self.java_download_url_linux_line_edit.setText(self.builder.manifest.java_downloads.linux)
+        self.java_download_url_windows_line_edit.setText(self.builder.manifest.java_downloads.windows)
+
         # ***External Resources***
 
         # *** Application Settings ***

@@ -25,7 +25,7 @@ class ReleaseType(Enum):
 class ModpackManifest:
     __curseforge_mod_url = "https://www.curseforge.com/minecraft/mc-mods/{}"
 
-    JavaDownloads = collections.namedtuple("JavaDownloads", ("win", "mac", "linux"))
+    JavaDownloads = collections.namedtuple("JavaDownloads", ("windows", "darwin", "linux"))
     ExternalFile = collections.namedtuple("ExternalFile", ("pattern", "immutable"))
     ExternalMod = collections.namedtuple("ExternalMod", ("identifier", "name", "version", "url", "server"))
     CurseForgeMod = collections.namedtuple("CurseForgeMod", ("identifier", "url", "server"))
