@@ -1,5 +1,5 @@
 import os
-import sys
+import shlex
 import base64
 import binascii
 
@@ -291,12 +291,15 @@ class ModpackBuilderWindow(QMainWindow):
 
         # ***Java Runtime***
 
-        print(self.builder.client_allocated_memory)
         self.client_allocated_memory_spin_box.setValue(self.builder.client_allocated_memory)
         self.server_allocated_memory_spin_box.setValue(self.builder.server_allocated_memory)
 
-        self.client_jvm_arguments_text_edit.setPlainText(self.builder.manifest.client_java_args)
-        self.server_jvm_arguments_text_edit.setPlainText(self.builder.manifest.server_java_args)
+        self.client_jvm_arguments_text_edit.setPlainText(
+            "    ".join(shlex.split(self.builder.manifest.client_java_args))
+        )
+        self.server_jvm_arguments_text_edit.setPlainText(
+            "    ".join(shlex.split(self.builder.manifest.server_java_args))
+        )
 
         # ***External Resources***
 
