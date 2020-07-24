@@ -7,7 +7,7 @@ from pathlib import Path
 
 import markdown2
 
-from qtpy.QtWidgets import QApplication, QMainWindow
+from qtpy.QtWidgets import QMainWindow, QLabel
 from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem
 from qtpy import QtCore
@@ -41,6 +41,14 @@ class ModpackBuilderWindow(QMainWindow):
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":
             self.setContentsMargins(9, 9, 9, 9)
+
+        # Fix for the lack of a widthForHeight method of QWidget
+        def __on_profile_icon_image_label_resize_event(event):
+            self.profile_icon_image_label.setMinimumWidth(event.size().height())
+            self.profile_icon_image_label.setMaximumWidth(event.size().height())
+            QLabel.resizeEvent(self.profile_icon_image_label, event)
+
+        self.profile_icon_image_label.resizeEvent = __on_profile_icon_image_label_resize_event
 
         # Set up the QWebEngineView for the markdown information view
         self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
