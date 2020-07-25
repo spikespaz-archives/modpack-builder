@@ -122,7 +122,7 @@ class ModpackBuilder:
 
         self.temporary_directory = Path(self.__temporary_directory.name)
 
-        self.__package_contents_directory = self.temporary_directory / "extracted_package"
+        self.__package_contents_directory = self.temporary_directory / "extracted"
         self.__package_contents_directory.mkdir()
 
         self.concurrent_requests = 8
