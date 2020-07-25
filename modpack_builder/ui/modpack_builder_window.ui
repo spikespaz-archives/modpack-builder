@@ -35,24 +35,6 @@
          </item>
         </layout>
        </item>
-       <item>
-        <layout class="QHBoxLayout" name="main_options_layout">
-         <item>
-          <widget class="QPushButton" name="install_modpack_button">
-           <property name="text">
-            <string>Install Modpack</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QPushButton" name="update_modpack_button">
-           <property name="text">
-            <string>Update Modpack</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
       </layout>
      </widget>
     </item>
@@ -210,6 +192,13 @@
            </size>
           </property>
          </spacer>
+        </item>
+        <item>
+         <widget class="QPushButton" name="update_profile_button">
+          <property name="text">
+           <string>Update Profile</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -777,7 +766,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="groupBox">
+         <widget class="QGroupBox" name="concurrent_downloads_group_box">
           <property name="title">
            <string>Concurrent Downloads</string>
           </property>
@@ -828,9 +817,16 @@
     <item>
      <layout class="QHBoxLayout" name="advanced_actions_layout">
       <item>
-       <widget class="QPushButton" name="update_profile_button">
+       <widget class="QPushButton" name="install_or_update_client_button">
         <property name="text">
-         <string>Update Profile</string>
+         <string>Install Client</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="install_or_update_server_button">
+        <property name="text">
+         <string>Install Server</string>
         </property>
        </widget>
       </item>
@@ -845,13 +841,6 @@
        <widget class="QPushButton" name="export_package_button">
         <property name="text">
          <string>Export Package</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="install_server_button">
-        <property name="text">
-         <string>Install Server</string>
         </property>
        </widget>
       </item>
