@@ -279,6 +279,21 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** Application Settings ***
 
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.minecraft_directory_line_edit.textChanged)
+        def __on_minecraft_directory_line_edit_text_changed(text):
+            self.builder.minecraft_directory = Path(text)
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.profiles_directory_line_edit.textChanged)
+        def __on_profiles_directory_line_edit_text_changed(text):
+            self.builder.profiles_directory = Path(text)
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.minecraft_launcher_line_edit.textChanged)
+        def __on_minecraft_launcher_line_edit_text_changed(text):
+            self.builder.minecraft_launcher_path = Path(text)
+
     def __load_package(self, path):
         progress_dialog = MultiProgressDialog(parent=self)
 
