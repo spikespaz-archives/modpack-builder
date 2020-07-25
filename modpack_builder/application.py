@@ -162,17 +162,6 @@ class ModpackBuilderWindow(QMainWindow):
                 self.profile_icon_base64_line_edit.setText(base64.b64encode(image.read()).decode())
 
         @helpers.make_slot()
-        @helpers.connect_slot(self.profile_directory_select_button.clicked)
-        def __on_profile_directory_select_button_clicked():
-            minecraft_directory = helpers.pick_directory(
-                parent=self,
-                title="Select Launcher Profile Directory",
-                path=Path(self.profile_directory_line_edit.text())
-            ).resolve()
-
-            self.profile_directory_line_edit.setText(str(minecraft_directory))
-
-        @helpers.make_slot()
         @helpers.connect_slot(self.minecraft_directory_select_button.clicked)
         def __on_minecraft_directory_select_button_clicked():
             minecraft_directory = helpers.pick_directory(
@@ -182,6 +171,17 @@ class ModpackBuilderWindow(QMainWindow):
             ).resolve()
 
             self.minecraft_directory_line_edit.setText(str(minecraft_directory))
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.profiles_directory_select_button.clicked)
+        def __on_profiles_directory_select_button_clicked():
+            minecraft_directory = helpers.pick_directory(
+                parent=self,
+                title="Select Minecraft Profiles Directory",
+                path=Path(self.profiles_directory_line_edit.text())
+            ).resolve()
+
+            self.profiles_directory_line_edit.setText(str(minecraft_directory))
 
         @helpers.make_slot()
         @helpers.connect_slot(self.minecraft_launcher_select_button.clicked)
@@ -211,19 +211,10 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_id_line_edit.textChanged)
         def __on_profile_id_line_edit_text_changed(text):
-            if not text:
-                return
-
-            profile_directory = Path(self.profile_directory_line_edit.text())
-            profile_directory = profile_directory.parent / text
+            profile_directory = Path(self.builder.profiles_directory / text)
             self.profile_directory_line_edit.setText(str(profile_directory))
             self.builder.manifest.profile_id = text
-
-        @helpers.make_slot(str)
-        @helpers.connect_slot(self.profile_directory_line_edit.textChanged)
-        def __on_profile_directory_line_edit_text_changed(text):
-            profile_directory = Path(text)
-            self.profile_id_line_edit.setText(profile_directory.stem)
+            self.builder.manifest.profile_directory = profile_directory
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_icon_base64_line_edit.textChanged)
@@ -322,9 +313,6 @@ class ModpackBuilderWindow(QMainWindow):
 
         if self.builder.manifest.profile_name:
             self.profile_name_line_edit.setText(self.builder.manifest.profile_name)
-
-        if self.builder.profile_directory:
-            self.profile_directory_line_edit.setText(str(self.builder.profile_directory))
 
         if self.builder.manifest.profile_id:
             self.profile_id_line_edit.setText(self.builder.manifest.profile_id)

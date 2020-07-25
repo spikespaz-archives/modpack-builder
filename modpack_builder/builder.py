@@ -128,6 +128,7 @@ class ModpackBuilder:
         self.minecraft_directory = self._get_default_minecraft_directory()
         self.minecraft_launcher_path = self._get_minecraft_launcher_path()
 
+        self.profiles_directory = self.minecraft_directory / "profiles"
         self.profile_directory = None
 
         self.client_allocated_memory = self._get_recommended_memory()
@@ -186,7 +187,7 @@ class ModpackBuilder:
             self.manifest = ModpackManifest(json.load(manifest_file))
 
         if self.minecraft_directory:
-            self.profile_directory = self.minecraft_directory / "profiles" / self.manifest.profile_id
+            self.profile_directory = self.profiles_directory / self.manifest.profile_id
 
         for file_path in self.__package_contents_directory.iterdir():
             if not file_path.is_file() or not file_path.suffix:
