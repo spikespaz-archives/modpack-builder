@@ -83,6 +83,8 @@ class ModpackBuilderWindow(QMainWindow):
         self.__bind_file_and_directory_picker_buttons()
         self.__bind_synchronized_line_edits()
 
+        self.__load_values_from_builder()
+
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
         @helpers.connect_slot(self.client_allocated_memory_spin_box.valueChanged)
@@ -361,16 +363,21 @@ class ModpackBuilderWindow(QMainWindow):
         self.client_allocated_memory_spin_box.setValue(self.builder.client_allocated_memory)
         self.server_allocated_memory_spin_box.setValue(self.builder.server_allocated_memory)
 
-        self.client_jvm_arguments_text_edit.setPlainText(
-            "    ".join(shlex.split(self.builder.manifest.client_java_args))
-        )
-        self.server_jvm_arguments_text_edit.setPlainText(
-            "    ".join(shlex.split(self.builder.manifest.server_java_args))
-        )
+        if self.builder.manifest.client_java_args:
+            self.client_jvm_arguments_text_edit.setPlainText(
+                "    ".join(shlex.split(self.builder.manifest.client_java_args))
+            )
+        if self.builder.manifest.server_java_args:
+            self.server_jvm_arguments_text_edit.setPlainText(
+                "    ".join(shlex.split(self.builder.manifest.server_java_args))
+            )
 
-        self.java_download_url_mac_line_edit.setText(self.builder.manifest.java_downloads.darwin)
-        self.java_download_url_linux_line_edit.setText(self.builder.manifest.java_downloads.linux)
-        self.java_download_url_windows_line_edit.setText(self.builder.manifest.java_downloads.windows)
+        if self.builder.manifest.java_downloads.darwin:
+            self.java_download_url_mac_line_edit.setText(self.builder.manifest.java_downloads.darwin)
+        if self.builder.manifest.java_downloads.linux:
+            self.java_download_url_linux_line_edit.setText(self.builder.manifest.java_downloads.linux)
+        if self.builder.manifest.java_downloads.windows:
+            self.java_download_url_windows_line_edit.setText(self.builder.manifest.java_downloads.windows)
 
         # ***External Resources***
 
@@ -378,6 +385,9 @@ class ModpackBuilderWindow(QMainWindow):
 
         if self.builder.minecraft_directory:
             self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
+
+        if self.builder.profiles_directory:
+            self.profiles_directory_line_edit.setText(str(self.builder.profiles_directory))
 
         if self.builder.minecraft_launcher_path:
             self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
