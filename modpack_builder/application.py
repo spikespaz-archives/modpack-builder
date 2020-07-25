@@ -248,13 +248,17 @@ class ModpackBuilderWindow(QMainWindow):
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.client_jvm_arguments_text_edit.textChanged)
-        def __on_client_jvm_arguments_text_edit_text_changed(text):
-            self.builder.manifest.client_java_args = " ".join(shlex.split(text))
+        def __on_client_jvm_arguments_text_edit_text_changed():
+            self.builder.manifest.client_java_args = " ".join(
+                shlex.split(self.client_jvm_arguments_text_edit.toPlainText())
+            )
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.server_jvm_arguments_text_edit.textChanged)
-        def __on_server_jvm_arguments_text_edit_text_changed(text):
-            self.builder.manifest.server_java_args = " ".join(shlex.split(text))
+        def __on_server_jvm_arguments_text_edit_text_changed():
+            self.builder.manifest.server_java_args = " ".join(
+                shlex.split(self.server_jvm_arguments_text_edit.toPlainText())
+            )
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.java_download_url_mac_line_edit.textChanged)
