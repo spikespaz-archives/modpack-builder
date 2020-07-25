@@ -1,6 +1,7 @@
 import re
 import string
 import random
+import unicodedata
 
 from pathlib import Path
 from threading import Thread
@@ -99,9 +100,48 @@ def generate_id(size=6, chars=string.ascii_lowercase + string.digits):
     return "".join(random.choice(chars) for _ in range(size))
 
 
-def make_slug(title, prefix=None, size=20, allowed_chars=string.ascii_lowercase + string.digits):
-    slug = re.sub(r"[^" + allowed_chars + "]", "-", title.lower())
-    slug = re.sub(r"-{2,}", "-", slug)
-    slug = slug.strip()
+def slugify(text, size=None, prefix=None, allow_unicode=False, allow_underscores=False):
+    """
+    Adapted from the Django Project to provide some extra options.
+    https://docs.djangoproject.com/en/3.0/_modules/django/utils/text/#slugify
 
-    return prefix or "" + (slug[:size] if size and len(slug) > size else slug)
+    :param text:
+    :param size:
+    :param prefix:
+    :param allow_unicode:
+    :param allow_underscores:
+    :return:
+    """
+
+    # Slightly un-pythonic, but accept any string-representable object
+    text = str(text)
+
+    # Slugify the prefix independently so that we can get the length of it later
+    if prefix:
+        prefix = slugify(str(prefix), allow_unicode=allow_unicode, allow_underscores=allow_underscores)
+
+    # Simplify accented characters and such to their basic forms
+    text = unicodedata.normalize("NFKD", text)
+
+    # Encode and decode the string as ASCII ignoring errors to remove problematic characters
+    if not allow_unicode:
+        text = text.encode("ascii", "ignore").decode("ascii")
+
+    # Strip whitespace from ends and lowercase the string, whitespace may be dangling after characters removed above
+    text = text.strip().lower()
+    text = re.sub(r"[^\w\s-]", "", text)
+
+    # Replace any consecutive hyphens and whitespace with a single hyphen, underscores too if disallowed
+    if allow_underscores:
+        text = re.sub(r"[-\s]+", "-", text)
+    else:
+        text = re.sub(r"[-_\s]+", "-", text)
+
+    # Truncate to the size
+    if size:
+        text = text[:size]
+
+    if prefix:
+        text = prefix + text
+
+    return text

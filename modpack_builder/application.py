@@ -28,7 +28,7 @@ class SlugValidator(QValidator):
     def validate(self, text, cursor_pos):
         return (
             QValidator.Acceptable,
-            helpers.make_slug(text, **self.__kwargs),
+            helpers.slugify(text, **self.__kwargs),
             min(cursor_pos, len(text))
         )
 
@@ -204,7 +204,7 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.profile_name_line_edit.textChanged)
         def __on_profile_name_line_edit_text_changed(text):
             # Conversion of name to slug is handled by the validator.
-            # No need to call 'helpers.make_slug' twice.
+            # No need to call 'helpers.slugify' twice.
             self.profile_id_line_edit.setText(text)
             self.builder.manifest.profile_name = text
 
