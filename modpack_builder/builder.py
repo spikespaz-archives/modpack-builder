@@ -36,10 +36,18 @@ class ModpackManifest:
         self.profile_id = data.get("profile_id")
         self.profile_icon = data.get("profile_icon")
         self.game_versions = set(data.get("game_versions", tuple()))
-        self.java_downloads = ModpackManifest.JavaDownloads(**data.get("java_downloads"))
+
+        java_downloads = data.get("java_downloads", {})
+
+        self.java_downloads = ModpackManifest.JavaDownloads(
+            windows=java_downloads.get("windows"),
+            darwin=java_downloads.get("darwin"),
+            linux=java_downloads.get("linux")
+        )
+
         self.forge_download = data.get("forge_download")
         self.version_label = data.get("version_label")
-        self.release_preference = ReleaseType(data.get("release_preference"))
+        self.release_preference = ReleaseType(data.get("release_preference", ReleaseType.release))
         self.load_priority = set(data.get("load_priority", tuple()))
 
         client_data = data.get("client", {})
@@ -123,7 +131,7 @@ class ModpackBuilder:
         self.package_path = None
         self.readme_path = None
 
-        self.manifest = None
+        self.manifest = ModpackManifest({})
 
         self.minecraft_directory = self._get_default_minecraft_directory()
         self.minecraft_launcher_path = self._get_minecraft_launcher_path()
