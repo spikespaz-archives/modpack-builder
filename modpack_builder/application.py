@@ -9,7 +9,7 @@ import markdown2
 
 from qtpy.QtWidgets import QMainWindow, QLabel
 from qtpy.QtWebEngineWidgets import QWebEnginePage
-from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem
+from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem, QValidator
 from qtpy import QtCore
 from qtpy import uic
 
@@ -17,6 +17,20 @@ from . import helpers
 
 from .builder import ModpackBuilder
 from .multi_progress_dialog import MultiProgressDialog
+
+
+class SlugValidator(QValidator):
+    def __init__(self, parent=None, **kwargs):
+        super().__init__(parent)
+
+        self.__kwargs = kwargs
+
+    def validate(self, text, cursor_pos):
+        return (
+            QValidator.Acceptable,
+            helpers.make_slug(text, **self.__kwargs),
+            min(cursor_pos, len(text))
+        )
 
 
 class LockedWebEnginePage(QWebEnginePage):
@@ -29,12 +43,14 @@ class LockedWebEnginePage(QWebEnginePage):
 
 
 class ModpackBuilderWindow(QMainWindow):
-    __should_reset_profile_icon_path = False
-    
+    __profile_id_length_limit = 32
+
     def __init__(self, builder, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
+
+        self.__should_reset_profile_icon_path = False
 
         self.builder = builder
 
@@ -59,6 +75,8 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.__loading_priority_item_model = QStandardItemModel()
         self.loading_priority_list_view.setModel(self.__loading_priority_item_model)
+
+        self.profile_id_line_edit.setValidator(SlugValidator(size=self.__profile_id_length_limit))
 
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
@@ -185,10 +203,9 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_name_line_edit.textChanged)
         def __on_profile_name_line_edit_text_changed(text):
-            if not text:
-                return
-
-            self.profile_id_line_edit.setText(helpers.make_slug(text, size=32))
+            # Conversion of name to slug is handled by the validator.
+            # No need to call 'helpers.make_slug' twice.
+            self.profile_id_line_edit.setText(text)
             self.builder.manifest.profile_name = text
 
         @helpers.make_slot(str)
