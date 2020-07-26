@@ -87,6 +87,9 @@ class LockedWebEnginePage(QWebEnginePage):
 
 class ModpackBuilderWindow(QMainWindow):
     __profile_id_length_limit = 32
+    # This is the color of the bottom bar of the Minecraft Launcher where the
+    # profile selection dropdown is shown.
+    __profile_icon_background_color = "#262626"
 
     def __init__(self, builder, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -109,6 +112,10 @@ class ModpackBuilderWindow(QMainWindow):
             QLabel.resizeEvent(self.profile_icon_image_label, event)
 
         self.profile_icon_image_label.resizeEvent = __on_profile_icon_image_label_resize_event
+
+        self.profile_icon_image_label.setStyleSheet(
+            f"QLabel {{ background: '{self.__profile_icon_background_color}' }}"
+        )
 
         # Set up the QWebEngineView for the markdown information view
         self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
