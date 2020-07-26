@@ -155,7 +155,8 @@ class ModpackBuilder:
     # We align with these to discourage incompatibility with repository file previews.
     markdown_file_extensions = (".txt", ".md", ".mkd", ".mkdn", ".mdown", ".markdown")
 
-    def __init__(self):
+    def __init__(self, minecraft_directory=None, minecraft_launcher_path=None, client_allocated_memory=None,
+                 server_allocated_memory=None):
         self.__logger = print
         self.__reporter = ProgressReporter(None)
 
@@ -173,14 +174,14 @@ class ModpackBuilder:
 
         self.manifest = ModpackManifest({})
 
-        self.minecraft_directory = self.get_default_minecraft_directory()
-        self.minecraft_launcher_path = self.get_minecraft_launcher_path()
+        self.minecraft_directory = minecraft_directory or self.get_default_minecraft_directory()
+        self.minecraft_launcher_path = minecraft_launcher_path or self.get_minecraft_launcher_path()
 
         self.profiles_directory = self.minecraft_directory / "profiles"
         self.profile_directory = None
 
-        self.client_allocated_memory = self.get_recommended_memory()
-        self.server_allocated_memory = self.get_recommended_memory(maximum=0)
+        self.client_allocated_memory = client_allocated_memory or self.get_recommended_memory()
+        self.server_allocated_memory = server_allocated_memory or self.get_recommended_memory(maximum=0)
 
     def __del__(self):
         self.__temporary_directory.cleanup()
