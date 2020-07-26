@@ -105,6 +105,17 @@ class ModpackBuilderWindow(QMainWindow):
         if os.environ["QT_API"] == "pyqt5":
             self.setContentsMargins(9, 9, 9, 9)
 
+        self.modpack_package_line_edit.setValidator(PathValidator(file=True, extensions=(".zip",)))
+
+        # Set up the QWebEngineView for the markdown information view
+        self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
+        self.information_web_engine_page = LockedWebEnginePage()
+        self.information_web_engine_view.setPage(self.information_web_engine_page)
+        self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
+        self.information_web_engine_view.setZoomFactor(0.75)
+
+        self.profile_id_line_edit.setValidator(SlugValidator(size=self.__profile_id_length_limit))
+
         # Fix for the lack of a widthForHeight method of QWidget
         def __on_profile_icon_image_label_resize_event(event):
             self.profile_icon_image_label.setMinimumWidth(event.size().height())
@@ -117,18 +128,10 @@ class ModpackBuilderWindow(QMainWindow):
             f"QLabel {{ background: '{self.__profile_icon_background_color}' }}"
         )
 
-        # Set up the QWebEngineView for the markdown information view
-        self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
-        self.information_web_engine_page = LockedWebEnginePage()
-        self.information_web_engine_view.setPage(self.information_web_engine_page)
-        self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
-        self.information_web_engine_view.setZoomFactor(0.75)
+        self.release_type_combo_box.addItems([member.value.title() for member in ReleaseType])
 
         self.__loading_priority_item_model = QStandardItemModel()
         self.loading_priority_list_view.setModel(self.__loading_priority_item_model)
-
-        self.modpack_package_line_edit.setValidator(PathValidator(file=True, extensions=(".zip",)))
-        self.profile_id_line_edit.setValidator(SlugValidator(size=self.__profile_id_length_limit))
 
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
