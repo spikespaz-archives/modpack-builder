@@ -208,6 +208,55 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
+         <layout class="QFormLayout" name="curseforge_mods_control_layout">
+          <item row="1" column="0">
+           <widget class="QLabel" name="curseforge_mod_identifier_label">
+            <property name="text">
+             <string>Mod Identifier</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="curseforge_mod_name_line_edit"/>
+          </item>
+          <item row="2" column="1">
+           <layout class="QHBoxLayout" name="curseforge_mod_actions_layout">
+            <item>
+             <widget class="QPushButton" name="curseforge_mod_add_button">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="curseforge_mod_remove_button">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="curseforge_mod_update_button">
+              <property name="text">
+               <string>Update</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="curseforge_mod_disable_button">
+              <property name="text">
+               <string>Disable</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QTableView" name="curseforge_mods_table_view"/>
+        </item>
+        <item>
          <widget class="QGroupBox" name="curseforge_mod_preferences_group_box">
           <property name="title">
            <string>Download Preferences</string>
@@ -231,59 +280,10 @@
             </widget>
            </item>
            <item row="1" column="1">
-            <widget class="QComboBox" name="release_type_dropdown"/>
+            <widget class="QComboBox" name="release_type_combo_box"/>
            </item>
           </layout>
          </widget>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="corseforge_mod_identifier_layout">
-          <item>
-           <widget class="QLabel" name="curseforge_mod_identifier_label">
-            <property name="text">
-             <string>Mod Identifier</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="curseforge_mod_name_line_edit"/>
-          </item>
-          <item>
-           <widget class="QPushButton" name="curseforge_mod_add_button">
-            <property name="text">
-             <string>Add</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="curseforge_mod_remove_button">
-            <property name="text">
-             <string>Remove</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QTableView" name="curseforge_mods_table_view"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="curseforge_mod_actions_layout">
-          <item>
-           <widget class="QPushButton" name="curseforge_mod_update_button">
-            <property name="text">
-             <string>Update</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="curseforge_mod_disable_button">
-            <property name="text">
-             <string>Disable</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -293,16 +293,13 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_5">
         <item>
-         <layout class="QGridLayout" name="external_mod_identifier_layout">
+         <layout class="QFormLayout" name="external_mods_control_layout">
           <item row="0" column="0">
            <widget class="QLabel" name="external_mod_identifier_label">
             <property name="text">
              <string>Mod Identifier</string>
             </property>
            </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QLineEdit" name="external_mod_download_url_line_edit"/>
           </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="external_mod_identifier_line_edit"/>
@@ -314,8 +311,11 @@
             </property>
            </widget>
           </item>
+          <item row="1" column="1">
+           <widget class="QLineEdit" name="external_mod_download_url_line_edit"/>
+          </item>
           <item row="2" column="1">
-           <layout class="QHBoxLayout" name="horizontalLayout">
+           <layout class="QHBoxLayout" name="external_mod_actions_layout">
             <item>
              <widget class="QPushButton" name="external_mod_add_button">
               <property name="text">
@@ -330,30 +330,26 @@
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QPushButton" name="external_mod_update_button">
+              <property name="text">
+               <string>Update</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="external_mod_disable_button">
+              <property name="text">
+               <string>Disable</string>
+              </property>
+             </widget>
+            </item>
            </layout>
           </item>
          </layout>
         </item>
         <item>
          <widget class="QTableView" name="external_mods_table_view"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="external_mod_actions_layout">
-          <item>
-           <widget class="QPushButton" name="external_mod_update_button">
-            <property name="text">
-             <string>Update</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="external_mod_disable_button">
-            <property name="text">
-             <string>Disable</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -363,53 +359,53 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <layout class="QHBoxLayout" name="loading_priority_mod_identifier_layout">
-          <item>
+         <layout class="QFormLayout" name="loading_priority_control_layout">
+          <item row="0" column="0">
            <widget class="QLabel" name="loading_priority_mod_identifier_label">
             <property name="text">
              <string>Mod Identifier</string>
             </property>
            </widget>
           </item>
-          <item>
+          <item row="0" column="1">
            <widget class="QLineEdit" name="loading_priority_mod_idenfifier_edit"/>
           </item>
-          <item>
-           <widget class="QPushButton" name="loading_priority_add_button">
-            <property name="text">
-             <string>Add</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="loading_priority_remove_button">
-            <property name="text">
-             <string>Remove</string>
-            </property>
-           </widget>
+          <item row="1" column="1">
+           <layout class="QHBoxLayout" name="loading_priority_actions_layout">
+            <item>
+             <widget class="QPushButton" name="loading_priority_add_button">
+              <property name="text">
+               <string>Add</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="loading_priority_remove_button">
+              <property name="text">
+               <string>Remove</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="loading_priority_increase_button">
+              <property name="text">
+               <string>Increase</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="loading_priority_decrease_button">
+              <property name="text">
+               <string>Decrease</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
         </item>
         <item>
          <widget class="QListView" name="loading_priority_list_view"/>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="loading_priority_actions_layout">
-          <item>
-           <widget class="QPushButton" name="loading_priority_increase_button">
-            <property name="text">
-             <string>Increase</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="loading_priority_decrease_button">
-            <property name="text">
-             <string>Decrease</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
