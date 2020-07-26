@@ -11,6 +11,8 @@ from tempfile import TemporaryDirectory
 
 import recordclass
 
+from orderedset import OrderedSet
+
 from .helpers import ProgressReporter
 
 
@@ -35,7 +37,7 @@ class ModpackManifest:
         self.profile_name = data.get("profile_name")
         self.profile_id = data.get("profile_id")
         self.profile_icon = data.get("profile_icon")
-        self.game_versions = set(data.get("game_versions", tuple()))
+        self.game_versions = OrderedSet(data.get("game_versions", tuple()))
 
         java_downloads = data.get("java_downloads", {})
 
@@ -48,7 +50,7 @@ class ModpackManifest:
         self.forge_download = data.get("forge_download")
         self.version_label = data.get("version_label")
         self.release_preference = ReleaseType(data.get("release_preference", ReleaseType.release))
-        self.load_priority = set(data.get("load_priority", tuple()))
+        self.load_priority = OrderedSet(data.get("load_priority", tuple()))
 
         client_data = data.get("client", {})
         server_data = data.get("server", {})
