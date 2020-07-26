@@ -2,8 +2,10 @@ import os
 import shlex
 import base64
 import binascii
+import subprocess
 
 from pathlib import Path
+from subprocess import Popen
 
 import markdown2
 
@@ -271,7 +273,17 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(self.launch_minecraft_button.clicked)
         def __on_launch_minecraft_button_clicked():
-            pass
+            Popen(
+                self.builder.minecraft_launcher_path,
+                stdin=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                close_fds=True,
+                creationflags=
+                subprocess.CREATE_NEW_PROCESS_GROUP |
+                subprocess.DETACHED_PROCESS |
+                subprocess.CREATE_BREAKAWAY_FROM_JOB
+            )
 
         @helpers.make_slot()
         @helpers.connect_slot(self.export_package_button.clicked)
