@@ -1,8 +1,4 @@
-import os
-
 from pathlib import Path
-
-os.environ["QT_API"] = "pyqt5"
 
 from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar
 from qtpy.QtGui import QStandardItemModel, QStandardItem
