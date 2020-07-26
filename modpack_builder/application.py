@@ -133,7 +133,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
-        self.__bind_synchronized_line_edits()
+        self.__bind_synchronized_controls()
 
         self.__load_values_from_builder()
 
@@ -248,7 +248,7 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
 
-    def __bind_synchronized_line_edits(self):
+    def __bind_synchronized_controls(self):
         @helpers.make_slot()
         @helpers.connect_slot(self.modpack_package_line_edit.editingFinished)
         def __on_modpack_package_line_edit_editing_finished():
