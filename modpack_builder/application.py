@@ -93,6 +93,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
 
+        self.__last_modpack_package_path = None
         self.__should_reset_profile_icon_path = False
 
         self.builder = builder
@@ -188,8 +189,7 @@ class ModpackBuilderWindow(QMainWindow):
             ).resolve()
 
             self.modpack_package_line_edit.setText(str(modpack_package_path))
-            self.__load_package(modpack_package_path)
-
+            self.modpack_package_line_edit.editingFinished.emit()
 
         @helpers.make_slot()
         @helpers.connect_slot(self.profile_icon_path_select_button.clicked)
@@ -242,6 +242,23 @@ class ModpackBuilderWindow(QMainWindow):
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
 
     def __bind_synchronized_line_edits(self):
+        @helpers.make_slot()
+        @helpers.connect_slot(self.modpack_package_line_edit.editingFinished)
+        def __on_modpack_package_line_edit_editing_finished():
+            # Due to an old bug where this signal is fired multiple times, first when the user presses Enter and then
+            # when the widget loses focus (https://bugreports.qt.io/browse/QTBUG-40),
+            # the second call of this slot must be ignored if no changes have been tracked.
+            # The path is resolved to ensure that the modpack is not reloaded if for whatever reason two equivalent
+            # relative or absolute directories replace each other.
+            if (path := Path(self.modpack_package_line_edit.text()).resolve()) == self.__last_modpack_package_path:
+                return
+
+            self.__last_modpack_package_path = path
+
+            # No errors are expected from this relating to the path because the validator should have
+            # already taken care of that. Should be safe.
+            self.__load_package(path)
+
         # *** Information ***
 
         # *** Profile Options ***
