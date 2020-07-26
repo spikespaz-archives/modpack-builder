@@ -272,6 +272,8 @@ class ModpackBuilder:
             if file_path.stem.lower() == "readme" and file_path.suffix.lower() in self.markdown_file_extensions:
                 self.__logger(f"Found README file: {file_path.name}")
                 self.readme_path = file_path
+
+                break
         else:
             self.__logger("No README file found in package!")
 
