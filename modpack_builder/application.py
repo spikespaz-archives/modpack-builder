@@ -172,10 +172,10 @@ class ModpackBuilderWindow(QMainWindow):
 
         # Set the min and max range for the Java runtime allocated memory slider and spin box
         maximum_memory = ModpackBuilder.get_maximum_memory()
-        self.client_allocated_memory_spin_box.setRange(2, maximum_memory)
-        self.client_allocated_memory_slider.setRange(4, maximum_memory * 2)
-        self.server_allocated_memory_spin_box.setRange(2, maximum_memory)
-        self.server_allocated_memory_slider.setRange(4, maximum_memory * 2)
+        self.client_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
+        self.client_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
+        self.server_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
+        self.server_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
 
     def __bind_file_and_directory_picker_buttons(self):
         @helpers.make_slot()

@@ -115,6 +115,14 @@ class ModpackBuilder:
     max_concurrent_requests = 16
     max_concurrent_downloads = 16
     max_recommended_memory = 8
+    # The absolute lower limit of memory to be allocated to Minecraft.
+    # The game will not run well at all if it has any less memory than this.
+    min_recommended_memory = 2
+    # The minimum amount of memory that should be saved for the system, and Minecraft should never
+    # be allocated more than the virtual system memory minus this value.
+    min_reserved_system_memory = 1
+    # These are the file extensions for markdown files supported by GitHub.
+    # We align with these to discourage incompatibility with repository file previews.
     markdown_file_extensions = (".txt", ".md", ".mkd", ".mkdn", ".mdown", ".markdown")
 
     def __init__(self):
@@ -234,20 +242,26 @@ class ModpackBuilder:
 
     @staticmethod
     def get_maximum_memory():
-        return ModpackBuilder.get_system_memory() - 1
+        return ModpackBuilder.get_system_memory() - ModpackBuilder.min_reserved_system_memory
 
     @staticmethod
-    def get_recommended_memory(maximum=max_recommended_memory):
+    def get_recommended_memory(minimum=min_recommended_memory, maximum=max_recommended_memory):
         system_memory = ModpackBuilder.get_system_memory()
 
         if system_memory == 4:
-            return 3
+            result = 3
         elif system_memory < 8:
-            return system_memory - 2
-        elif maximum:
-            return min(system_memory / 2, maximum)
+            result = system_memory - 2
         else:
-            return system_memory / 2
+            result = system_memory / 2
+
+        if minimum:
+            result = max(result, minimum)
+
+        if maximum:
+            result = min(result, maximum)
+
+        return result
 
     @staticmethod
     def get_default_minecraft_directory():
