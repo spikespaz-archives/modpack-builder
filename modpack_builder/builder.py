@@ -128,7 +128,6 @@ class ModpackBuilder:
         self.concurrent_requests = 8
         self.concurrent_downloads = 8
 
-        self.package_path = None
         self.readme_path = None
 
         self.manifest = ModpackManifest({})
@@ -169,7 +168,8 @@ class ModpackBuilder:
         pass
 
     def extract_package(self, path):
-        self.__logger("Reading package contents: " + path.name)
+        self.__logger(f"Reading package contents: {path.name}")
+        self.__reporter.text = f"Extracting {path.name}: %p%"
 
         with ZipFile(path, "r") as package_zip:
             package_info_list = package_zip.infolist()
@@ -178,7 +178,7 @@ class ModpackBuilder:
             self.__logger(f"Extracting package to: {self.__package_contents_directory}")
 
             for member_info in package_info_list:
-                self.__logger("Extracting member: " + member_info.filename)
+                self.__logger(f"Extracting member: {member_info.filename}")
                 self.__reporter.value += 1
 
                 package_zip.extract(member_info, self.__package_contents_directory)

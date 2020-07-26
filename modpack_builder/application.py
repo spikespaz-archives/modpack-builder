@@ -283,13 +283,13 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.profile_icon_base64_line_edit.textChanged)
         def __on_profile_icon_base64_line_edit_text_changed(text):
             try:
-                qpixmap = QPixmap()
-                qpixmap.loadFromData(base64.b64decode(text), "png")
-                qpixmap = qpixmap.scaledToHeight(
+                pixmap = QPixmap()
+                pixmap.loadFromData(base64.b64decode(text), "png")
+                pixmap = pixmap.scaledToHeight(
                     self.profile_icon_image_label.contentsRect().height(),
                     QtCore.Qt.SmoothTransformation
                 )
-                self.profile_icon_image_label.setPixmap(qpixmap)
+                self.profile_icon_image_label.setPixmap(pixmap)
                 self.builder.profile_icon_base64 = text
             except binascii.Error:
                 pass
