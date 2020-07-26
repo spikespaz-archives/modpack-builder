@@ -139,6 +139,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
+        self.__bind_action_buttons()
         self.__bind_synchronized_controls()
 
         self.__load_values_from_builder()
@@ -253,6 +254,121 @@ class ModpackBuilderWindow(QMainWindow):
             ).resolve()
 
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
+
+    def __bind_action_buttons(self):
+        # *** Window General Actions ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.install_or_update_client_button.clicked)
+        def __on_install_or_update_client_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.install_or_update_server_button.clicked)
+        def __on_install_or_update_server_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.launch_minecraft_button.clicked)
+        def __on_launch_minecraft_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.export_package_button.clicked)
+        def __on_export_package_button_clicked():
+            pass
+
+        # *** Profile Options ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.update_profile_button.clicked)
+        def __on_update_profile_button_clicked():
+            pass
+
+        # *** CurseForge Mods ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.curseforge_mod_add_button.clicked)
+        def __on_curseforge_mod_add_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.curseforge_mod_remove_button.clicked)
+        def __on_curseforge_mod_remove_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.curseforge_mod_update_button.clicked)
+        def __on_curseforge_mod_update_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.curseforge_mod_disable_button.clicked)
+        def __on_curseforge_mod_disable_button_clicked():
+            pass
+
+        # *** External Mods ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.external_mod_add_button.clicked)
+        def __on_external_mod_add_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.external_mod_remove_button.clicked)
+        def __on_external_mod_remove_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.external_mod_update_button.clicked)
+        def __on_external_mod_update_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.external_mod_disable_button.clicked)
+        def __on_external_mod_disable_button_clicked():
+            pass
+
+        # *** Loading Priority ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.loading_priority_add_button.clicked)
+        def __on_loading_priority_add_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.loading_priority_remove_button.clicked)
+        def __on_loading_priority_remove_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.loading_priority_increase_button.clicked)
+        def __on_loading_priority_increase_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.external_mod_disable_button.clicked)
+        def __on_loading_priority_decrease_button_button_clicked():
+            pass
+
+        # *** Minecraft Forge ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.minecraft_forge_install_client_button.clicked)
+        def __on_minecraft_forge_install_client_button_clicked():
+            pass
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.minecraft_forge_install_server_button.clicked)
+        def __on_minecraft_forge_install_server_button_clicked():
+            pass
+
+        # *** Java Runtime ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.java_runtime_download_button.clicked)
+        def __on_java_runtime_download_button_clicked():
+            pass
 
     def __bind_synchronized_controls(self):
         @helpers.make_slot()
