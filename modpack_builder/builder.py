@@ -180,9 +180,34 @@ class ModpackBuilder:
     def dump_manifest(self):
         pass
 
+    def remove_extracted(self):
+        if not (contents := tuple(self.__package_contents_directory.glob("**/*"))):
+            return
+
+        self.__reporter.maximum = len(contents)
+        self.__reporter.value = 0
+        self.__reporter.text = "Removing old files: %p%"
+        self.__logger("Deleting previous package contents...")
+
+        directories = []
+
+        for item_path in contents:
+            if item_path.is_file():
+                self.__logger(f"Deleting file: {item_path.relative_to(self.__package_contents_directory)}")
+                item_path.unlink()
+                self.__reporter.value += 1
+            elif item_path.is_dir():
+                directories.append(item_path)
+
+        for directory in reversed(directories):
+            self.__logger(f"Removing directory: {directory.relative_to(self.__package_contents_directory)}")
+            directory.rmdir()
+            self.__reporter.value += 1
+
     def extract_package(self, path):
         self.__logger(f"Reading package contents: {path.name}")
-        self.__reporter.text = f"Extracting {path.name}: %p%"
+        self.__reporter.value = 0
+        self.__reporter.text = f"Extracting '{path.name}': %p%"
 
         with ZipFile(path, "r") as package_zip:
             package_info_list = package_zip.infolist()
@@ -200,6 +225,7 @@ class ModpackBuilder:
             self.__reporter.done()
 
     def load_package(self, path):
+        self.remove_extracted()
         self.extract_package(path)
 
         self.__logger("Loading package manifest...")
