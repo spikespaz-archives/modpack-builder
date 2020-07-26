@@ -308,6 +308,20 @@ class ModpackBuilderWindow(QMainWindow):
 
         # ***CurseForge Mods***
 
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.minecraft_versions_line_edit.textChanged)
+        def __on_minecraft_versions_line_edit_text_changed(text):
+            self.builder.manifest.game_versions.clear()
+
+            for version in text.split(","):
+                if version := version.strip():
+                    self.builder.manifest.game_versions.add(version)
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.release_type_combo_box.currentTextChanged)
+        def __on_release_type_combo_box_current_text_changed(text):
+            self.builder.manifest.release_preference = ReleaseType(text.lower())
+
         # ***External Mods***
 
         # ***Loading Priority***
@@ -416,6 +430,11 @@ class ModpackBuilderWindow(QMainWindow):
             self.profile_icon_base64_line_edit.setText(self.builder.manifest.profile_icon)
 
         # ***CurseForge Mods***
+
+        if self.builder.manifest.game_versions:
+            self.minecraft_versions_line_edit.setText(", ".join(self.builder.manifest.game_versions))
+
+        self.release_type_combo_box.setCurrentText(self.builder.manifest.release_preference.value.title())
 
         # ***External Mods***
 
