@@ -15,7 +15,7 @@ from qtpy import uic
 
 from . import helpers
 
-from .builder import ModpackBuilder
+from .builder import ModpackBuilder, ReleaseType
 from .multi_progress_dialog import MultiProgressDialog
 
 
@@ -397,7 +397,6 @@ class ModpackBuilderWindow(QMainWindow):
 
         @helpers.make_thread(daemon=True)
         def __builder_load_package_thread():
-            self.builder.remove_extracted()
             self.builder.load_package(path)
             progress_dialog.completed.emit()
 
