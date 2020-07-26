@@ -109,10 +109,13 @@ class ModpackManifest:
 
 
 class ModpackBuilder:
-    _max_concurrent_requests = 16
-    _max_concurrent_downloads = 16
-    _max_recommended_memory = 8
-    _markdown_file_extensions = (".txt", ".md", ".mkd", ".mkdn", ".mdown", ".markdown")
+    # I would love to find a way to make everything below into static,
+    # read-only properties as they are intended to be easily-referenced yet still hard-coded values.
+    # Alas, I have given up for now and accepted the fact that Python does not follow C-style access levels.
+    max_concurrent_requests = 16
+    max_concurrent_downloads = 16
+    max_recommended_memory = 8
+    markdown_file_extensions = (".txt", ".md", ".mkd", ".mkdn", ".mdown", ".markdown")
 
     def __init__(self):
         self.__logger = print
@@ -132,14 +135,14 @@ class ModpackBuilder:
 
         self.manifest = ModpackManifest({})
 
-        self.minecraft_directory = self._get_default_minecraft_directory()
-        self.minecraft_launcher_path = self._get_minecraft_launcher_path()
+        self.minecraft_directory = self.get_default_minecraft_directory()
+        self.minecraft_launcher_path = self.get_minecraft_launcher_path()
 
         self.profiles_directory = self.minecraft_directory / "profiles"
         self.profile_directory = None
 
-        self.client_allocated_memory = self._get_recommended_memory()
-        self.server_allocated_memory = self._get_recommended_memory(maximum=0)
+        self.client_allocated_memory = self.get_recommended_memory()
+        self.server_allocated_memory = self.get_recommended_memory(maximum=0)
 
     def __del__(self):
         self.__temporary_directory.cleanup()
@@ -201,7 +204,7 @@ class ModpackBuilder:
             if not file_path.is_file() or not file_path.suffix:
                 continue
 
-            if file_path.stem.lower() == "readme" and file_path.suffix.lower() in self._markdown_file_extensions:
+            if file_path.stem.lower() == "readme" and file_path.suffix.lower() in self.markdown_file_extensions:
                 self.__logger(f"Found README file: {file_path.name}")
                 self.readme_path = file_path
         else:
@@ -226,16 +229,16 @@ class ModpackBuilder:
         pass
 
     @staticmethod
-    def _get_system_memory():
+    def get_system_memory():
         return math.ceil(psutil.virtual_memory().total / 1024 / 1024 / 1024)
 
     @staticmethod
-    def _get_maximum_memory():
-        return ModpackBuilder._get_system_memory() - 1
+    def get_maximum_memory():
+        return ModpackBuilder.get_system_memory() - 1
 
     @staticmethod
-    def _get_recommended_memory(maximum=_max_recommended_memory):
-        system_memory = ModpackBuilder._get_system_memory()
+    def get_recommended_memory(maximum=max_recommended_memory):
+        system_memory = ModpackBuilder.get_system_memory()
 
         if system_memory == 4:
             return 3
@@ -247,7 +250,7 @@ class ModpackBuilder:
             return system_memory / 2
 
     @staticmethod
-    def _get_default_minecraft_directory():
+    def get_default_minecraft_directory():
         minecraft_directory = None
 
         if PLATFORM == "Windows":
@@ -263,7 +266,7 @@ class ModpackBuilder:
         return None
 
     @staticmethod
-    def _get_minecraft_launcher_path():
+    def get_minecraft_launcher_path():
         if PLATFORM == "Windows":
             import win32com.client
 

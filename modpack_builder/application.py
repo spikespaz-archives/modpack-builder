@@ -165,13 +165,13 @@ class ModpackBuilderWindow(QMainWindow):
 
     def __set_spin_box_and_slider_ranges(self):
         # Set the min and max range for concurrent requests and downloads sliders/spin boxes
-        self.concurrent_requests_spin_box.setRange(1, ModpackBuilder._max_concurrent_requests)
-        self.concurrent_requests_slider.setRange(1, ModpackBuilder._max_concurrent_requests)
-        self.concurrent_downloads_spin_box.setRange(1, ModpackBuilder._max_concurrent_downloads)
-        self.concurrent_downloads_slider.setRange(1, ModpackBuilder._max_concurrent_downloads)
+        self.concurrent_requests_spin_box.setRange(1, ModpackBuilder.max_concurrent_requests)
+        self.concurrent_requests_slider.setRange(1, ModpackBuilder.max_concurrent_requests)
+        self.concurrent_downloads_spin_box.setRange(1, ModpackBuilder.max_concurrent_downloads)
+        self.concurrent_downloads_slider.setRange(1, ModpackBuilder.max_concurrent_downloads)
 
         # Set the min and max range for the Java runtime allocated memory slider and spin box
-        maximum_memory = ModpackBuilder._get_maximum_memory()
+        maximum_memory = ModpackBuilder.get_maximum_memory()
         self.client_allocated_memory_spin_box.setRange(2, maximum_memory)
         self.client_allocated_memory_slider.setRange(4, maximum_memory * 2)
         self.server_allocated_memory_spin_box.setRange(2, maximum_memory)
