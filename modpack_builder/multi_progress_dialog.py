@@ -15,6 +15,8 @@ from .builder import ProgressReporter
 
 
 class ProgressBarReporter(ProgressReporter, QtCore.QObject):
+    # The signals below are intentionally protected (mangled).
+    # They should only ever be used internally by this class only.
     __set_maximum = QtCore.Signal(int)
     __set_value = QtCore.Signal(int)
     __set_text = QtCore.Signal(str)
@@ -93,13 +95,13 @@ class MultiProgressDialog(QDialog):
         self.__bind_auto_scroll_handlers()
         self.__bind_reporter_created()
 
-    def __getattr__(self, name):
-        if name == "main_reporter":
-            return self.__main_reporter
-        elif name == "cancel_requested":
-            return self.__cancel_requested
-        else:
-            return super().__getattr__(name)
+    @property
+    def main_reporter(self):
+        return self.__main_reporter
+
+    @property
+    def cancel_requested(self):
+        return self.__cancel_requested
 
     def __bind_cancel_request_and_completed(self):
         @helpers.make_slot()
