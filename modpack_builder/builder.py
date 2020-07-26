@@ -45,7 +45,7 @@ class ModpackManifest:
     )
     CurseForgeMod = recordclass.recordclass(
         "CurseForgeMod",
-        ("identifier", "url", "server"),
+        ("identifier", "version", "url", "server"),
         hashable=True
     )
 
@@ -115,15 +115,27 @@ class ModpackManifest:
         self.curseforge_mods = set()
 
         for identifier in client_data.get("curseforge_mods", tuple()):
+            identifier, _, version = identifier.lower().partition(":")
+
+            if version in (member.value for member in ReleaseType):
+                version = ReleaseType(version)
+
             self.curseforge_mods.add(ModpackManifest.CurseForgeMod(
                 identifier=identifier,
+                version=version if version else None,
                 url=self.__curseforge_mod_url.format(identifier),
                 server=False
             ))
 
         for identifier in server_data.get("curseforge_mods", tuple()):
+            identifier, _, version = identifier.lower().partition(":")
+
+            if version in (member.value for member in ReleaseType):
+                version = ReleaseType(version)
+
             self.curseforge_mods.add(ModpackManifest.CurseForgeMod(
                 identifier=identifier,
+                version=version if version else None,
                 url=self.__curseforge_mod_url.format(identifier),
                 server=True
             ))
@@ -192,9 +204,13 @@ class ModpackManifest:
 
         for entry in self.curseforge_mods:
             if entry.server:
-                server_curseforge_mods.append(entry.identifier)
+                server_curseforge_mods.append(
+                    f"{entry.identifier}:{entry.version}" if entry.version else entry.identifier
+                )
             else:
-                client_curseforge_mods.append(entry.identifier)
+                client_curseforge_mods.append(
+                    f"{entry.identifier}:{entry.version}" if entry.version else entry.identifier
+                )
 
         client_data["curseforge_mods"] = client_curseforge_mods
         server_data["curseforge_mods"] = server_curseforge_mods

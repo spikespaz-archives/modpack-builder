@@ -133,7 +133,7 @@ class ModpackBuilderWindow(QMainWindow):
             f"QLabel {{ background: '{self.profile_icon_background_color}' }}"
         )
 
-        self.release_type_combo_box.addItems([member.value.title() for member in ReleaseType])
+        self.release_type_combo_box.addItems(member.value.title() for member in ReleaseType)
 
         self.loading_priority_item_model = QStandardItemModel()
         self.loading_priority_list_view.setModel(self.loading_priority_item_model)
