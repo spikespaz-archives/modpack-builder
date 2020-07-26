@@ -114,8 +114,17 @@ class ModpackBuilder:
     # I would love to find a way to make everything below into static,
     # read-only properties as they are intended to be easily-referenced yet still hard-coded values.
     # Alas, I have given up for now and accepted the fact that Python does not follow C-style access levels.
+
+    # Max concurrent requests is for any batch of HTTP requests made,
+    # but this default number specifically is meant to be nice to the CurseForge API.
     max_concurrent_requests = 16
+    # Also a default chosen to not put too much stress on the CurseForge mirrors.
     max_concurrent_downloads = 16
+    # Generally Minecraft can benefit from extra memory up to a certain point.
+    # The value of this is the cap imposed by `ModpackBuilder._get_recommended_memory`,
+    # but can be overridden or set to 0 to remove the limit entirely (for example, servers).
+    # It is highly recommended to use the keyword argument provided by that function rather than
+    # changing the value of this variable.
     max_recommended_memory = 8
     # The absolute lower limit of memory to be allocated to Minecraft.
     # The game will not run well at all if it has any less memory than this.
