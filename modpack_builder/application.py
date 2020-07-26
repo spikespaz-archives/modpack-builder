@@ -86,10 +86,13 @@ class LockedWebEnginePage(QWebEnginePage):
 
 
 class ModpackBuilderWindow(QMainWindow):
-    __profile_id_length_limit = 32
+    # The length limit for profile IDs is imposed without any real reason other than keeping
+    # the directory names tidy and preventing auto-generated folder names from getting
+    # unwieldy due to potentially abhorrently long modpack names.
+    profile_id_length_limit = 32
     # This is the color of the bottom bar of the Minecraft Launcher where the
     # profile selection dropdown is shown.
-    __profile_icon_background_color = "#262626"
+    profile_icon_background_color = "#262626"
 
     def __init__(self, builder, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -114,7 +117,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
 
-        self.profile_id_line_edit.setValidator(SlugValidator(size=self.__profile_id_length_limit))
+        self.profile_id_line_edit.setValidator(SlugValidator(size=self.profile_id_length_limit))
 
         # Fix for the lack of a widthForHeight method of QWidget
         def __on_profile_icon_image_label_resize_event(event):
@@ -125,13 +128,13 @@ class ModpackBuilderWindow(QMainWindow):
         self.profile_icon_image_label.resizeEvent = __on_profile_icon_image_label_resize_event
 
         self.profile_icon_image_label.setStyleSheet(
-            f"QLabel {{ background: '{self.__profile_icon_background_color}' }}"
+            f"QLabel {{ background: '{self.profile_icon_background_color}' }}"
         )
 
         self.release_type_combo_box.addItems([member.value.title() for member in ReleaseType])
 
-        self.__loading_priority_item_model = QStandardItemModel()
-        self.loading_priority_list_view.setModel(self.__loading_priority_item_model)
+        self.loading_priority_item_model = QStandardItemModel()
+        self.loading_priority_list_view.setModel(self.loading_priority_item_model)
 
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
@@ -443,7 +446,7 @@ class ModpackBuilderWindow(QMainWindow):
         # ***Loading Priority***
 
         for identifier in self.builder.manifest.load_priority:
-            self.__loading_priority_item_model.appendRow(QStandardItem(identifier))
+            self.loading_priority_item_model.appendRow(QStandardItem(identifier))
 
         # ***Minecraft Forge***
 
