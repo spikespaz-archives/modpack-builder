@@ -137,6 +137,20 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.__load_values_from_builder()
 
+    def __set_spin_box_and_slider_ranges(self):
+        # Set the min and max range for concurrent requests and downloads sliders/spin boxes
+        self.concurrent_requests_spin_box.setRange(1, ModpackBuilder.max_concurrent_requests)
+        self.concurrent_requests_slider.setRange(1, ModpackBuilder.max_concurrent_requests)
+        self.concurrent_downloads_spin_box.setRange(1, ModpackBuilder.max_concurrent_downloads)
+        self.concurrent_downloads_slider.setRange(1, ModpackBuilder.max_concurrent_downloads)
+
+        # Set the min and max range for the Java runtime allocated memory slider and spin box
+        maximum_memory = ModpackBuilder.get_maximum_memory()
+        self.client_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
+        self.client_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
+        self.server_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
+        self.server_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
+
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
         @helpers.connect_slot(self.client_allocated_memory_spin_box.valueChanged)
@@ -148,7 +162,7 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.client_allocated_memory_slider.valueChanged)
         def __on_client_allocated_memory_slider_value_changed(value):
             self.client_allocated_memory_spin_box.setValue(value / 2)
-        
+
         @helpers.make_slot(float)
         @helpers.connect_slot(self.server_allocated_memory_spin_box.valueChanged)
         def __on_server_allocated_memory_spin_box_value_changed(value):
@@ -169,20 +183,6 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.concurrent_downloads_spin_box.valueChanged)
         def __on_concurrent_downloads_spin_box_value_changed(value):
             self.builder.concurrent_downloads = value
-
-    def __set_spin_box_and_slider_ranges(self):
-        # Set the min and max range for concurrent requests and downloads sliders/spin boxes
-        self.concurrent_requests_spin_box.setRange(1, ModpackBuilder.max_concurrent_requests)
-        self.concurrent_requests_slider.setRange(1, ModpackBuilder.max_concurrent_requests)
-        self.concurrent_downloads_spin_box.setRange(1, ModpackBuilder.max_concurrent_downloads)
-        self.concurrent_downloads_slider.setRange(1, ModpackBuilder.max_concurrent_downloads)
-
-        # Set the min and max range for the Java runtime allocated memory slider and spin box
-        maximum_memory = ModpackBuilder.get_maximum_memory()
-        self.client_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
-        self.client_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
-        self.server_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
-        self.server_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
 
     def __bind_file_and_directory_picker_buttons(self):
         @helpers.make_slot()
