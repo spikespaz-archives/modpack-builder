@@ -454,11 +454,11 @@ class ModpackBuilderWindow(QMainWindow):
 
         if self.builder.manifest.client_java_args:
             self.client_jvm_arguments_text_edit.setPlainText(
-                "    ".join(shlex.split(self.builder.manifest.client_java_args))
+                "\n".join(shlex.split(self.builder.manifest.client_java_args))
             )
         if self.builder.manifest.server_java_args:
             self.server_jvm_arguments_text_edit.setPlainText(
-                "    ".join(shlex.split(self.builder.manifest.server_java_args))
+                "\n".join(shlex.split(self.builder.manifest.server_java_args))
             )
 
         if self.builder.manifest.java_downloads.darwin:
