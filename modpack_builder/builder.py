@@ -212,6 +212,9 @@ class ModpackManifest:
                     f"{entry.identifier}:{entry.version}" if entry.version else entry.identifier
                 )
 
+        client_curseforge_mods.sort()
+        server_curseforge_mods.sort()
+
         client_data["curseforge_mods"] = client_curseforge_mods
         server_data["curseforge_mods"] = server_curseforge_mods
 
