@@ -1,7 +1,7 @@
 import os
 import math
 import json
-import psutil
+import shlex
 import platform
 
 from enum import Enum
@@ -9,6 +9,7 @@ from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
+import psutil
 import recordclass
 
 from orderedset import OrderedSet
@@ -29,7 +30,7 @@ class ModpackManifest:
     __curseforge_mod_url = "https://www.curseforge.com/minecraft/mc-mods/{}"
 
     JavaDownloads = recordclass.recordclass("JavaDownloads", ("windows", "darwin", "linux"))
-    ExternalFile = recordclass.recordclass("ExternalFile", ("pattern", "immutable"), hashable=True)
+    ExternalFile = recordclass.recordclass("ExternalFile", ("pattern", "immutable", "server"), hashable=True)
     ExternalMod = recordclass.recordclass("ExternalMod", ("identifier", "name", "version", "url", "server"), hashable=True)
     CurseForgeMod = recordclass.recordclass("CurseForgeMod", ("identifier", "url", "server"), hashable=True)
 
@@ -55,30 +56,33 @@ class ModpackManifest:
         client_data = data.get("client", {})
         server_data = data.get("server", {})
 
-        self.client_java_args = client_data.get("java_args")
-        self.client_external_files = set()
+        # These don't need to be sets because for some strange reasons the arguments might
+        # actually need to occur multiple times. For example, if an argument such as '--include <path>' is
+        # split with 'shlex.split', the argument flag may be included multiple times for multiple paths.
+        self.client_java_args = shlex.split(client_data.get("java_args", str()))
+        self.server_java_args = shlex.split(server_data.get("java_args", str()))
 
-        self.server_java_args = server_data.get("java_args")
-        self.server_external_files = set()
+        self.external_files = set()
 
         for entry in client_data.get("external_files", {}).get("overwrite", tuple()):
-            self.client_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False))
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False, server=False))
 
         for entry in client_data.get("external_files", {}).get("immutable", tuple()):
-            self.client_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True))
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True, server=False))
 
         for entry in server_data.get("external_files", {}).get("overwrite", tuple()):
-            self.server_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False))
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False, server=True))
 
         for entry in server_data.get("external_files", {}).get("immutable", tuple()):
-            self.server_external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True))
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True, server=True))
 
         self.external_mods = set()
 
         for identifier, entry in client_data.get("external_mods", {}).items():
             corrected_entry = {"name": None, "version": None}
             corrected_entry.update(entry)
-            self.client_external_files.add(ModpackManifest.ExternalMod(
+
+            self.external_mods.add(ModpackManifest.ExternalMod(
                 identifier=identifier,
                 **corrected_entry,
                 server=False
@@ -87,7 +91,7 @@ class ModpackManifest:
         for identifier, entry in server_data.get("external_mods", {}).items():
             corrected_entry = {"name": None, "version": None}
             corrected_entry.update(entry)
-            self.server_external_files.add(ModpackManifest.ExternalMod(
+            self.external_mods.add(ModpackManifest.ExternalMod(
                 identifier=identifier,
                 **corrected_entry,
                 server=True
