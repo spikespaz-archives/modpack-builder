@@ -1,21 +1,11 @@
 import secrets
 
-import tqdm
-import arrow
 import requests
-import email.utils
 
 from pathlib import Path
 
 
-RELEASE_TYPES = ("release", "beta", "alpha")
-
-
 class DownloadException(Exception):
-    pass
-
-
-class ProfileExistsException(Exception):
     pass
 
 
@@ -29,33 +19,6 @@ class ProgressTracker:
 
     def close(self):
         pass
-
-
-class TqdmTracker(ProgressTracker):
-    def __init__(self, **kwargs):
-        self._tqdm = None
-        self._kwargs = kwargs
-
-        if "total" in kwargs:
-            self.total(kwargs["total"])
-
-    @property
-    def total(self):
-        return self._tqdm.total
-
-    @total.setter
-    def total(self, size):
-        self._tqdm = tqdm.tqdm(total=size, **self._kwargs)
-
-    @property
-    def value(self):
-        return self._tqdm.n
-
-    def update(self, amount):
-        self._tqdm.update(amount)
-
-    def close(self):
-        self._tqdm.close()
 
 
 def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_size=1024, **kwargs):
@@ -94,18 +57,6 @@ def get_profile_id(id_file):
     return profile_id
 
 
-def get_external_mod_lock_info(external_url):
-    response = requests.head(external_url)
-    response.raise_for_status()
-
-    return {
-        "file_url": external_url,
-        "file_name": external_url.rsplit("/", 1)[1],
-        "timestamp": int(email.utils.parsedate_to_datetime(response.headers.get("last-modified", None)).timestamp()),
-        "external": True
-    }
-
-
 def print_curseforge_mod_lock_info(project_slug, **kwargs):
     print((
         f"CurseForge mod information for: {project_slug}\n" +
@@ -128,20 +79,3 @@ def print_external_mod_lock_info(project_slug, **kwargs):
         "  Timestamp: {timestamp}\n" +
         "  External: {external}"
     ).format(**kwargs))
-
-
-def get_suitable_release(releases, preference):
-    """
-    Returns the best possible release according to upload date and release type.
-    If the preference is "beta" and there is a newer "release", the newer will be returned.
-
-    preference: The preferred release type, either "release", "beta", or "alpha".
-    """
-    if not isinstance(releases, list):
-        releases = list(releases)
-
-    releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]))
-    releases.sort(key=lambda release: arrow.get(release["uploaded_at"]), reverse=True)
-    releases.sort(key=lambda release: RELEASE_TYPES.index(release["type"]) > RELEASE_TYPES.index(preference))
-
-    return releases[0]
