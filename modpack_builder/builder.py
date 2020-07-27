@@ -259,6 +259,7 @@ class ModpackBuilder:
         self.manifest = ModpackManifest(dict())
 
         self.curseforge_mods = set()
+        self.curseforge_files = set()
 
         self.minecraft_directory = minecraft_directory or ModpackBuilder.get_default_minecraft_directory()
         self.minecraft_launcher_path = minecraft_launcher_path or ModpackBuilder.get_minecraft_launcher_path()
@@ -308,6 +309,29 @@ class ModpackBuilder:
             self.__reporter.value += 1
 
         self.__logger("Finished fetching information for all identifiers.")
+
+        if failures:
+            self.__logger(f"Failed identifiers: {', '.join(entry.identifier for entry in failures)}")
+
+        self.__reporter.done()
+
+    def find_curseforge_files(self):
+        self.__reporter.maximum = len(self.curseforge_mods)
+        self.__logger("Searching for suitable releases for all identifiers...")
+
+        failures = list()
+
+        for entry in self.curseforge_mods:
+            file = entry.best_file(self.manifest.game_versions, self.manifest.release_preference)
+
+            if file:
+                self.__logger(f"Found '{file.type.value}' file for '{entry.identifier}': {file.name}")
+                self.curseforge_files.add(file)
+            else:
+                failures.append(entry)
+                self.__logger(f"Could not find suitable release for: {entry.identifier}")
+
+        self.__logger("Finished fetching releases for all identifiers.")
 
         if failures:
             self.__logger(f"Failed identifiers: {', '.join(entry.identifier for entry in failures)}")
