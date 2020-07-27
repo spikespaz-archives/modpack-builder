@@ -263,14 +263,14 @@ class ModpackBuilder:
 
         self.manifest = ModpackManifest(dict())
 
-        self.minecraft_directory = minecraft_directory or self.get_default_minecraft_directory()
-        self.minecraft_launcher_path = minecraft_launcher_path or self.get_minecraft_launcher_path()
+        self.minecraft_directory = minecraft_directory or ModpackBuilder.get_default_minecraft_directory()
+        self.minecraft_launcher_path = minecraft_launcher_path or ModpackBuilder.get_minecraft_launcher_path()
 
         self.profiles_directory = self.minecraft_directory / "profiles"
         self.profile_directory = None
 
-        self.client_allocated_memory = client_allocated_memory or self.get_recommended_memory()
-        self.server_allocated_memory = server_allocated_memory or self.get_recommended_memory(maximum=0)
+        self.client_allocated_memory = client_allocated_memory or ModpackBuilder.get_recommended_memory()
+        self.server_allocated_memory = server_allocated_memory or ModpackBuilder.get_recommended_memory(maximum=0)
 
     def __del__(self):
         self.__temporary_directory.cleanup()
