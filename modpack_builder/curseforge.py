@@ -130,6 +130,10 @@ class CurseForgeMod:
         return CurseForgeMod(identifier, **response.json())
 
     @property
+    def identifier(self):
+        return self.__identifier
+
+    @property
     def id(self):
         return self.__id
 
