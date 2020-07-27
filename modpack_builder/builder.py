@@ -8,13 +8,14 @@ import dataclasses
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
+from concurrent.futures import ThreadPoolExecutor
 
 import psutil
 
 from orderedset import OrderedSet
 
 from .helpers import ProgressReporter
-from .curseforge import ReleaseType
+from .curseforge import ReleaseType, CurseForgeMod
 
 
 PLATFORM = platform.system()
@@ -257,6 +258,8 @@ class ModpackBuilder:
 
         self.manifest = ModpackManifest(dict())
 
+        self.curseforge_mods = set()
+
         self.minecraft_directory = minecraft_directory or ModpackBuilder.get_default_minecraft_directory()
         self.minecraft_launcher_path = minecraft_launcher_path or ModpackBuilder.get_minecraft_launcher_path()
 
@@ -276,6 +279,40 @@ class ModpackBuilder:
             self.__reporter = value
         else:
             super().__setattr__(name, value)
+
+    def fetch_curseforge_mods(self):
+        self.__reporter.maximum = len(self.manifest.curseforge_mods)
+        self.__logger("Retrieving information for all identifiers...")
+
+        executor = ThreadPoolExecutor(max_workers=ModpackBuilder.max_concurrent_requests)
+        futures = dict()
+        failures = list()
+
+        for entry in self.manifest.curseforge_mods:
+            futures[executor.submit(CurseForgeMod.get, entry.identifier)] = entry
+
+        for future in futures:
+            try:
+                entry = future.result()
+
+                self.curseforge_mods.add(entry)
+                self.__logger(
+                    f"Retrieved: {entry.identifier}"
+                )
+            except Exception as error:
+                self.__logger(
+                    f"Failed: {futures[future].identifier}\n"
+                    f"Error message: {error}"
+                )
+
+            self.__reporter.value += 1
+
+        self.__logger("Finished fetching information for all identifiers.")
+
+        if failures:
+            self.__logger(f"Failed identifiers: {', '.join(entry.identifier for entry in failures)}")
+
+        self.__reporter.done()
 
     def install_modpack(self):
         pass
