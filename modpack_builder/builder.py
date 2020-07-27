@@ -301,7 +301,7 @@ class ModpackBuilder:
         self.__reporter.text = "Removing old files: %p%"
         self.__logger("Deleting previous package contents...")
 
-        directories = []
+        directories = list()
 
         for item_path in contents:
             if item_path.is_file():
@@ -315,6 +315,9 @@ class ModpackBuilder:
             self.__logger(f"Removing directory: {directory.relative_to(self.__package_contents_directory)}")
             directory.rmdir()
             self.__reporter.value += 1
+
+        self.__logger("Finished removing previous package contents.")
+        self.__reporter.done()
 
     def extract_package(self, path):
         self.__logger(f"Reading package contents: {path.name}")
