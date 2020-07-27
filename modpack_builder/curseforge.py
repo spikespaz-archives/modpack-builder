@@ -20,7 +20,7 @@ class ReleaseType(Enum):
     alpha = "alpha"
 
 
-ReleaseType.values = [member.value for member in ReleaseType]
+ReleaseType.values = tuple(member.value for member in ReleaseType)
 
 
 class CurseForgeMod:
