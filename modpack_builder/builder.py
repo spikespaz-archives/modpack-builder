@@ -62,7 +62,7 @@ class ModpackManifest:
         self.profile_icon = data.get("profile_icon")
         self.game_versions = OrderedSet(data.get("game_versions", tuple()))
 
-        java_downloads = data.get("java_downloads", {})
+        java_downloads = data.get("java_downloads", dict())
 
         self.java_downloads = ModpackManifest.JavaDownloads(
             windows=java_downloads.get("windows"),
@@ -75,8 +75,8 @@ class ModpackManifest:
         self.release_preference = ReleaseType(data.get("release_preference", ReleaseType.release))
         self.load_priority = OrderedSet(data.get("load_priority", tuple()))
 
-        client_data = data.get("client", {})
-        server_data = data.get("server", {})
+        client_data = data.get("client", dict())
+        server_data = data.get("server", dict())
 
         # These don't need to be sets because for some strange reasons the arguments might
         # actually need to occur multiple times. For example, if an argument such as '--include <path>' is
@@ -86,24 +86,24 @@ class ModpackManifest:
 
         self.external_files = set()
 
-        for entry in client_data.get("external_files", {}).get("overwrite", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False, server=False))
+        for pattern in client_data.get("external_files", dict()).get("overwrite", tuple()):
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=False, server=False))
 
-        for entry in client_data.get("external_files", {}).get("immutable", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True, server=False))
+        for pattern in client_data.get("external_files", dict()).get("immutable", tuple()):
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=True, server=False))
 
-        for entry in server_data.get("external_files", {}).get("overwrite", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=False, server=True))
+        for pattern in server_data.get("external_files", dict()).get("overwrite", tuple()):
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=False, server=True))
 
-        for entry in server_data.get("external_files", {}).get("immutable", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=entry, immutable=True, server=True))
+        for pattern in server_data.get("external_files", dict()).get("immutable", tuple()):
+            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=True, server=True))
 
         self.external_mods = set()
 
-        for identifier, entry in client_data.get("external_mods", {}).items():
+        for identifier, entry in client_data.get("external_mods", dict()).items():
             self.external_mods.add(ModpackManifest.ExternalMod(identifier=identifier, **entry, server=False))
 
-        for identifier, entry in server_data.get("external_mods", {}).items():
+        for identifier, entry in server_data.get("external_mods", dict()).items():
             self.external_mods.add(ModpackManifest.ExternalMod(identifier=identifier, **entry, server=True))
 
         self.curseforge_mods = set()
@@ -261,7 +261,7 @@ class ModpackBuilder:
 
         self.readme_path = None
 
-        self.manifest = ModpackManifest({})
+        self.manifest = ModpackManifest(dict())
 
         self.minecraft_directory = minecraft_directory or self.get_default_minecraft_directory()
         self.minecraft_launcher_path = minecraft_launcher_path or self.get_minecraft_launcher_path()
