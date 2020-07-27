@@ -3,6 +3,7 @@ import math
 import json
 import shlex
 import platform
+import dataclasses
 
 from enum import Enum
 from pathlib import Path
@@ -10,7 +11,6 @@ from zipfile import ZipFile
 from tempfile import TemporaryDirectory
 
 import psutil
-import recordclass
 
 from orderedset import OrderedSet
 
@@ -29,25 +29,32 @@ class ReleaseType(Enum):
 class ModpackManifest:
     __curseforge_mod_url = "https://www.curseforge.com/minecraft/mc-mods/{}"
 
-    JavaDownloads = recordclass.recordclass(
-        "JavaDownloads",
-        ("windows", "darwin", "linux")
-    )
-    ExternalFile = recordclass.recordclass(
-        "ExternalFile",
-        ("pattern", "immutable", "server"),
-        hashable=True
-    )
-    ExternalMod = recordclass.recordclass(
-        "ExternalMod",
-        ("identifier", "name", "version", "url", "server"),
-        hashable=True
-    )
-    CurseForgeMod = recordclass.recordclass(
-        "CurseForgeMod",
-        ("identifier", "version", "url", "server"),
-        hashable=True
-    )
+    @dataclasses.dataclass
+    class JavaDownloads:
+        windows: str = None
+        darwin: str = None
+        linux: str = None
+
+    @dataclasses.dataclass(frozen=True)
+    class ExternalFile:
+        pattern: str = None
+        immutable: bool = None
+        server: bool = None
+
+    @dataclasses.dataclass(frozen=True)
+    class ExternalMod:
+        identifier: str = None
+        name: str = None
+        version: str = None
+        url: str = None
+        server: bool = None
+
+    @dataclasses.dataclass(frozen=True)
+    class CurseForgeMod:
+        identifier: str = None
+        version: str = None
+        url: str = None
+        server: bool = None
 
     def __init__(self, data):
         self.profile_name = data.get("profile_name")
@@ -94,23 +101,10 @@ class ModpackManifest:
         self.external_mods = set()
 
         for identifier, entry in client_data.get("external_mods", {}).items():
-            corrected_entry = {"name": None, "version": None}
-            corrected_entry.update(entry)
-
-            self.external_mods.add(ModpackManifest.ExternalMod(
-                identifier=identifier,
-                **corrected_entry,
-                server=False
-            ))
+            self.external_mods.add(ModpackManifest.ExternalMod(identifier=identifier, **entry, server=False))
 
         for identifier, entry in server_data.get("external_mods", {}).items():
-            corrected_entry = {"name": None, "version": None}
-            corrected_entry.update(entry)
-            self.external_mods.add(ModpackManifest.ExternalMod(
-                identifier=identifier,
-                **corrected_entry,
-                server=True
-            ))
+            self.external_mods.add(ModpackManifest.ExternalMod(identifier=identifier, **entry, server=True))
 
         self.curseforge_mods = set()
 
