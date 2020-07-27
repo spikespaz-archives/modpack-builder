@@ -5,7 +5,6 @@ import shlex
 import platform
 import dataclasses
 
-from enum import Enum
 from pathlib import Path
 from zipfile import ZipFile
 from tempfile import TemporaryDirectory
@@ -15,15 +14,10 @@ import psutil
 from orderedset import OrderedSet
 
 from .helpers import ProgressReporter
+from .curseforge import ReleaseType
 
 
 PLATFORM = platform.system()
-
-
-class ReleaseType(Enum):
-    release = "release"
-    beta = "beta"
-    alpha = "alpha"
 
 
 class ModpackManifest:

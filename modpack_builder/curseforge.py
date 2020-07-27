@@ -1,17 +1,23 @@
 import itertools
 import dataclasses
 
+from enum import Enum
+
 import arrow
 import requests
 
 from arrow import Arrow
 from orderedset import OrderedSet
 
-from . import utilities
-
 
 API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
 CURSE_DOWNLOAD_URL = "https://edge.forgecdn.net/files/{}/{}/{}"
+
+
+class ReleaseType(Enum):
+    release = "release"
+    beta = "beta"
+    alpha = "alpha"
 
 
 class CurseForgeMod:
@@ -36,7 +42,7 @@ class CurseForgeMod:
         url: str = None
         display: str = None
         name: str = None
-        type: str = None
+        type: ReleaseType = None
         version: str = None
         filesize: int = None
         versions: frozenset = None
@@ -64,8 +70,9 @@ class CurseForgeMod:
         self.__files = set()
 
         for file in kwargs.get("files", tuple()):
-            file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
+            file["type"] = ReleaseType(file["type"]) if file.get("type") else None
             file["versions"] = frozenset(file.get("versions", tuple()))
+            file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
 
             self.__files.add(CurseForgeMod.FileEntry(**file))
 
@@ -75,8 +82,9 @@ class CurseForgeMod:
             self.__versions[version] = set()
 
             for file in files:
-                file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
+                file["type"] = ReleaseType(file["type"]) if file.get("type") else None
                 file["versions"] = frozenset(file.get("versions", tuple()))
+                file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
 
                 self.__versions[version].add(CurseForgeMod.FileEntry(**file))
 
