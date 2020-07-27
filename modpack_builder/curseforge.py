@@ -20,6 +20,9 @@ class ReleaseType(Enum):
     alpha = "alpha"
 
 
+ReleaseType.values = [member.value for member in ReleaseType]
+
+
 class CurseForgeMod:
     @dataclasses.dataclass
     class UrlsEntry:
