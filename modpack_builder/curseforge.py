@@ -1,12 +1,171 @@
+import itertools
+import dataclasses
+
 import arrow
 import requests
-import itertools
+
+from arrow import Arrow
+from orderedset import OrderedSet
 
 from . import utilities
 
 
 API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
 CURSE_DOWNLOAD_URL = "https://edge.forgecdn.net/files/{}/{}/{}"
+
+
+class CurseForgeMod:
+    @dataclasses.dataclass
+    class UrlsEntry:
+        curseforge: str = None
+        project: str = None
+
+    @dataclasses.dataclass
+    class DownloadsEntry:
+        monthly: int = None
+        total: int = None
+
+    @dataclasses.dataclass(frozen=True)
+    class MemberEntry:
+        title: str = None
+        username: str = None
+
+    @dataclasses.dataclass(frozen=True)
+    class FileEntry:
+        id: int = None
+        url: str = None
+        display: str = None
+        name: str = None
+        type: str = None
+        version: str = None
+        filesize: int = None
+        versions: frozenset = None
+        downloads: int = None
+        uploaded_at: Arrow = None
+
+    def __init__(self, identifier, **kwargs):
+        self.__identifier = identifier
+
+        self.__id = kwargs.get("id")
+        self.__title = kwargs.get("title")
+        self.__summary = kwargs.get("summary")
+        self.__game = kwargs.get("game")
+        self.__type = kwargs.get("type")
+        self.__urls = CurseForgeMod.UrlsEntry(**kwargs.get("urls", dict()))
+        self.__thumbnail = kwargs.get("thumbnail")
+        self.__created_at = arrow.get(kwargs["created_at"]) if kwargs.get("created_at") else None
+        self.__downloads = CurseForgeMod.DownloadsEntry(**kwargs.get("downloads", dict()))
+        self.__license = kwargs.get("license")
+        self.__donate = kwargs.get("donate")
+        self.__categories = OrderedSet(kwargs.get("categories", tuple()))
+        self.__members = OrderedSet(CurseForgeMod.MemberEntry(**member) for member in kwargs.get("members", tuple()))
+        self.__links = set(kwargs.get("links"))
+
+        self.__files = set()
+
+        for file in kwargs.get("files", tuple()):
+            file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
+            file["versions"] = frozenset(file.get("versions", tuple()))
+
+            self.__files.add(CurseForgeMod.FileEntry(**file))
+
+        self.__versions = dict()
+
+        for version, files in kwargs.get("versions", dict()).items():
+            self.__versions[version] = set()
+
+            for file in files:
+                file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
+                file["versions"] = frozenset(file.get("versions", tuple()))
+
+                self.__versions[version].add(CurseForgeMod.FileEntry(**file))
+
+        self.__description = kwargs.get("description")
+        self.__last_fetch = arrow.get(kwargs["last_fetch"]) if kwargs.get("last_fetch") else None
+        self.__download = kwargs.get("download")
+
+    @staticmethod
+    def get(identifier):
+        response = requests.get(API_BASE_URL.format(identifier))
+        response.raise_for_status()
+
+        return CurseForgeMod(identifier, **response.json())
+
+    @property
+    def id(self):
+        return self.__id
+
+    @property
+    def title(self):
+        return self.__title
+
+    @property
+    def summary(self):
+        return self.__summary
+
+    @property
+    def game(self):
+        return self.__game
+
+    @property
+    def type(self):
+        return self.__type
+
+    @property
+    def urls(self):
+        return self.__urls
+
+    @property
+    def thumbnail(self):
+        return self.__thumbnail
+
+    @property
+    def created_at(self):
+        return self.__created_at
+
+    @property
+    def downloads(self):
+        return self.__downloads
+
+    @property
+    def license(self):
+        return self.__license
+
+    @property
+    def donate(self):
+        return self.__donate
+
+    @property
+    def categories(self):
+        return self.__categories
+
+    @property
+    def members(self):
+        return self.__members
+
+    @property
+    def links(self):
+        return self.__links
+
+    @property
+    def files(self):
+        return self.__files
+
+    @property
+    def versions(self):
+        return self.__versions
+
+    @property
+    def description(self):
+        return self.__description
+
+    @property
+    def last_fetch(self):
+        return self.__last_fetch
+
+    @property
+    def download(self):
+        return self.__download
 
 
 class VersionException(Exception):
@@ -32,7 +191,7 @@ def get_latest_mod_files(mod_files, game_versions):
                 break
 
             continue
-    
+
     if not releases:
         raise VersionException("Unable to find a compatible version")
 
@@ -59,7 +218,7 @@ def get_mod_info(mod_slug, game_versions):
 
 def get_mod_lock_info(mod_slug, game_versions, release_preference):
     mod_info = get_mod_info(mod_slug, game_versions)
-    
+
     if isinstance(release_preference, int):
         for mod_file in mod_info["files"]:
             if mod_file["id"] == release_preference:
@@ -71,7 +230,7 @@ def get_mod_lock_info(mod_slug, game_versions, release_preference):
         selected_file = utilities.get_suitable_release(mod_info["releases"], release_preference)
 
     file_id_str = str(selected_file["id"])
-    
+
     return {
         "project_id": mod_info["id"],
         "project_url": mod_info["urls"]["curseforge"],
