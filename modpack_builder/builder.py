@@ -259,7 +259,7 @@ class ModpackBuilder:
         self.manifest = ModpackManifest(dict())
 
         self.curseforge_mods = set()
-        self.curseforge_files = set()
+        self.curseforge_files = dict()
 
         self.minecraft_directory = minecraft_directory or ModpackBuilder.get_default_minecraft_directory()
         self.minecraft_launcher_path = minecraft_launcher_path or ModpackBuilder.get_minecraft_launcher_path()
@@ -326,7 +326,7 @@ class ModpackBuilder:
 
             if file:
                 self.__logger(f"Found '{file.type.value}' file for '{entry.identifier}': {file.name}")
-                self.curseforge_files.add(file)
+                self.curseforge_files[entry.identifier] = file
             else:
                 failures.append(entry)
                 self.__logger(f"Could not find suitable release for: {entry.identifier}")
