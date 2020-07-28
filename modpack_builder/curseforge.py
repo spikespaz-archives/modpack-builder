@@ -52,6 +52,17 @@ class CurseForgeMod:
         downloads: int = None
         uploaded_at: Arrow = None
 
+        @property
+        def download(self):
+            return CURSEFORGE_DOWNLOAD_BASE_URL.format((id_ := str(self.id))[:4], id_[4:7], self.name)
+
+        @property
+        def dictionary(self):
+            data = dataclasses.asdict(self)
+            data["type"] = self.type.value
+
+            return data
+
     def __init__(self, identifier, **kwargs):
         self.__identifier = identifier
 
