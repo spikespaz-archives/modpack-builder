@@ -159,6 +159,8 @@ class ModpackBuilder:
         self.__reporter.done()
 
     def download_curseforge_files(self, reporter_factory=lambda: ProgressReporter()):
+        self.mods_directory.mkdir(exist_ok=True, parents=True)
+
         self.__reporter.maximum = len(self.curseforge_files)
         self.__reporter.value = 0
         self.__logger("Downloading all CurseForge files...")
@@ -192,7 +194,7 @@ class ModpackBuilder:
                 path = future.result()
                 # Apparently 'shutil' doesn't support path-like objects (yet?)
                 # so the source path must be changed to a string.
-                shutil.move(str(path), self.mods_directory)
+                shutil.move(str(path), str(self.mods_directory / file.name))
                 self.__logger(f"Downloaded '{identifier}' file: {path.name}")
             except Exception as error:
                 self.__logger(
