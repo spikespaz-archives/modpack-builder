@@ -310,9 +310,8 @@ class ModpackBuilder:
                 entry = future.result()
 
                 self.curseforge_mods.add(entry)
-                self.__logger(
-                    f"Retrieved: {entry.identifier}"
-                )
+
+                self.__logger(f"Retrieved: {entry.identifier}")
             except Exception as error:
                 self.__logger(
                     f"Failed: {futures[future].identifier}\n"
@@ -387,12 +386,9 @@ class ModpackBuilder:
             try:
                 path = future.result()
                 # Apparently 'shutil' doesn't support path-like objects (yet?)
-                # so the source path must me changed to a string.
+                # so the source path must be changed to a string.
                 shutil.move(str(path), self.mods_directory)
-
-                self.__logger(
-                    f"Downloaded: {path.name}"
-                )
+                self.__logger(f"Downloaded '{identifier}' file: {path.name}")
             except Exception as error:
                 self.__logger(
                     f"Download for '{identifier}' failed: {file.name}\n"
