@@ -285,6 +285,7 @@ class ModpackBuilder:
 
     def fetch_curseforge_mods(self):
         self.__reporter.maximum = len(self.manifest.curseforge_mods)
+        self.__reporter.value = 0
         self.__logger("Retrieving information for all identifiers...")
 
         executor = ThreadPoolExecutor(max_workers=ModpackBuilder.max_concurrent_requests)
@@ -319,6 +320,7 @@ class ModpackBuilder:
 
     def find_curseforge_files(self):
         self.__reporter.maximum = len(self.curseforge_mods)
+        self.__reporter.value = 0
         self.__logger("Searching for suitable releases for all identifiers...")
 
         failures = list()
@@ -361,7 +363,6 @@ class ModpackBuilder:
 
         self.__reporter.maximum = len(contents)
         self.__reporter.value = 0
-        self.__reporter.text = "Removing old files: %p%"
         self.__logger("Deleting previous package contents...")
 
         directories = list()
@@ -384,8 +385,8 @@ class ModpackBuilder:
 
     def extract_package(self, path):
         self.__logger(f"Reading package contents: {path.name}")
+        self.__reporter.maximum = 1
         self.__reporter.value = 0
-        self.__reporter.text = f"Extracting '{path.name}': %p%"
 
         with ZipFile(path, "r") as package_zip:
             package_info_list = package_zip.infolist()
