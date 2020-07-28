@@ -292,6 +292,8 @@ class ModpackBuilder:
             super().__setattr__(name, value)
 
     def fetch_curseforge_mods(self):
+        self.curseforge_mods.clear()
+
         self.__reporter.maximum = len(self.manifest.curseforge_mods)
         self.__reporter.value = 0
         self.__logger("Retrieving information for all identifiers...")
@@ -327,6 +329,8 @@ class ModpackBuilder:
         self.__reporter.done()
 
     def find_curseforge_files(self):
+        self.curseforge_files.clear()
+
         self.__reporter.maximum = len(self.curseforge_mods)
         self.__reporter.value = 0
         self.__logger("Searching for suitable releases for all identifiers...")
