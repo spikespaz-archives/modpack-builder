@@ -122,7 +122,7 @@ class ModpackManifest:
         dictionary["profile_id"] = self.profile_id
         dictionary["profile_icon"] = self.profile_icon
         dictionary["game_versions"] = list(self.game_versions)
-        dictionary["java_downloads"] = self.java_downloads._asdict()
+        dictionary["java_downloads"] = dataclasses.asdict(self.java_downloads)
         dictionary["forge_download"] = self.forge_download
         dictionary["version_label"] = self.version_label
         dictionary["release_preference"] = self.release_preference.value
@@ -160,15 +160,15 @@ class ModpackManifest:
         server_external_mods = dict()
 
         for entry in self.external_mods:
-            entry_dict = entry._asdict()
+            dictionary = dataclasses.asdict(entry)
 
-            del entry_dict["identifier"]
-            del entry_dict["server"]
+            del dictionary["identifier"]
+            del dictionary["server"]
 
             if entry.server:
-                server_external_mods[entry.identifier] = entry_dict
+                server_external_mods[entry.identifier] = dictionary
             else:
-                client_external_mods[entry.identifier] = entry_dict
+                client_external_mods[entry.identifier] = dictionary
 
         client_data["external_mods"] = client_external_mods
         server_data["external_mods"] = server_external_mods
