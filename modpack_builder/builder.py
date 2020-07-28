@@ -133,6 +133,8 @@ class ModpackBuilder:
         self.__reporter.done()
 
     def find_curseforge_files(self):
+        assert self.curseforge_mods
+
         self.curseforge_files.clear()
 
         self.__reporter.maximum = len(self.curseforge_mods)
@@ -159,6 +161,8 @@ class ModpackBuilder:
         self.__reporter.done()
 
     def download_curseforge_files(self, reporter_factory=lambda: ProgressReporter()):
+        assert self.curseforge_files
+
         self.mods_directory.mkdir(exist_ok=True, parents=True)
 
         self.__reporter.maximum = len(self.curseforge_files)
