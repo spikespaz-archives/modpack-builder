@@ -12,6 +12,7 @@ from orderedset import OrderedSet
 
 CURSEFORGE_API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
 CURSEFORGE_DOWNLOAD_BASE_URL = "https://edge.forgecdn.net/files/{}/{}/{}"
+CURSEFORGE_MOD_BASE_URL = "https://www.curseforge.com/minecraft/mc-mods/{}"
 
 
 class ReleaseType(Enum):

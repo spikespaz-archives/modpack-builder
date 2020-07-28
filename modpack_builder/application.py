@@ -288,7 +288,10 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(self.export_package_button.clicked)
         def __on_export_package_button_clicked():
-            pass
+            import json
+
+            with open(Path("./dumped-manifest.json"), "w") as manifest_file:
+                json.dump(self.builder.manifest.dictionary, manifest_file, indent=2)
 
         # *** Profile Options ***
 
