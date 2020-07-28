@@ -16,8 +16,10 @@ from qtpy import QtCore
 from qtpy import uic
 
 from . import helpers
+from . import utilities
 
-from .builder import ModpackBuilder, ReleaseType
+from .builder import ModpackBuilder
+from .curseforge import ReleaseType
 from .multi_progress_dialog import MultiProgressDialog
 
 
@@ -30,7 +32,7 @@ class SlugValidator(QValidator):
     def validate(self, text, cursor_pos):
         return (
             QValidator.Acceptable,
-            helpers.slugify(text, **self.__kwargs),
+            utilities.slugify(text, **self.__kwargs),
             min(cursor_pos, len(text))
         )
 
@@ -411,7 +413,7 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.profile_name_line_edit.textChanged)
         def __on_profile_name_line_edit_text_changed(text):
             # Conversion of name to slug is handled by the validator.
-            # No need to call 'helpers.slugify' twice.
+            # No need to call 'utilities.slugify' twice.
             self.profile_id_line_edit.setText(text)
             self.builder.manifest.profile_name = text
 
@@ -525,7 +527,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.__load_values_from_builder()
             progress_dialog.close()
 
-        @helpers.make_thread(daemon=True)
+        @utilities.make_thread(daemon=True)
         def __builder_load_package_thread():
             self.builder.load_package(path)
             progress_dialog.completed.emit()

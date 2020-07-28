@@ -13,8 +13,8 @@ import psutil
 
 from . import utilities
 
-from .helpers import ProgressReporter
 from .manifest import ModpackManifest
+from .utilities import ProgressReporter
 from .curseforge import CurseForgeMod
 
 

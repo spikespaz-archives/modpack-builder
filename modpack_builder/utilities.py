@@ -1,26 +1,50 @@
+import re
+import string
+import random
 import secrets
+import unicodedata
 
 import requests
 
 from pathlib import Path
-
-from .helpers import ProgressReporter
+from threading import Thread
 
 
 class DownloadException(Exception):
     pass
 
 
-class ProgressTracker:
-    def __init__(self, total=0):
-        self.total = total
-        self.value = 0
+class ProgressReporter:
+    def __init__(self, callback=None):
+        self._maximum = 100
+        self._value = 0
+        self._done = False
+        self.__callback = callback
 
-    def update(self, amount):
-        self.value += amount
+    @property
+    def maximum(self):
+        return self._maximum
 
-    def close(self):
-        pass
+    @maximum.setter
+    def maximum(self, value):
+        self._maximum = value
+
+    @property
+    def value(self):
+        return self._value
+
+    @value.setter
+    def value(self, value):
+        self._value = value
+
+    def done(self):
+        self._done = True
+
+        if self.__callback:
+            self.__callback(self)
+
+    def is_done(self):
+        return self._done
 
 
 def download_as_stream(url, path, reporter=ProgressReporter(), block_size=1024, **kwargs):
@@ -43,6 +67,64 @@ def download_as_stream(url, path, reporter=ProgressReporter(), block_size=1024, 
     return path
 
 
+def make_thread(*args, **kwargs):
+    def wrapper(func):
+        return Thread(target=func, *args, **kwargs)
+
+    return wrapper
+
+
+def generate_id(size=6, chars=string.ascii_lowercase + string.digits):
+    return "".join(random.choice(chars) for _ in range(size))
+
+
+def slugify(text, size=None, prefix=None, allow_unicode=False, allow_underscores=False):
+    """
+    Adapted from the Django Project to provide some extra options.
+    https://docs.djangoproject.com/en/3.0/_modules/django/utils/text/#slugify
+
+    :param text:
+    :param size:
+    :param prefix:
+    :param allow_unicode:
+    :param allow_underscores:
+    :return:
+    """
+
+    # Slightly un-pythonic, but accept any string-representable object
+    text = str(text)
+
+    # Slugify the prefix independently so that we can get the length of it later
+    if prefix:
+        prefix = slugify(str(prefix), allow_unicode=allow_unicode, allow_underscores=allow_underscores)
+
+    # Simplify accented characters and such to their basic forms
+    text = unicodedata.normalize("NFKD", text)
+
+    # Encode and decode the string as ASCII ignoring errors to remove problematic characters
+    if not allow_unicode:
+        text = text.encode("ascii", "ignore").decode("ascii")
+
+    # Strip whitespace from ends and lowercase the string, whitespace may be dangling after characters removed above
+    text = text.strip().lower()
+    text = re.sub(r"[^\w\s-]", "", text)
+
+    # Replace any consecutive hyphens and whitespace with a single hyphen, underscores too if disallowed
+    if allow_underscores:
+        text = re.sub(r"[-\s]+", "-", text)
+    else:
+        text = re.sub(r"[-_\s]+", "-", text)
+
+    # Truncate to the size
+    if size:
+        text = text[:size]
+
+    if prefix:
+        text = prefix + text
+
+    return text
+
+
 def get_profile_id(id_file):
     """
     Create a 32 character hexadecimal token, and write it to the file. Fetch if the file exists.
@@ -60,27 +142,3 @@ def get_profile_id(id_file):
             file.write(profile_id)
 
     return profile_id
-
-
-def print_curseforge_mod_lock_info(project_slug, **kwargs):
-    print((
-        f"CurseForge mod information for: {project_slug}\n" +
-        "  Project ID: {project_id}\n" +
-        "  Project URL: {project_url}\n" + 
-        "  Project Name: {project_name}\n" +
-        "  File ID: {file_id}\n" +
-        "  File URL: {file_url}\n" +
-        "  File Name: {file_name}\n" +
-        "  Release Type: {release_type}\n"
-        "  Timestamp: {timestamp}"
-    ).format(**kwargs))
-
-
-def print_external_mod_lock_info(project_slug, **kwargs):
-    print((
-        f"External mod information for: {project_slug}\n" +
-        "  File URL: {file_url}\n" +
-        "  File Name: {file_name}\n" +
-        "  Timestamp: {timestamp}\n" +
-        "  External: {external}"
-    ).format(**kwargs))
