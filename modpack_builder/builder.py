@@ -2,6 +2,7 @@ import os
 import math
 import json
 import shlex
+import shutil
 import platform
 import dataclasses
 
@@ -13,6 +14,8 @@ from concurrent.futures import ThreadPoolExecutor
 import psutil
 
 from orderedset import OrderedSet
+
+from . import utilities
 
 from .helpers import ProgressReporter
 from .curseforge import ReleaseType, CurseForgeMod
@@ -223,6 +226,8 @@ class ModpackBuilder:
     max_concurrent_requests = 16
     # Also a default chosen to not put too much stress on the CurseForge mirrors.
     max_concurrent_downloads = 16
+    # Block size for file stream downloads.
+    download_block_size = 1024
     # Generally Minecraft can benefit from extra memory up to a certain point.
     # The value of this is the cap imposed by `ModpackBuilder._get_recommended_memory`,
     # but can be overridden or set to 0 to remove the limit entirely (for example, servers).
@@ -250,6 +255,9 @@ class ModpackBuilder:
 
         self.__package_contents_directory = self.temporary_directory / "extracted"
         self.__package_contents_directory.mkdir()
+
+        self.__downloads_directory = self.temporary_directory / "downloads"
+        self.__downloads_directory.mkdir()
 
         self.concurrent_requests = 8
         self.concurrent_downloads = 8
@@ -341,6 +349,65 @@ class ModpackBuilder:
             self.__logger(f"Failed identifiers: {', '.join(entry.identifier for entry in failures)}")
 
         self.__reporter.done()
+
+    def download_curseforge_files(self, reporter_factory=lambda: ProgressReporter()):
+        self.__reporter.maximum = len(self.curseforge_files)
+        self.__reporter.value = 0
+        self.__logger("Downloading all CurseForge files...")
+
+        executor = ThreadPoolExecutor(max_workers=ModpackBuilder.max_concurrent_downloads)
+        futures = dict()
+        failures = dict()
+
+        for identifier, file in self.curseforge_files.items():
+            destination = self.__downloads_directory / file.name
+
+            if destination.exists():
+                self.__logger(f"File already exists: {file.name}")
+
+                continue
+
+            reporter = reporter_factory()
+            reporter.maximum = 0
+            reporter.value = 1
+
+            futures[executor.submit(
+                utilities.download_as_stream,
+                file.download,
+                destination,
+                reporter=reporter,
+                block_size=ModpackBuilder.download_block_size
+            )] = (identifier, file)
+
+        for future, (identifier, file) in futures.items():
+            try:
+                path = future.result()
+                # Apparently 'shutil' doesn't support path-like objects (yet?)
+                # so the source path must me changed to a string.
+                shutil.move(str(path), self.mods_directory)
+
+                self.__logger(
+                    f"Downloaded: {path.name}"
+                )
+            except Exception as error:
+                self.__logger(
+                    f"Download for '{identifier}' failed: {file.name}\n"
+                    f"Error message: {error}"
+                )
+
+            self.__reporter.value += 1
+
+        self.__logger("Finished downloading all CurseForge files...")
+
+        if failures:
+            self.__logger(f"Failed downloads: {', '.join(file.name for file in failures.values())}")
+
+        self.__reporter.done()
+
+    def install_mods(self):
+        self.fetch_curseforge_mods()
+        self.find_curseforge_files()
+        self.download_curseforge_files()
 
     def install_modpack(self):
         pass
