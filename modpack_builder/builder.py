@@ -256,7 +256,7 @@ class ModpackBuilder:
 
         self.readme_path = None
 
-        self.manifest = ModpackManifest(dict())
+        self.__manifest = ModpackManifest(dict())
 
         self.curseforge_mods = set()
         self.curseforge_files = dict()
@@ -266,6 +266,8 @@ class ModpackBuilder:
 
         self.profiles_directory = self.minecraft_directory / "profiles"
         self.profile_directory = None
+        self.mods_directory = None
+        self.runtime_directory = None
 
         self.client_allocated_memory = client_allocated_memory or ModpackBuilder.get_recommended_memory()
         self.server_allocated_memory = server_allocated_memory or ModpackBuilder.get_recommended_memory(maximum=0)
@@ -409,9 +411,6 @@ class ModpackBuilder:
         with open(self.__package_contents_directory / "manifest.json", "r") as manifest_file:
             self.manifest = ModpackManifest(json.load(manifest_file))
 
-        if self.minecraft_directory:
-            self.profile_directory = self.profiles_directory / self.manifest.profile_id
-
         for file_path in self.__package_contents_directory.iterdir():
             if not file_path.is_file() or not file_path.suffix:
                 continue
@@ -526,3 +525,40 @@ class ModpackBuilder:
 
         elif PLATFORM == "Linux":
             return None
+
+    @property
+    def manifest(self):
+        return self.__manifest
+
+    @manifest.setter
+    def manifest(self, manifest):
+        # This abhorrent monkey-patch deserves explanation.
+        # This is here because some attributes of this class need to be updated when attributes of `self.__manifest`
+        # are updated. Unfortunately it seems that this is the only way to handle this specific issue.
+        # A property getter for each field to generate on demand is not an ideal solution because
+        # values could not be set without breaking synonomy with changes made to the manifest.
+        # If properties were to be used for this class's fields, any user of this class would have to update
+        # attributes of the manifest, and then the values generated could not possibly be diverged
+        # from the default dependencies in the manifest.
+        # A reference to this class's instance given to the manifest is also not an option because
+        # the manifest class should be agnostic to any parents it may have.
+        # Making this class inherit the manifest would pollute the namespace and is therefore also not an option.
+
+        class __ModpackManifest(manifest.__class__):
+            def __setattr__(self_, name, value):
+                if name == "profile_id" and self_.profile_id:
+                    if self.profile_directory is None or self.profile_directory.parent == self.profiles_directory:
+                        self.profile_directory = self.profiles_directory / value
+
+                    if self.mods_directory is None or self.mods_directory.parent == self.profile_directory:
+                        self.mods_directory = self.profile_directory / "mods"
+
+                    if self.runtime_directory is None or self.runtime_directory.parent == self.profile_directory:
+                        self.runtime_directory = self.profile_directory / "runtime"
+
+                super().__setattr__(name, value)
+
+        manifest.__class__ = __ModpackManifest
+        manifest.profile_id = manifest.profile_id
+
+        self.__manifest = manifest
