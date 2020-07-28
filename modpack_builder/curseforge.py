@@ -10,8 +10,8 @@ from arrow import Arrow
 from orderedset import OrderedSet
 
 
-API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
-CURSE_DOWNLOAD_URL = "https://edge.forgecdn.net/files/{}/{}/{}"
+CURSEFORGE_API_BASE_URL = "https://api.cfwidget.com/minecraft/mc-mods/{}"
+CURSEFORGE_DOWNLOAD_BASE_URL = "https://edge.forgecdn.net/files/{}/{}/{}"
 
 
 class ReleaseType(Enum):
@@ -135,7 +135,7 @@ class CurseForgeMod:
 
     @staticmethod
     def get(identifier):
-        response = requests.get(API_BASE_URL.format(identifier))
+        response = requests.get(CURSEFORGE_API_BASE_URL.format(identifier))
         response.raise_for_status()
 
         return CurseForgeMod(identifier, **response.json())
