@@ -27,6 +27,7 @@ class ModpackManifest:
         name: str = None
         version: str = None
         url: str = None
+        download: str = None
         server: bool = None
 
     @dataclasses.dataclass(frozen=True)
