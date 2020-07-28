@@ -4,6 +4,8 @@ import requests
 
 from pathlib import Path
 
+from .helpers import ProgressReporter
+
 
 class DownloadException(Exception):
     pass
@@ -21,21 +23,24 @@ class ProgressTracker:
         pass
 
 
-def download_as_stream(file_url, file_path, tracker=ProgressTracker(), block_size=1024, **kwargs):
-    response = requests.get(file_url, stream=True, allow_redirects=True, **kwargs)
+def download_as_stream(url, path, reporter=ProgressReporter(), block_size=1024, **kwargs):
+    response = requests.get(url, stream=True, allow_redirects=True, **kwargs)
     response.raise_for_status()
 
-    tracker.total = int(response.headers.get("content-length", 0))
+    reporter.maximum = int(response.headers.get("content-length", 0))
+    reporter.value = 0
 
-    with open(file_path, "wb") as file:
+    with open(path, "wb") as file:
         for data in response.iter_content(block_size):
-            tracker.update(len(data))
+            reporter.value += len(data)
             file.write(data)
 
-    tracker.close()
+    reporter.done()
 
-    if tracker.total != 0 and tracker.value != tracker.total:
+    if reporter.maximum != 0 and reporter.value != reporter.maximum:
         raise DownloadException("Downloaded bytes did not match 'content-length' header")
+
+    return path
 
 
 def get_profile_id(id_file):
