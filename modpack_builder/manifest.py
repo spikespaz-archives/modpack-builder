@@ -16,7 +16,7 @@ class ModpackManifest:
         linux: str = None
 
     @dataclasses.dataclass(frozen=True)
-    class ExternalFile:
+    class ExternalResource:
         pattern: str = None
         immutable: bool = None
         server: bool = None
@@ -66,19 +66,19 @@ class ModpackManifest:
         self.client_java_args = shlex.split(client_data.get("java_args", str()))
         self.server_java_args = shlex.split(server_data.get("java_args", str()))
 
-        self.external_files = set()
+        self.external_resources = set()
 
-        for pattern in client_data.get("external_files", dict()).get("overwrite", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=False, server=False))
+        for pattern in client_data.get("external_resources", dict()).get("overwrite", tuple()):
+            self.external_resources.add(ModpackManifest.ExternalResource(pattern=pattern, immutable=False, server=False))
 
-        for pattern in client_data.get("external_files", dict()).get("immutable", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=True, server=False))
+        for pattern in client_data.get("external_resources", dict()).get("immutable", tuple()):
+            self.external_resources.add(ModpackManifest.ExternalResource(pattern=pattern, immutable=True, server=False))
 
-        for pattern in server_data.get("external_files", dict()).get("overwrite", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=False, server=True))
+        for pattern in server_data.get("external_resources", dict()).get("overwrite", tuple()):
+            self.external_resources.add(ModpackManifest.ExternalResource(pattern=pattern, immutable=False, server=True))
 
-        for pattern in server_data.get("external_files", dict()).get("immutable", tuple()):
-            self.external_files.add(ModpackManifest.ExternalFile(pattern=pattern, immutable=True, server=True))
+        for pattern in server_data.get("external_resources", dict()).get("immutable", tuple()):
+            self.external_resources.add(ModpackManifest.ExternalResource(pattern=pattern, immutable=True, server=True))
 
         self.external_mods = set()
 
@@ -136,27 +136,27 @@ class ModpackManifest:
         client_data["java_args"] = " ".join(self.client_java_args)
         server_data["java_args"] = " ".join(self.server_java_args)
 
-        client_external_files = {
+        client_external_resources = {
             "immutable": [],
             "overwrite": []
         }
-        server_external_files = {
+        server_external_resources = {
             "immutable": [],
             "overwrite": []
         }
 
-        for entry in self.external_files:
+        for entry in self.external_resources:
             if entry.server and entry.immutable:
-                server_external_files["immutable"].append(entry.pattern)
+                server_external_resources["immutable"].append(entry.pattern)
             elif entry.server:  # entry.server and not entry.immutable
-                server_external_files["overwrite"].append(entry.pattern)
+                server_external_resources["overwrite"].append(entry.pattern)
             elif entry.immutable:  # not entry.server and entry.immutable
-                client_external_files["immutable"].append(entry.pattern)
+                client_external_resources["immutable"].append(entry.pattern)
             else:  # not entry.server and not entry.immutable
-                client_external_files["overwrite"].append(entry.pattern)
+                client_external_resources["overwrite"].append(entry.pattern)
 
-        client_data["external_files"] = client_external_files
-        server_data["external_files"] = server_external_files
+        client_data["external_resources"] = client_external_resources
+        server_data["external_resources"] = server_external_resources
 
         client_external_mods = dict()
         server_external_mods = dict()
