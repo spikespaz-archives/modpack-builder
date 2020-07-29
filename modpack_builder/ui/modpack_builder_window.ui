@@ -254,7 +254,11 @@
          </layout>
         </item>
         <item>
-         <widget class="QTableWidget" name="curseforge_mods_table_widget"/>
+         <widget class="QTableView" name="curseforge_mods_table_view">
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QGroupBox" name="curseforge_mod_preferences_group_box">
@@ -349,7 +353,11 @@
          </layout>
         </item>
         <item>
-         <widget class="QTableWidget" name="external_mods_table_widget"/>
+         <widget class="QTableView" name="external_mods_table_view">
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
@@ -405,7 +413,11 @@
          </layout>
         </item>
         <item>
-         <widget class="QTableWidget" name="loading_priority_table_widget"/>
+         <widget class="QTableView" name="loading_priority_table_view">
+          <property name="selectionBehavior">
+           <enum>QAbstractItemView::SelectRows</enum>
+          </property>
+         </widget>
         </item>
        </layout>
       </widget>
