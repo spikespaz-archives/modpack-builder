@@ -74,6 +74,19 @@ def make_thread(*args, **kwargs):
     return wrapper
 
 
+def sequence_groups(iterable):
+    iterable = tuple(iterable)
+    sequences = [[iterable[0]]]
+
+    for index in range(1, len(iterable)):
+        if iterable[index] == iterable[index - 1] + 1:
+            sequences[-1].append(iterable[index])
+        else:
+            sequences.append([iterable[index]])
+
+    return sequences
+
+
 def generate_id(size=6, chars=string.ascii_lowercase + string.digits):
     return "".join(random.choice(chars) for _ in range(size))
 
