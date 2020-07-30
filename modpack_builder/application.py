@@ -143,6 +143,8 @@ class ModpackBuilderWindow(QMainWindow):
             }
             """
 
+            self.curseforge_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
+            self.external_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
             self.loading_priority_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
 
         self.loading_priority_table_model = LoadingPriorityTableModel(
@@ -169,8 +171,8 @@ class ModpackBuilderWindow(QMainWindow):
             if event.type() == QEvent.Resize:
                 # Fix for no sensible way of specifying column size stretch ratios
                 # Resize all columns except the last leaving the stretch logic in Qt to do the work (prevents scrollbar)
-                self.loading_priority_table_view.setColumnWidth(0, event.size().width() * (2 / 10))
-                self.loading_priority_table_view.setColumnWidth(1, event.size().width() * (4 / 10))
+                self.loading_priority_table_view.setColumnWidth(0, event.size().width() * (3 / 12))
+                self.loading_priority_table_view.setColumnWidth(1, event.size().width() * (4 / 12))
 
         elif source is self.profile_icon_image_label:
             if event.type() == QEvent.Resize:
