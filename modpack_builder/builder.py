@@ -116,7 +116,7 @@ class ModpackBuilder:
 
                 self.curseforge_mods.add(entry)
 
-                self.__logger(f"Retrieved: {entry.identifier}")
+                self.__logger(f"Retrieved information: {entry.identifier}")
             except Exception as error:
                 self.__logger(
                     f"Failed: {futures[future].identifier}\n"
@@ -152,6 +152,8 @@ class ModpackBuilder:
             else:
                 failures.append(entry)
                 self.__logger(f"Could not find suitable release for: {entry.identifier}")
+
+            self.__reporter.value += 1
 
         self.__logger("Finished fetching releases for all identifiers.")
 
