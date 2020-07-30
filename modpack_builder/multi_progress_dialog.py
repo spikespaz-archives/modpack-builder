@@ -2,7 +2,7 @@ from pathlib import Path
 
 from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar
 from qtpy.QtGui import QStandardItemModel, QStandardItem
-from qtpy import QtCore
+from qtpy.QtCore import Qt, QObject, Signal
 from qtpy import uic
 
 from . import helpers
@@ -10,16 +10,16 @@ from . import helpers
 from .builder import ProgressReporter
 
 
-class ProgressBarReporter(ProgressReporter, QtCore.QObject):
+class ProgressBarReporter(ProgressReporter, QObject):
     # The signals below are intentionally protected (mangled).
     # They should only ever be used internally by this class only.
-    __set_maximum = QtCore.Signal(int)
-    __set_value = QtCore.Signal(int)
-    __set_text = QtCore.Signal(str)
+    __set_maximum = Signal(int)
+    __set_value = Signal(int)
+    __set_text = Signal(str)
 
     def __init__(self, parent=None, *args, **kwargs):
         ProgressReporter.__init__(self, *args, **kwargs)
-        QtCore.QObject.__init__(self, parent)
+        QObject.__init__(self, parent)
 
         self.__progress_bar = None
         self._text = "%p%"
@@ -61,9 +61,9 @@ class ProgressBarReporter(ProgressReporter, QtCore.QObject):
 
 
 class MultiProgressDialog(QDialog):
-    reporter_created = QtCore.Signal(ProgressBarReporter)
-    cancel_request = QtCore.Signal()
-    completed = QtCore.Signal()
+    reporter_created = Signal(ProgressBarReporter)
+    cancel_request = Signal()
+    completed = Signal()
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
     cancel_confirmation_title = "Cancel Confirmation"
 
@@ -75,14 +75,14 @@ class MultiProgressDialog(QDialog):
 
         uic.loadUi(str((Path(__file__).parent / "ui/multi_progress_dialog.ui").resolve()), self)
 
-        self.setWindowFlag(QtCore.Qt.WindowContextHelpButtonHint, False)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
 
         self.progress_bar_container_widget.setVisible(False)
         self.progress_bar_divider_line.setVisible(False)
 
         self.__main_reporter = ProgressBarReporter()
         self.__main_reporter.progress_bar = self.main_progress_bar
-        self.__reporter_map = {}
+        self.__reporter_map = dict()
         self.__progress_log_item_model = QStandardItemModel()
         self.progress_log_list_view.setModel(self.__progress_log_item_model)
 
@@ -148,7 +148,7 @@ class MultiProgressDialog(QDialog):
             self.progress_bar_divider_line.setVisible(True)
 
             progress_bar = QProgressBar(self.progress_bar_container_widget)
-            progress_bar.setAlignment(QtCore.Qt.AlignCenter)
+            progress_bar.setAlignment(Qt.AlignCenter)
 
             reporter.progress_bar = progress_bar
             self.__reporter_map[reporter] = progress_bar
@@ -160,7 +160,7 @@ class MultiProgressDialog(QDialog):
             self.setGeometry(current_geometry)
 
     def keyPressEvent(self, event):
-        if event.key() != QtCore.Qt.Key_Escape:
+        if event.key() != Qt.Key_Escape:
             super().keyPressEvent(event)
 
     def closeEvent(self, event):
