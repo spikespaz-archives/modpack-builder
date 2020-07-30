@@ -2,7 +2,7 @@ from pathlib import Path
 
 from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar
 from qtpy.QtGui import QStandardItemModel, QStandardItem
-from qtpy.QtCore import Qt, QObject, Signal
+from qtpy.QtCore import Qt, QObject, Signal, QTimer
 from qtpy import uic
 
 from . import helpers
@@ -61,6 +61,9 @@ class ProgressBarReporter(ProgressReporter, QObject):
 
 
 class MultiProgressDialog(QDialog):
+    # I have found the below refresh-rate for update to be the best at keeping up with
+    # the monitor and still reducing flickering, 60 does work but is more noticeable
+    update_refresh_rate = 50
     reporter_created = Signal(ProgressBarReporter)
     cancel_request = Signal()
     completed = Signal()
@@ -84,12 +87,21 @@ class MultiProgressDialog(QDialog):
         self.__main_reporter.progress_bar = self.main_progress_bar
         self.__reporter_map = dict()
         self.__progress_log_item_model = QStandardItemModel()
+        self.__progress_log_buffer_write_timer = QTimer(self)
+        self.__log_buffer = list()
+
         self.progress_log_list_view.setModel(self.__progress_log_item_model)
 
         self.cancel_button.clicked.connect(self.close)
         self.__bind_cancel_request_and_completed()
         self.__bind_auto_scroll_handlers()
         self.__bind_reporter_created()
+        self.__bind_log_buffer_writer()
+
+    def show(self):
+        self.__progress_log_buffer_write_timer.start(1000 / self.update_refresh_rate)
+
+        super().show()
 
     @property
     def main_reporter(self):
@@ -98,6 +110,22 @@ class MultiProgressDialog(QDialog):
     @property
     def cancel_requested(self):
         return self.__cancel_requested
+
+    def __bind_log_buffer_writer(self):
+        @helpers.make_slot()
+        @helpers.connect_slot(self.__progress_log_buffer_write_timer.timeout)
+        def __on_progress_log_buffer_write_timer_timeout():
+            if not self.__log_buffer:
+                return
+
+            self.progress_log_list_view.setUpdatesEnabled(False)
+
+            for line in self.__log_buffer:
+                self.__progress_log_item_model.appendRow(QStandardItem(line))
+
+            self.progress_log_list_view.setUpdatesEnabled(True)
+
+            self.__log_buffer.clear()
 
     def __bind_cancel_request_and_completed(self):
         @helpers.make_slot()
@@ -181,8 +209,8 @@ class MultiProgressDialog(QDialog):
             if confirm_response == QMessageBox.Yes:
                 self.cancel_request.emit()
 
-    def log(self, message):
-        self.__progress_log_item_model.appendRow(QStandardItem(message))
+    def log(self, text):
+        self.__log_buffer.append(text)
 
     def reporter(self):
         progress_reporter = ProgressBarReporter(callback=self.__reporter_done_callback)
