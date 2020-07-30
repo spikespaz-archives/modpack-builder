@@ -12,7 +12,7 @@ import markdown2
 from qtpy.QtWidgets import QMainWindow, QLabel
 from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem, QValidator
-from qtpy import QtCore
+from qtpy.QtCore import Qt
 from qtpy import uic
 
 from . import helpers
@@ -118,7 +118,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
         self.information_web_engine_page = LockedWebEnginePage()
         self.information_web_engine_view.setPage(self.information_web_engine_page)
-        self.information_web_engine_view.setContextMenuPolicy(QtCore.Qt.PreventContextMenu)
+        self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
 
         self.profile_id_line_edit.setValidator(SlugValidator(size=self.profile_id_length_limit))
@@ -453,7 +453,7 @@ class ModpackBuilderWindow(QMainWindow):
                 pixmap.loadFromData(base64.b64decode(text), "png")
                 pixmap = pixmap.scaledToHeight(
                     self.profile_icon_image_label.contentsRect().height(),
-                    QtCore.Qt.SmoothTransformation
+                    Qt.SmoothTransformation
                 )
                 self.profile_icon_image_label.setPixmap(pixmap)
                 self.builder.manifest.profile_icon = text
