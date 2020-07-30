@@ -387,22 +387,64 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(self.loading_priority_add_button.clicked)
         def __on_loading_priority_add_button_clicked():
-            pass
+            text = self.loading_priority_mod_idenfifier_edit.text()
+
+            if (
+                not text or
+                text in self.builder.manifest.load_priority or (
+                    # text not in (entry.identifier for entry in self.builder.manifest.curseforge_mods) and
+                    # text not in (entry.identifier for entry in self.builder.manifest.external_mods)
+                )
+            ):
+                return
+
+            position = self.loading_priority_table_model.rowCount()
+
+            self.loading_priority_table_model.insertRow(position)
+            self.loading_priority_table_model.setData(self.loading_priority_table_model.index(position, 0), text)
 
         @helpers.make_slot()
         @helpers.connect_slot(self.loading_priority_remove_button.clicked)
         def __on_loading_priority_remove_button_clicked():
-            pass
+            if not (selection := self.loading_priority_table_view.selectionModel()).hasSelection():
+                return
+
+            selected_rows = sorted(index.row() for index in selection.selectedRows())
+            contiguous_rows = utilities.sequence_groups(selected_rows)
+
+            for rows in reversed(contiguous_rows):
+                self.loading_priority_table_model.removeRows(min(rows), len(rows))
+
+        def __load_priority_list_view_shift_rows(selection, offset):
+            selected_rows = sorted(index.row() for index in selection.selectedRows())
+            contiguous_rows = utilities.sequence_groups(selected_rows)
+
+            parent_index = QModelIndex()
+
+            for rows in contiguous_rows:
+                self.loading_priority_table_model.moveRows(
+                    parent_index,
+                    min(rows),
+                    len(rows),
+                    parent_index,
+                    min(rows) + offset if offset < 0 else max(rows) + offset + 1
+                )
 
         @helpers.make_slot()
         @helpers.connect_slot(self.loading_priority_increase_button.clicked)
         def __on_loading_priority_increase_button_clicked():
-            pass
+            if not (selection := self.loading_priority_table_view.selectionModel()).hasSelection():
+                return
+
+            __load_priority_list_view_shift_rows(selection, -1)
 
         @helpers.make_slot()
-        @helpers.connect_slot(self.external_mod_disable_button.clicked)
+        @helpers.connect_slot(self.loading_priority_decrease_button.clicked)
         def __on_loading_priority_decrease_button_button_clicked():
-            pass
+            if not (selection := self.loading_priority_table_view.selectionModel()).hasSelection():
+                return
+
+            __load_priority_list_view_shift_rows(selection, 1)
 
         # *** Minecraft Forge ***
 
