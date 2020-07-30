@@ -652,9 +652,6 @@ class ModpackBuilderWindow(QMainWindow):
 
         # ***Loading Priority***
 
-        for identifier in self.builder.manifest.load_priority:
-            self.loading_priority_item_model.appendRow(QStandardItem(identifier))
-
         # ***Minecraft Forge***
 
         # ***Java Runtime***
