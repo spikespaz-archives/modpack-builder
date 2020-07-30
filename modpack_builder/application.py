@@ -9,17 +9,18 @@ from subprocess import Popen
 
 import markdown2
 
-from qtpy.QtWidgets import QMainWindow, QLabel
-from qtpy.QtWebEngineWidgets import QWebEnginePage
-from qtpy.QtGui import QDesktopServices, QPixmap, QStandardItemModel, QStandardItem, QValidator
-from qtpy.QtCore import Qt
 from qtpy import uic
+from qtpy.QtWebEngineWidgets import QWebEnginePage
+from qtpy.QtWidgets import QMainWindow, QHeaderView
+from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent
+from qtpy.QtGui import QDesktopServices, QPixmap, QValidator
 
 from . import helpers
 from . import utilities
 
 from .builder import ModpackBuilder
 from .curseforge import ReleaseType
+from .models import LoadingPriorityTableModel
 from .multi_progress_dialog import MultiProgressDialog
 
 
@@ -144,8 +145,15 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.loading_priority_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
 
-        self.loading_priority_item_model = QStandardItemModel()
-        self.loading_priority_list_view.setModel(self.loading_priority_item_model)
+        self.loading_priority_table_model = LoadingPriorityTableModel(
+            self.builder,
+            parent=self.loading_priority_table_view
+        )
+        self.loading_priority_table_view.setModel(self.loading_priority_table_model)
+
+        # Use this instead of 'setStretchLastSection(True)' because the drag handle for the last column is disabled
+        self.loading_priority_table_view.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__install_event_filters()
         self.__set_spin_box_and_slider_ranges()
@@ -157,7 +165,14 @@ class ModpackBuilderWindow(QMainWindow):
         self.__load_values_from_builder()
 
     def eventFilter(self, source, event):
-        if source is self.profile_icon_image_label:
+        if source is self.loading_priority_table_view:
+            if event.type() == QEvent.Resize:
+                # Fix for no sensible way of specifying column size stretch ratios
+                # Resize all columns except the last leaving the stretch logic in Qt to do the work (prevents scrollbar)
+                self.loading_priority_table_view.setColumnWidth(0, event.size().width() * (2 / 10))
+                self.loading_priority_table_view.setColumnWidth(1, event.size().width() * (4 / 10))
+
+        elif source is self.profile_icon_image_label:
             if event.type() == QEvent.Resize:
                 # Keep the preview image square because 'widthForHeight' is not an option
                 self.profile_icon_image_label.setMinimumWidth(event.size().height())
@@ -167,6 +182,7 @@ class ModpackBuilderWindow(QMainWindow):
 
     def __install_event_filters(self):
         self.profile_icon_image_label.installEventFilter(self)
+        self.loading_priority_table_view.installEventFilter(self)
 
     def __set_spin_box_and_slider_ranges(self):
         # Set the min and max range for concurrent requests and downloads sliders/spin boxes
