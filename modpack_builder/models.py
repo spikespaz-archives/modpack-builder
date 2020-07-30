@@ -15,6 +15,9 @@ class LoadingPriorityTableModel(QAbstractTableModel):
 
         self.dataChanged.connect(self.parent().verticalHeader().reset)
 
+    def refresh(self):
+        self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount(), self.columnCount()))
+
     def rowCount(self, _=None):
         return len(self.builder.manifest.load_priority)
 
