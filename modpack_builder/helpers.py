@@ -5,28 +5,21 @@ from qtpy.QtWidgets import QFileDialog
 
 
 def pick_directory(parent, title="Select Directory", path=Path("~")):
-    path = QFileDialog.getExistingDirectory(
-        parent, title, str(path.resolve()), QFileDialog.ShowDirsOnly
-    )
+    path = QFileDialog.getExistingDirectory(parent, title, str(path.resolve()), QFileDialog.ShowDirsOnly)
 
     if path:
-        return Path(path)
+        return Path(path).resolve()
 
-    return path
+    return None
 
 
 def pick_file(parent, title="Select File", path=Path("~"), types=("Text Document (*.txt)",)):
-    if path.is_file():
-        start = path.parent.resolve()
-    else:
-        start = path.resolve()
+    path = QFileDialog.getOpenFileName(parent, title, str(path.resolve()), filter="\n".join(types))[0]
 
-    file = QFileDialog.getOpenFileName(parent, title, str(start), filter="\n".join(types))[0]
+    if path:
+        return Path(path).resolve()
 
-    if file:
-        return Path(file)
-
-    return path
+    return None
 
 
 def make_slot(*args, **kwargs):

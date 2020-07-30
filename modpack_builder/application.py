@@ -240,7 +240,10 @@ class ModpackBuilderWindow(QMainWindow):
                 title="Select Modpack Package",
                 path=Path(self.modpack_package_line_edit.text()),
                 types=("Zip Archive (*.zip)",)
-            ).resolve()
+            )
+
+            if modpack_package_path is None:
+                return
 
             self.modpack_package_line_edit.setText(str(modpack_package_path))
             self.modpack_package_line_edit.editingFinished.emit()
@@ -253,7 +256,10 @@ class ModpackBuilderWindow(QMainWindow):
                 title="Select Profile Icon",
                 path=Path(self.profile_icon_path_line_edit.text()),
                 types=("Portable Network Graphics (*.png)",)
-            ).resolve()
+            )
+
+            if profile_icon_path is None:
+                return
 
             self.profile_icon_path_line_edit.setText(str(profile_icon_path))
             self.__should_reset_profile_icon_path = False
@@ -268,20 +274,26 @@ class ModpackBuilderWindow(QMainWindow):
                 parent=self,
                 title="Select Minecraft Directory",
                 path=Path(self.minecraft_directory_line_edit.text())
-            ).resolve()
+            )
+
+            if minecraft_directory is None:
+                return
 
             self.minecraft_directory_line_edit.setText(str(minecraft_directory))
 
         @helpers.make_slot()
         @helpers.connect_slot(self.profiles_directory_select_button.clicked)
         def __on_profiles_directory_select_button_clicked():
-            minecraft_directory = helpers.pick_directory(
+            profiles_directory = helpers.pick_directory(
                 parent=self,
                 title="Select Minecraft Profiles Directory",
                 path=Path(self.profiles_directory_line_edit.text())
-            ).resolve()
+            )
 
-            self.profiles_directory_line_edit.setText(str(minecraft_directory))
+            if profiles_directory is None:
+                return
+
+            self.profiles_directory_line_edit.setText(str(profiles_directory))
 
         @helpers.make_slot()
         @helpers.connect_slot(self.minecraft_launcher_select_button.clicked)
@@ -291,7 +303,10 @@ class ModpackBuilderWindow(QMainWindow):
                 title="Select Minecraft Launcher",
                 path=Path(self.minecraft_launcher_line_edit.text()),
                 types=("Executable Files (*.exe)",)
-            ).resolve()
+            )
+
+            if minecraft_launcher_path is None:
+                return
 
             self.minecraft_launcher_line_edit.setText(str(minecraft_launcher_path))
 
