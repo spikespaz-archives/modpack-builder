@@ -123,14 +123,6 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.profile_id_line_edit.setValidator(SlugValidator(size=self.profile_id_length_limit))
 
-        # Fix for the lack of a widthForHeight method of QWidget
-        def __on_profile_icon_image_label_resize_event(event):
-            self.profile_icon_image_label.setMinimumWidth(event.size().height())
-            self.profile_icon_image_label.setMaximumWidth(event.size().height())
-            QLabel.resizeEvent(self.profile_icon_image_label, event)
-
-        self.profile_icon_image_label.resizeEvent = __on_profile_icon_image_label_resize_event
-
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
         self.profile_icon_image_label.setStyleSheet(
@@ -155,6 +147,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.loading_priority_item_model = QStandardItemModel()
         self.loading_priority_list_view.setModel(self.loading_priority_item_model)
 
+        self.__install_event_filters()
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
@@ -162,6 +155,18 @@ class ModpackBuilderWindow(QMainWindow):
         self.__bind_synchronized_controls()
 
         self.__load_values_from_builder()
+
+    def eventFilter(self, source, event):
+        if source is self.profile_icon_image_label:
+            if event.type() == QEvent.Resize:
+                # Keep the preview image square because 'widthForHeight' is not an option
+                self.profile_icon_image_label.setMinimumWidth(event.size().height())
+                self.profile_icon_image_label.setMaximumWidth(event.size().height())
+
+        return False  # Default to allow the event to be handled further (order of the filters is unknown)
+
+    def __install_event_filters(self):
+        self.profile_icon_image_label.installEventFilter(self)
 
     def __set_spin_box_and_slider_ranges(self):
         # Set the min and max range for concurrent requests and downloads sliders/spin boxes
