@@ -103,7 +103,7 @@ class ModpackBuilder:
         self.__reporter.value = 0
         self.__logger("Retrieving information for all identifiers...")
 
-        executor = ThreadPoolExecutor(max_workers=ModpackBuilder.max_concurrent_requests)
+        executor = ThreadPoolExecutor(max_workers=self.concurrent_requests)
         futures = dict()
         failures = list()
 
@@ -169,7 +169,7 @@ class ModpackBuilder:
         self.__reporter.value = 0
         self.__logger("Downloading all CurseForge files...")
 
-        executor = ThreadPoolExecutor(max_workers=ModpackBuilder.max_concurrent_downloads)
+        executor = ThreadPoolExecutor(max_workers=self.concurrent_downloads)
         futures = dict()
         failures = dict()
 
