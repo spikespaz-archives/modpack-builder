@@ -131,11 +131,26 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.profile_icon_image_label.resizeEvent = __on_profile_icon_image_label_resize_event
 
+        self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
+
         self.profile_icon_image_label.setStyleSheet(
             f"QLabel {{ background: '{self.profile_icon_background_color}' }}"
         )
 
-        self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
+        # Fix for the bottom border missing on the table view's header, only on Windows 10
+        if QSysInfo().windowsVersion() == QSysInfo.WV_WINDOWS10:
+            table_view_header_css = """
+            QHeaderView::section {
+                border-style: solid;
+                border-color: #D8D8D8;
+                border-top-width: 0px;
+                border-bottom-width: 1px;
+                border-left-width: 0px;
+                border-right-width: 1px;
+            }
+            """
+
+            self.loading_priority_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
 
         self.loading_priority_item_model = QStandardItemModel()
         self.loading_priority_list_view.setModel(self.loading_priority_item_model)
