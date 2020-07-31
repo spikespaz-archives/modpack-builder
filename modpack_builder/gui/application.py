@@ -11,8 +11,8 @@ import markdown2
 
 from qtpy import uic
 from qtpy.QtGui import QDesktopServices, QPixmap
-from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtWidgets import QMainWindow, QHeaderView
+from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
 
 from .. import utilities
@@ -22,9 +22,9 @@ from ..curseforge import ReleaseType
 
 from . import helpers
 
-from .models import LoadingPriorityTableModel
 from .validators import SlugValidator, PathValidator
 from .multi_progress_dialog import MultiProgressDialog
+from .models import LoadingPriorityTableModel, CurseForgeModsTableModel
 
 
 class LockedWebEnginePage(QWebEnginePage):
@@ -69,6 +69,15 @@ class ModpackBuilderWindow(QMainWindow):
         self.loading_priority_table_view.horizontalHeader().setStretchLastSection(True)
         self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
+        self.curseforge_mods_table_model = CurseForgeModsTableModel(
+            self.builder,
+            parent=self.curseforge_mods_table_view
+        )
+        self.curseforge_mods_table_view.setModel(self.curseforge_mods_table_model)
+
+        self.curseforge_mods_table_view.horizontalHeader().setStretchLastSection(True)
+        self.curseforge_mods_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
         self.__create_information_view()
         self.__install_event_filters()
         self.__set_text_input_validators()
@@ -83,7 +92,13 @@ class ModpackBuilderWindow(QMainWindow):
         self.__load_values_from_builder()
 
     def eventFilter(self, source, event):
-        if source is self.loading_priority_table_view:
+        if source is self.curseforge_mods_table_view:
+            if event.type() == QEvent.Resize:
+                self.curseforge_mods_table_view.setColumnWidth(0, event.size().width() * (3 / 13))
+                self.curseforge_mods_table_view.setColumnWidth(1, event.size().width() * (4 / 13))
+                self.curseforge_mods_table_view.setColumnWidth(2, event.size().width() * (1 / 13))
+
+        elif source is self.loading_priority_table_view:
             if event.type() == QEvent.Resize:
                 # Fix for no sensible way of specifying column size stretch ratios
                 # Resize all columns except the last leaving the stretch logic in Qt to do the work (prevents scrollbar)
@@ -109,6 +124,7 @@ class ModpackBuilderWindow(QMainWindow):
 
     def __install_event_filters(self):
         self.profile_icon_image_label.installEventFilter(self)
+        self.curseforge_mods_table_view.installEventFilter(self)
         self.loading_priority_table_view.installEventFilter(self)
 
     def __set_text_input_validators(self):
