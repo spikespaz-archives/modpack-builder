@@ -99,7 +99,7 @@ class MultiProgressDialog(QDialog):
         self.__bind_log_buffer_writer()
 
     def show(self):
-        self.__progress_log_buffer_write_timer.start(1000 / self.update_refresh_rate)
+        self.__progress_log_buffer_write_timer.start(round(1000 / self.update_refresh_rate))
 
         super().show()
 
