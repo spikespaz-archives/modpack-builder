@@ -51,6 +51,8 @@ class ModpackBuilder:
 
     def __init__(self, minecraft_directory=None, minecraft_launcher_path=None, client_allocated_memory=None,
                  server_allocated_memory=None):
+        self.__task_aborted = False
+
         self.__logger = print
         self.__reporter = ProgressReporter(None)
 
@@ -96,6 +98,9 @@ class ModpackBuilder:
         else:
             super().__setattr__(name, value)
 
+    def abort(self):
+        self.__task_aborted = True
+
     def fetch_curseforge_mods(self):
         self.curseforge_mods.clear()
 
@@ -107,12 +112,23 @@ class ModpackBuilder:
         futures = dict()
         failures = list()
 
+        def __target(identifier):
+            if self.__task_aborted:
+                return
+
+            return CurseForgeMod.get(identifier)
+
         for entry in self.manifest.curseforge_mods:
-            futures[executor.submit(CurseForgeMod.get, entry.identifier)] = entry
+            futures[executor.submit(__target, entry.identifier)] = entry
 
         for future in futures:
+            # Abort the loop if the task has been cancelled
+            if self.__task_aborted:
+                break
+
             try:
-                entry = future.result()
+                # Ensure that the thread returned a value, if it hasn't the task is probably cancelled
+                assert (entry := future.result())
 
                 self.curseforge_mods.add(entry)
 
@@ -125,10 +141,19 @@ class ModpackBuilder:
 
             self.__reporter.value += 1
 
-        self.__logger("Finished fetching information for all identifiers.")
+        executor.shutdown(True)
 
-        if failures:
-            self.__logger(f"Failed identifiers: {', '.join(entry.identifier for entry in failures)}")
+        if self.__task_aborted:
+            self.__task_aborted = False  # Reset as to not conflict with other tasks
+
+            self.curseforge_mods.clear()  # Remove the results that have already been retrieved
+
+            self.__logger("Information retrieval cancelled.")
+        else:
+            self.__logger("Finished fetching information for all identifiers.")
+
+            if failures:
+                self.__logger(f"Failed identifiers: {', '.join(entry.identifier for entry in failures)}")
 
         self.__reporter.done()
 
