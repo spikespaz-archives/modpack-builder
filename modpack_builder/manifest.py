@@ -80,15 +80,15 @@ class ModpackManifest:
         for pattern in server_data.get("external_resources", dict()).get("immutable", tuple()):
             self.external_resources.add(ModpackManifest.ExternalResource(pattern=pattern, immutable=True, server=True))
 
-        self.external_mods = set()
+        self.external_mods = dict()
 
         for identifier, entry in client_data.get("external_mods", dict()).items():
-            self.external_mods.add(ModpackManifest.ExternalMod(identifier=identifier, **entry, server=False))
+            self.external_mods[identifier] = ModpackManifest.ExternalMod(identifier=identifier, **entry, server=False)
 
         for identifier, entry in server_data.get("external_mods", dict()).items():
-            self.external_mods.add(ModpackManifest.ExternalMod(identifier=identifier, **entry, server=True))
+            self.external_mods[identifier] = ModpackManifest.ExternalMod(identifier=identifier, **entry, server=True)
 
-        self.curseforge_mods = set()
+        self.curseforge_mods = dict()
 
         for identifier in client_data.get("curseforge_mods", tuple()):
             identifier, _, version = identifier.lower().partition(":")
@@ -96,12 +96,12 @@ class ModpackManifest:
             if version in (member.value for member in ReleaseType):
                 version = ReleaseType(version)
 
-            self.curseforge_mods.add(ModpackManifest.CurseForgeMod(
+            self.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
                 identifier=identifier,
                 version=version if version else None,
                 url=curseforge.CURSEFORGE_MOD_BASE_URL.format(identifier),
                 server=False
-            ))
+            )
 
         for identifier in server_data.get("curseforge_mods", tuple()):
             identifier, _, version = identifier.lower().partition(":")
@@ -109,12 +109,12 @@ class ModpackManifest:
             if version in (member.value for member in ReleaseType):
                 version = ReleaseType(version)
 
-            self.curseforge_mods.add(ModpackManifest.CurseForgeMod(
+            self.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
                 identifier=identifier,
                 version=version if version else None,
                 url=curseforge.CURSEFORGE_MOD_BASE_URL.format(identifier),
                 server=True
-            ))
+            )
 
     @property
     def dictionary(self):
@@ -161,7 +161,7 @@ class ModpackManifest:
         client_external_mods = dict()
         server_external_mods = dict()
 
-        for entry in self.external_mods:
+        for entry in self.external_mods.values():
             dictionary = dataclasses.asdict(entry)
 
             del dictionary["identifier"]
@@ -178,7 +178,7 @@ class ModpackManifest:
         client_curseforge_mods = list()
         server_curseforge_mods = list()
 
-        for entry in self.curseforge_mods:
+        for entry in self.curseforge_mods.values():
             if entry.server:
                 server_curseforge_mods.append(
                     f"{entry.identifier}:{entry.version}" if entry.version else entry.identifier

@@ -73,7 +73,7 @@ class ModpackBuilder:
 
         self.__manifest = ModpackManifest(dict())
 
-        self.curseforge_mods = set()
+        self.curseforge_mods = dict()
         self.curseforge_files = dict()
 
         self.minecraft_directory = minecraft_directory or ModpackBuilder.get_default_minecraft_directory()
@@ -118,7 +118,7 @@ class ModpackBuilder:
 
             return CurseForgeMod.get(identifier)
 
-        for entry in self.manifest.curseforge_mods:
+        for entry in self.manifest.curseforge_mods.values():
             futures[executor.submit(__target, entry.identifier)] = entry
 
         for future in futures:
@@ -130,7 +130,7 @@ class ModpackBuilder:
                 # Ensure that the thread returned a value, if it hasn't the task is probably cancelled
                 assert (entry := future.result())
 
-                self.curseforge_mods.add(entry)
+                self.curseforge_mods[entry.identifier] = entry
 
                 self.__logger(f"Retrieved information: {entry.identifier}")
             except Exception as error:
@@ -168,7 +168,7 @@ class ModpackBuilder:
 
         failures = list()
 
-        for entry in self.curseforge_mods:
+        for entry in self.curseforge_mods.values():
             file = entry.best_file(self.manifest.game_versions, self.manifest.release_preference)
 
             if file:

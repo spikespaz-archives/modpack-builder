@@ -11,7 +11,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
 
         self.builder = builder
 
-        self.column_names = ("identifier", "name", "file")
+        self.column_names = ("Identifier", "Name", "File")
 
         self.dataChanged.connect(self.parent().verticalHeader().reset)
 
@@ -29,7 +29,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
             return QVariant()
 
         if orientation == Qt.Horizontal:
-            return self.column_names[section].title()
+            return self.column_names[section]
 
         return section
 
@@ -48,25 +48,22 @@ class LoadingPriorityTableModel(QAbstractTableModel):
             return identifier
 
         elif index.column() == 1:  # Name
-            for entry in self.builder.curseforge_mods:
-                if entry.identifier == identifier:
-                    return entry.title
+            if identifier in self.builder.curseforge_mods:
+                return self.builder.curseforge_mods[identifier].title
 
-            for entry in self.builder.manifest.external_mods:
-                if entry.identifier == identifier:
-                    return entry.name
+            if identifier in self.builder.manifest.external_mods:
+                return self.builder.manifest.external_mods[identifier].name
 
-            return None
+            assert None
 
         elif index.column() == 2:  # File
             if identifier in self.builder.curseforge_files:
                 return self.builder.curseforge_files[identifier].name
 
-            for entry in self.builder.manifest.external_mods:
-                if entry.identifier == identifier:
-                    return entry.file
+            if identifier in self.builder.manifest.external_mods:
+                return self.builder.manifest.external_mods[identifier].file
 
-            return None
+            assert None
 
     def setData(self, index, value, role=Qt.DisplayRole):
         if (
