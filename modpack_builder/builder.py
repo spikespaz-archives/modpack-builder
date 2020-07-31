@@ -171,7 +171,15 @@ class ModpackBuilder:
         failures = list()
 
         for entry in self.curseforge_mods.values():
-            file = entry.best_file(self.manifest.game_versions, self.manifest.release_preference)
+            version = self.manifest.curseforge_mods[entry.identifier].version
+
+            if isinstance(version, int):
+                file = entry.file(version)
+            else:
+                if version is None:
+                    version = self.manifest.release_preference
+
+                file = entry.best_file(self.manifest.game_versions, version)
 
             if file:
                 self.__logger(f"Found '{file.type.value}' file for '{entry.identifier}': {file.name}")
