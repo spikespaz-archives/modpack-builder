@@ -134,6 +134,13 @@ class CurseForgeMod:
 
         return files[0]
 
+    def file(self, id_):
+        for entry in self.files:
+            if entry.id == id_:
+                return entry
+
+        return None
+
     @staticmethod
     def get(identifier):
         response = requests.get(CURSEFORGE_API_BASE_URL.format(identifier))
