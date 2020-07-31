@@ -173,7 +173,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.modpack_package_line_edit.setValidator(PathValidator(file=True, extensions=(".zip",)))
         self.profile_icon_path_line_edit.setValidator(PathValidator(file=True, extensions=(".png",)))
         self.minecraft_directory_line_edit.setValidator(PathValidator())
-        self.minecraft_launcher_path_line_edit.setValidator(PathValidator(file=True, extensions=(".exe",)))
+        self.minecraft_launcher_line_edit.setValidator(PathValidator(file=True, extensions=(".exe",)))
 
         # Identifier / slug edits
         self.profile_id_line_edit.setValidator(SlugValidator(size=self.profile_id_length_limit, rstrip=True))
