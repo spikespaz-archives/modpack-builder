@@ -1,3 +1,4 @@
 import os
 
-os.environ["QT_API"] = "pyqt5"
+if "QT_API" not in os.environ:
+    os.environ["QT_API"] = "pyqt5"

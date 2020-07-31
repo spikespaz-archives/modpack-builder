@@ -43,6 +43,8 @@ class ModpackBuilderWindow(QMainWindow):
     def __init__(self, builder, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        print(f"QT_API = {os.environ['QT_API']}")
+
         uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
 
         self.__last_modpack_package_path = None
