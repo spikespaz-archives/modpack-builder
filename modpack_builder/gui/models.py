@@ -56,7 +56,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
             if identifier in self.builder.manifest.external_mods:
                 return self.builder.manifest.external_mods[identifier].name
 
-            assert None
+            return None
 
         elif index.column() == 2:  # File
             if identifier in self.builder.curseforge_files:
@@ -65,7 +65,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
             if identifier in self.builder.manifest.external_mods:
                 return self.builder.manifest.external_mods[identifier].file
 
-            assert None
+            return None
 
     def setData(self, index, value, role=Qt.DisplayRole):
         if (
