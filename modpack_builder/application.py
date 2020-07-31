@@ -421,6 +421,9 @@ class ModpackBuilderWindow(QMainWindow):
             selected_rows = sorted(index.row() for index in selection.selectedRows())
             contiguous_rows = utilities.sequence_groups(selected_rows)
 
+            # Select the next row before removal otherwise the index must be recalculated
+            self.loading_priority_table_view.selectRow(contiguous_rows[-1][-1] + 1)
+
             for rows in reversed(contiguous_rows):
                 self.loading_priority_table_model.removeRows(min(rows), len(rows))
 
