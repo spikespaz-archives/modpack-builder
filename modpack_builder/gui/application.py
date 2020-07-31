@@ -89,6 +89,139 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.__load_values_from_builder()
 
+    def __load_values_from_builder(self):
+        # *** Information ***
+
+        if self.builder.readme_path:
+            self.show_information_markdown(self.builder.readme_path)
+
+        # *** Profile Options ***
+
+        if self.builder.manifest.profile_name:
+            self.profile_name_line_edit.setText(self.builder.manifest.profile_name)
+
+        if self.builder.manifest.profile_id:
+            self.profile_id_line_edit.setText(self.builder.manifest.profile_id)
+
+        if self.builder.manifest.version_label:
+            if self.version_label_combo_box.findText(self.builder.manifest.version_label) == -1:
+                self.version_label_combo_box.addItem(self.builder.manifest.version_label)
+
+            self.version_label_combo_box.setCurrentText(self.builder.manifest.version_label)
+
+        if self.builder.manifest.profile_icon:
+            self.profile_icon_base64_line_edit.setText(self.builder.manifest.profile_icon)
+
+        # ***CurseForge Mods***
+
+        if self.builder.manifest.game_versions:
+            self.minecraft_versions_line_edit.setText(", ".join(self.builder.manifest.game_versions))
+
+        self.release_type_combo_box.setCurrentText(self.builder.manifest.release_preference.value.title())
+
+        # ***External Mods***
+
+        # ***Loading Priority***
+
+        # ***Minecraft Forge***
+
+        # ***Java Runtime***
+
+        self.client_allocated_memory_spin_box.setValue(self.builder.client_allocated_memory)
+        self.server_allocated_memory_spin_box.setValue(self.builder.server_allocated_memory)
+
+        if self.builder.manifest.client_java_args:
+            self.client_jvm_arguments_text_edit.setPlainText(
+                "\n".join(self.builder.manifest.client_java_args)
+            )
+        if self.builder.manifest.server_java_args:
+            self.server_jvm_arguments_text_edit.setPlainText(
+                "\n".join(self.builder.manifest.server_java_args)
+            )
+
+        if self.builder.manifest.java_downloads.darwin:
+            self.java_download_url_mac_line_edit.setText(self.builder.manifest.java_downloads.darwin)
+        if self.builder.manifest.java_downloads.linux:
+            self.java_download_url_linux_line_edit.setText(self.builder.manifest.java_downloads.linux)
+        if self.builder.manifest.java_downloads.windows:
+            self.java_download_url_windows_line_edit.setText(self.builder.manifest.java_downloads.windows)
+
+        # ***External Resources***
+
+        # *** Application Settings ***
+
+        if self.builder.minecraft_directory:
+            self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
+
+        if self.builder.profiles_directory:
+            self.profiles_directory_line_edit.setText(str(self.builder.profiles_directory))
+
+        if self.builder.minecraft_launcher_path:
+            self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
+
+        # Set the value for concurrent requests and downloads spin boxes
+        self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
+        self.concurrent_downloads_spin_box.setValue(self.builder.concurrent_downloads)
+
+    def __load_package(self, path):
+        progress_dialog = MultiProgressDialog(parent=self)
+
+        progress_dialog.setWindowTitle("Extracting Modpack Package")
+
+        self.builder.reporter = progress_dialog.main_reporter
+        self.builder.logger = progress_dialog.log
+
+        @helpers.make_slot()
+        @helpers.connect_slot(progress_dialog.completed)
+        def __on_progress_dialog_completed():
+            self.__load_values_from_builder()
+            progress_dialog.close()
+
+        @utilities.make_thread(daemon=True)
+        def __builder_load_package_thread():
+            self.builder.load_package(path)
+            progress_dialog.completed.emit()
+
+        @helpers.make_slot()
+        @helpers.connect_slot(progress_dialog.cancel_request)
+        def __on_cancel_request():
+            self.builder.abort()
+            progress_dialog.completed.emit()
+
+        progress_dialog.show()
+        __builder_load_package_thread.start()
+
+    def show_information_markdown(self, path):
+        with open((Path(__file__).parent / "ui/markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
+            markdown_css = markdown_css_file.read()
+
+        with open(path, "r", encoding="utf-8") as readme_file:
+            readme_markdown = readme_file.read()
+
+        readme_html = markdown2.markdown(
+            readme_markdown,
+            extras="cuddled-lists fenced-code-blocks smartypants spoiler strike tables tag-friendly task_list".split()
+        )
+        readme_html = f"""
+        <html>
+            <head>
+                <style>
+                    body {{
+                        margin: 20px 30px;
+                        user-select: none;
+                    }}
+
+                    {markdown_css}
+                </style>
+            </head>
+            <body class='markdown-body'>
+                {readme_html}
+            </body>
+        </html>
+        """
+
+        self.information_web_engine_page.setHtml(readme_html)
+
     @staticmethod
     def __set_column_width_ratios(widget, width, sizes):
         remainder = width
@@ -682,136 +815,3 @@ class ModpackBuilderWindow(QMainWindow):
                 self.curseforge_mod_remove_button.setEnabled(True)
             else:
                 self.curseforge_mod_remove_button.setEnabled(False)
-
-    def __load_package(self, path):
-        progress_dialog = MultiProgressDialog(parent=self)
-
-        progress_dialog.setWindowTitle("Extracting Modpack Package")
-
-        self.builder.reporter = progress_dialog.main_reporter
-        self.builder.logger = progress_dialog.log
-
-        @helpers.make_slot()
-        @helpers.connect_slot(progress_dialog.completed)
-        def __on_progress_dialog_completed():
-            self.__load_values_from_builder()
-            progress_dialog.close()
-
-        @utilities.make_thread(daemon=True)
-        def __builder_load_package_thread():
-            self.builder.load_package(path)
-            progress_dialog.completed.emit()
-
-        @helpers.make_slot()
-        @helpers.connect_slot(progress_dialog.cancel_request)
-        def __on_cancel_request():
-            self.builder.abort()
-            progress_dialog.completed.emit()
-
-        progress_dialog.show()
-        __builder_load_package_thread.start()
-
-    def __load_values_from_builder(self):
-        # *** Information ***
-
-        if self.builder.readme_path:
-            self.show_information_markdown(self.builder.readme_path)
-
-        # *** Profile Options ***
-
-        if self.builder.manifest.profile_name:
-            self.profile_name_line_edit.setText(self.builder.manifest.profile_name)
-
-        if self.builder.manifest.profile_id:
-            self.profile_id_line_edit.setText(self.builder.manifest.profile_id)
-
-        if self.builder.manifest.version_label:
-            if self.version_label_combo_box.findText(self.builder.manifest.version_label) == -1:
-                self.version_label_combo_box.addItem(self.builder.manifest.version_label)
-
-            self.version_label_combo_box.setCurrentText(self.builder.manifest.version_label)
-
-        if self.builder.manifest.profile_icon:
-            self.profile_icon_base64_line_edit.setText(self.builder.manifest.profile_icon)
-
-        # ***CurseForge Mods***
-
-        if self.builder.manifest.game_versions:
-            self.minecraft_versions_line_edit.setText(", ".join(self.builder.manifest.game_versions))
-
-        self.release_type_combo_box.setCurrentText(self.builder.manifest.release_preference.value.title())
-
-        # ***External Mods***
-
-        # ***Loading Priority***
-
-        # ***Minecraft Forge***
-
-        # ***Java Runtime***
-
-        self.client_allocated_memory_spin_box.setValue(self.builder.client_allocated_memory)
-        self.server_allocated_memory_spin_box.setValue(self.builder.server_allocated_memory)
-
-        if self.builder.manifest.client_java_args:
-            self.client_jvm_arguments_text_edit.setPlainText(
-                "\n".join(self.builder.manifest.client_java_args)
-            )
-        if self.builder.manifest.server_java_args:
-            self.server_jvm_arguments_text_edit.setPlainText(
-                "\n".join(self.builder.manifest.server_java_args)
-            )
-
-        if self.builder.manifest.java_downloads.darwin:
-            self.java_download_url_mac_line_edit.setText(self.builder.manifest.java_downloads.darwin)
-        if self.builder.manifest.java_downloads.linux:
-            self.java_download_url_linux_line_edit.setText(self.builder.manifest.java_downloads.linux)
-        if self.builder.manifest.java_downloads.windows:
-            self.java_download_url_windows_line_edit.setText(self.builder.manifest.java_downloads.windows)
-
-        # ***External Resources***
-
-        # *** Application Settings ***
-
-        if self.builder.minecraft_directory:
-            self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
-
-        if self.builder.profiles_directory:
-            self.profiles_directory_line_edit.setText(str(self.builder.profiles_directory))
-
-        if self.builder.minecraft_launcher_path:
-            self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
-
-        # Set the value for concurrent requests and downloads spin boxes
-        self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
-        self.concurrent_downloads_spin_box.setValue(self.builder.concurrent_downloads)
-
-    def show_information_markdown(self, path):
-        with open((Path(__file__).parent / "ui/markdown.css").resolve(), "r", encoding="utf-8") as markdown_css_file:
-            markdown_css = markdown_css_file.read()
-
-        with open(path, "r", encoding="utf-8") as readme_file:
-            readme_markdown = readme_file.read()
-
-        readme_html = markdown2.markdown(
-            readme_markdown,
-            extras="cuddled-lists fenced-code-blocks smartypants spoiler strike tables tag-friendly task_list".split()
-        )
-        readme_html = f"""
-        <html>
-            <head>
-                <style>
-                    body {{
-                        margin: 20px 30px;
-                        user-select: none;
-                    }}
-
-                    {markdown_css}
-                </style>
-            </head>
-            <body class='markdown-body'>
-                {readme_html}
-            </body>
-        </html>
-        """
-
-        self.information_web_engine_page.setHtml(readme_html)
