@@ -251,7 +251,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
     def removeRows(self, row, count, _=None):
         self.beginRemoveRows(QModelIndex(), row, row + count - 1)
 
-        for _ in range(row, row + count - 1):
+        for _ in range(row, row + count):
             if (identifier := self.identifiers.pop(row)) is None:
                 continue
 
