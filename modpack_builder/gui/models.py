@@ -196,7 +196,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         elif index.column() == 2:  # Version
             curseforge_mod = self.builder.manifest.curseforge_mods[self.identifiers[index.row()]]
 
-            if not curseforge_mod.version:
+            if curseforge_mod.version is None:
                 return None
             elif isinstance(curseforge_mod.version, ReleaseType):
                 return curseforge_mod.version.value.title()
