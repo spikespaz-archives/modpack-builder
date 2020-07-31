@@ -697,10 +697,11 @@ class ModpackBuilderWindow(QMainWindow):
             self.builder.load_package(path)
             progress_dialog.completed.emit()
 
-        # @helpers.make_slot()
-        # @helpers.connect_slot(progress_dialog.cancel_request)
-        # def __on_cancel_request():
-        #     progress_dialog.completed.emit()
+        @helpers.make_slot()
+        @helpers.connect_slot(progress_dialog.cancel_request)
+        def __on_cancel_request():
+            self.builder.abort()
+            progress_dialog.completed.emit()
 
         progress_dialog.show()
         __builder_load_package_thread.start()
