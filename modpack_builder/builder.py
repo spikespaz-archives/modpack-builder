@@ -262,7 +262,7 @@ class ModpackBuilder:
             identifier=identifier,
             version=None,
             url=CURSEFORGE_MOD_BASE_URL.format(identifier),
-            server=False
+            server=True
         )
 
         self.curseforge_mods[identifier] = curseforge_mod
