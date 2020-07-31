@@ -406,19 +406,10 @@ class ModpackBuilderWindow(QMainWindow):
         def __on_loading_priority_add_button_clicked():
             text = self.loading_priority_mod_identifier_line_edit.text()
 
-            if (
-                not text or
-                text in self.builder.manifest.load_priority or (
-                    # text not in (entry.identifier for entry in self.builder.manifest.curseforge_mods) and
-                    # text not in (entry.identifier for entry in self.builder.manifest.external_mods)
-                )
-            ):
-                return
+            self.loading_priority_table_model.insertRow(0)
+            self.loading_priority_table_model.setData(self.loading_priority_table_model.index(0, 0), text)
 
-            position = self.loading_priority_table_model.rowCount()
-
-            self.loading_priority_table_model.insertRow(position)
-            self.loading_priority_table_model.setData(self.loading_priority_table_model.index(position, 0), text)
+            self.loading_priority_table_view.selectRow(0)
 
         @helpers.make_slot()
         @helpers.connect_slot(self.loading_priority_remove_button.clicked)
