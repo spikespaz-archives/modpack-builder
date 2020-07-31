@@ -4,7 +4,7 @@ from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex
 
 from .. import utilities
 
-from ..curseforge import ReleaseType, CurseForgeMod
+from ..curseforge import ReleaseType
 
 
 class LoadingPriorityTableModel(QAbstractTableModel):
@@ -153,7 +153,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         self.builder = builder
 
         self.column_names = ("Identifier", "Name", "Version", "File")
-        self.inserted_rows = 0
+        self.identifiers = list()
 
         self.dataChanged.connect(self.parent().verticalHeader().reset)
 
@@ -161,7 +161,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount(), self.columnCount()))
 
     def rowCount(self, _=None):
-        return len(self.builder.curseforge_files) + self.inserted_rows
+        return len(self.identifiers)
 
     def columnCount(self, _=None):
         return len(self.column_names)
@@ -184,19 +184,17 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         ):
             return None
 
-        if index.row() > len(self.builder.curseforge_files):
+        if self.identifiers[index.row()] is None:
             return None
 
-        identifier = tuple(self.builder.curseforge_files.keys())[index.row()]
-
         if index.column() == 0:  # Identifier
-            return identifier
+            return self.identifiers[index.row()]
 
         elif index.column() == 1:  # Name
-            return self.builder.curseforge_mods[identifier].title
+            return self.builder.curseforge_mods[self.identifiers[index.row()]].title
 
         elif index.column() == 2:  # Version
-            curseforge_mod = self.builder.manifest.curseforge_mods[identifier]
+            curseforge_mod = self.builder.manifest.curseforge_mods[self.identifiers[index.row()]]
 
             if not curseforge_mod.version:
                 return None
@@ -206,7 +204,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
                 return str(curseforge_mod.version)
 
         elif index.column() == 3:  # File
-            return self.builder.curseforge_files[identifier].name
+            return self.builder.curseforge_files[self.identifiers[index.row()]].name
 
     def setData(self, index, value, role=Qt.DisplayRole):
         if (
@@ -217,34 +215,17 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         ):
             return False
 
-        if index.row() > len(self.builder.curseforge_files):
-            if index.column() != 0:
-                raise IndexError()
-            else:
-                identifier = value
-                self.inserted_rows -= 1
-        else:
-            identifier = tuple(self.builder.curseforge_files.keys())[index.row()]
+        if self.identifiers[index.row()] is None and index.column() != 0:
+            raise IndexError()
 
         if index.column() == 0:  # Identifier
-            if identifier in self.identifiers:
-                return False
-
-            curseforge_mod = CurseForgeMod.get(identifier)
-
-            self.builder.curseforge_mods[identifier] = curseforge_mod
-            self.builder.curseforge_files[identifier] = curseforge_mod.best_file(
-                self.builder.manifest.game_versions,
-                self.builder.manifest.release_preference
-            )
-
-            self.identifiers[index] = identifier
+            self.identifiers[index.row()] = value
 
         elif index.column() == 1:  # Name
             return False
 
         elif index.column() == 2:  # Version
-            self.builder.manifest.curseforge_files[identifier].version = value
+            self.builder.manifest.curseforge_files[self.identifiers[index.row()]].version = value
 
         elif index.column() == 3:  # File
             return False
@@ -260,7 +241,8 @@ class CurseForgeModsTableModel(QAbstractTableModel):
     def insertRows(self, row, count, _=None):
         self.beginInsertRows(QModelIndex(), row, row + count - 1)
 
-        self.inserted_rows += count
+        for index in range(row, row + count):
+            self.identifiers.insert(index, None)
 
         self.endInsertRows()
 
@@ -269,8 +251,9 @@ class CurseForgeModsTableModel(QAbstractTableModel):
     def removeRows(self, row, count, _=None):
         self.beginRemoveRows(QModelIndex(), row, row + count - 1)
 
-        for _ in range(count):
-            identifier = tuple(self.builder.curseforge_files.keys())[row]
+        for _ in range(row, row + count - 1):
+            if (identifier := self.identifiers.pop(row)) is None:
+                continue
 
             self.builder.curseforge_mods.pop(identifier)
             self.builder.curseforge_files.pop(identifier)
