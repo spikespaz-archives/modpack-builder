@@ -21,7 +21,7 @@ class ModpackManifest:
         immutable: bool = None
         server: bool = None
 
-    @dataclasses.dataclass(frozen=True)
+    @dataclasses.dataclass
     class ExternalMod:
         identifier: str = None
         name: str = None
@@ -31,7 +31,7 @@ class ModpackManifest:
         file: str = None
         server: bool = None
 
-    @dataclasses.dataclass(frozen=True)
+    @dataclasses.dataclass
     class CurseForgeMod:
         identifier: str = None
         version: str = None
