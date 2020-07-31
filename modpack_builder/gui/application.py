@@ -87,7 +87,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__bind_file_and_directory_picker_buttons()
         self.__bind_action_buttons()
         self.__bind_synchronized_controls()
-        self.__bind_selection_changes()
+        self.__bind_table_selection_changes()
 
         self.__load_values_from_builder()
 
@@ -337,12 +337,29 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(self.curseforge_mod_add_button.clicked)
         def __on_curseforge_mod_add_button_clicked():
-            pass
+            text = self.curseforge_mod_identifier_line_edit.text()
+
+            if not self.builder.add_curseforge_mod(text):
+                return
+
+            self.curseforge_mods_table_model.insertRow(0)
+            self.curseforge_mods_table_model.setData(self.curseforge_mods_table_model.index(0, 0), text)
+            self.curseforge_mods_table_view.selectRow(0)
 
         @helpers.make_slot()
         @helpers.connect_slot(self.curseforge_mod_remove_button.clicked)
         def __on_curseforge_mod_remove_button_clicked():
-            pass
+            if not (selection := self.curseforge_mods_table_view.selectionModel()).hasSelection():
+                return
+
+            selected_rows = sorted(index.row() for index in selection.selectedRows())
+            contiguous_rows = utilities.sequence_groups(selected_rows)
+
+            # Select the next row before removal otherwise the index must be recalculated
+            self.curseforge_mods_table_view.selectRow(contiguous_rows[-1][-1] + 1)
+
+            for rows in reversed(contiguous_rows):
+                self.curseforge_mods_table_model.removeRows(min(rows), len(rows))
 
         @helpers.make_slot()
         @helpers.connect_slot(self.curseforge_mod_update_button.clicked)
@@ -385,7 +402,6 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.loading_priority_table_model.insertRow(0)
             self.loading_priority_table_model.setData(self.loading_priority_table_model.index(0, 0), text)
-
             self.loading_priority_table_view.selectRow(0)
 
         @helpers.make_slot()
@@ -514,6 +530,18 @@ class ModpackBuilderWindow(QMainWindow):
         # ***CurseForge Mods***
 
         @helpers.make_slot(str)
+        @helpers.connect_slot(self.curseforge_mod_identifier_line_edit.textChanged)
+        def __on_curseforge_mod_identifier_line_edit_text_changed(text):
+            if text and text not in self.builder.curseforge_files:
+                self.curseforge_mod_add_button.setEnabled(True)
+            else:
+                self.curseforge_mod_add_button.setEnabled(False)
+
+            if text in self.curseforge_mods_table_model.identifiers:
+                # Assumes that nothing is already selected
+                self.curseforge_mods_table_view.selectRow(self.curseforge_mods_table_model.identifiers.index(text))
+
+        @helpers.make_slot(str)
         @helpers.connect_slot(self.minecraft_versions_line_edit.textChanged)
         def __on_minecraft_versions_line_edit_text_changed(text):
             self.builder.manifest.game_versions.clear()
@@ -597,7 +625,7 @@ class ModpackBuilderWindow(QMainWindow):
         def __on_minecraft_launcher_line_edit_text_changed(text):
             self.builder.minecraft_launcher_path = Path(text)
 
-    def __bind_selection_changes(self):
+    def __bind_table_selection_changes(self):
         @helpers.make_slot(QItemSelection, QItemSelection)
         @helpers.connect_slot(self.loading_priority_table_view.selectionModel().selectionChanged)
         def __on_loading_priority_table_view_selection_model_selection_changed(*_):
@@ -625,6 +653,30 @@ class ModpackBuilderWindow(QMainWindow):
                 self.loading_priority_remove_button.setEnabled(False)
                 self.loading_priority_increase_button.setEnabled(False)
                 self.loading_priority_decrease_button.setEnabled(False)
+
+        @helpers.make_slot(QItemSelection, QItemSelection)
+        @helpers.connect_slot(self.curseforge_mods_table_view.selectionModel().selectionChanged)
+        def __on_curseforge_mods_table_view_selection_model_selection_changed(*_):
+            selected_rows = tuple(
+                index.row() for index in self.curseforge_mods_table_view.selectionModel().selectedRows()
+            )
+
+            if len(selected_rows) == 0:
+                self.curseforge_mod_identifier_line_edit.setText(None)
+                self.curseforge_mod_identifier_line_edit.setEnabled(True)
+            elif len(selected_rows) == 1:
+                self.curseforge_mod_identifier_line_edit.setText(
+                    self.curseforge_mods_table_model.identifiers[selected_rows[-1]]
+                )
+                self.curseforge_mod_identifier_line_edit.setEnabled(True)
+            else:
+                self.curseforge_mod_identifier_line_edit.setText(None)
+                self.curseforge_mod_identifier_line_edit.setEnabled(False)
+
+            if len(selected_rows):
+                self.curseforge_mod_remove_button.setEnabled(True)
+            else:
+                self.curseforge_mod_remove_button.setEnabled(False)
 
     def __load_package(self, path):
         progress_dialog = MultiProgressDialog(parent=self)
