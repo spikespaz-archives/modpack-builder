@@ -17,8 +17,10 @@ from .manifest import ModpackManifest
 from .utilities import ProgressReporter
 from .curseforge import CurseForgeMod
 
-
 PLATFORM = platform.system()
+
+if PLATFORM == "Windows":
+    import win32com.client
 
 
 class ModpackBuilder:
@@ -393,8 +395,6 @@ class ModpackBuilder:
     @staticmethod
     def get_minecraft_launcher_path():
         if PLATFORM == "Windows":
-            import win32com.client
-
             shell = win32com.client.Dispatch("WScript.Shell")
 
             def __find_minecraft_launcher_path(directory):

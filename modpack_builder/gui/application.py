@@ -15,11 +15,13 @@ from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtWidgets import QMainWindow, QHeaderView
 from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
 
-from . import helpers
 from .. import utilities
 
 from ..builder import ModpackBuilder
 from ..curseforge import ReleaseType
+
+from . import helpers
+
 from .models import LoadingPriorityTableModel
 from .validators import SlugValidator, PathValidator
 from .multi_progress_dialog import MultiProgressDialog
