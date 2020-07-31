@@ -44,13 +44,7 @@ class ModpackManifest:
         self.profile_icon = data.get("profile_icon")
         self.game_versions = OrderedSet(data.get("game_versions", tuple()))
 
-        java_downloads = data.get("java_downloads", dict())
-
-        self.java_downloads = ModpackManifest.JavaDownloads(
-            windows=java_downloads.get("windows"),
-            darwin=java_downloads.get("darwin"),
-            linux=java_downloads.get("linux")
-        )
+        self.java_downloads = ModpackManifest.JavaDownloads(**data.get("java_downloads", dict()))
 
         self.forge_download = data.get("forge_download")
         self.version_label = data.get("version_label")
