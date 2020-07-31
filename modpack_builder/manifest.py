@@ -1,6 +1,8 @@
 import shlex
 import dataclasses
 
+from typing import Union
+
 from orderedset import OrderedSet
 
 from . import curseforge
@@ -34,7 +36,7 @@ class ModpackManifest:
     @dataclasses.dataclass
     class CurseForgeMod:
         identifier: str = None
-        version: str = None
+        version: Union[ReleaseType, int] = None
         url: str = None
         server: bool = None
 
