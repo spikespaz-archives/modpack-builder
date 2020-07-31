@@ -5,9 +5,7 @@ from typing import Union
 
 from orderedset import OrderedSet
 
-from . import curseforge
-
-from .curseforge import ReleaseType
+from .curseforge import ReleaseType, CURSEFORGE_MOD_BASE_URL
 
 
 class ModpackManifest:
@@ -95,7 +93,7 @@ class ModpackManifest:
             self.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
                 identifier=identifier,
                 version=version if version else None,
-                url=curseforge.CURSEFORGE_MOD_BASE_URL.format(identifier),
+                url=CURSEFORGE_MOD_BASE_URL.format(identifier),
                 server=False
             )
 
@@ -108,7 +106,7 @@ class ModpackManifest:
             self.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
                 identifier=identifier,
                 version=version if version else None,
-                url=curseforge.CURSEFORGE_MOD_BASE_URL.format(identifier),
+                url=CURSEFORGE_MOD_BASE_URL.format(identifier),
                 server=True
             )
 

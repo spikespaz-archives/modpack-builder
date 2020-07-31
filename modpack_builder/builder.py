@@ -15,7 +15,7 @@ from . import utilities
 
 from .manifest import ModpackManifest
 from .utilities import ProgressReporter
-from .curseforge import CurseForgeMod
+from .curseforge import CurseForgeMod, CURSEFORGE_MOD_BASE_URL
 
 PLATFORM = platform.system()
 
@@ -243,6 +243,32 @@ class ModpackBuilder:
             self.__logger(f"Failed downloads: {', '.join(file.name for file in failures.values())}")
 
         self.__reporter.done()
+
+    def add_curseforge_mod(self, identifier):
+        if (curseforge_mod := CurseForgeMod.get(identifier)) is None:
+            self.__logger(f"Unable to retrieve mod information: {identifier}")
+            return False
+
+        curseforge_file = curseforge_mod.best_file(
+            self.manifest.game_versions,
+            self.manifest.release_preference
+        )
+
+        if curseforge_file is None:
+            self.__logger(f"Unable to find file: {identifier}")
+            return False
+
+        self.manifest.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
+            identifier=identifier,
+            version=None,
+            url=CURSEFORGE_MOD_BASE_URL.format(identifier),
+            server=False
+        )
+
+        self.curseforge_mods[identifier] = curseforge_mod
+        self.curseforge_files[identifier] = curseforge_file
+
+        return True
 
     def install_mods(self):
         self.fetch_curseforge_mods()
