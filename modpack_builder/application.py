@@ -30,6 +30,10 @@ class SlugValidator(QValidator):
 
         self.__kwargs = kwargs
 
+        # Allow the user to input whitespace at the end by default
+        if "rstrip" not in self.__kwargs:
+            self.__kwargs["rstrip"] = False
+
     def validate(self, text, cursor_pos):
         return (
             QValidator.Acceptable,

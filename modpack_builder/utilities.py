@@ -91,7 +91,7 @@ def generate_id(size=6, chars=string.ascii_lowercase + string.digits):
     return "".join(random.choice(chars) for _ in range(size))
 
 
-def slugify(text, size=None, prefix=None, allow_unicode=False, allow_underscores=False):
+def slugify(text, size=None, prefix=None, allow_unicode=False, allow_underscores=False, lstrip=True, rstrip=True):
     """
     Adapted from the Django Project to provide some extra options.
     https://docs.djangoproject.com/en/3.0/_modules/django/utils/text/#slugify
@@ -101,6 +101,8 @@ def slugify(text, size=None, prefix=None, allow_unicode=False, allow_underscores
     :param prefix:
     :param allow_unicode:
     :param allow_underscores:
+    :param lstrip:
+    :param rstrip:
     :return:
     """
 
@@ -119,7 +121,13 @@ def slugify(text, size=None, prefix=None, allow_unicode=False, allow_underscores
         text = text.encode("ascii", "ignore").decode("ascii")
 
     # Strip whitespace from ends and lowercase the string, whitespace may be dangling after characters removed above
-    text = text.strip().lower()
+    if lstrip:
+        text = text.lstrip()
+
+    if rstrip:
+        text = text.rstrip()
+
+    text = text.lower()
     text = re.sub(r"[^\w\s-]", "", text)
 
     # Replace any consecutive hyphens and whitespace with a single hyphen, underscores too if disallowed
