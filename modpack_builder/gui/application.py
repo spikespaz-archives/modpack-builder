@@ -22,6 +22,7 @@ from ..curseforge import ReleaseType
 
 from . import helpers
 
+from .settings import ModpackBuilderSettings
 from .validators import SlugValidator, PathValidator
 from .multi_progress_dialog import MultiProgressDialog
 from .models import LoadingPriorityTableModel, CurseForgeModsTableModel
@@ -42,7 +43,7 @@ class ModpackBuilderWindow(QMainWindow):
     # unwieldy due to potentially abhorrently long modpack names.
     profile_id_length_limit = 32
 
-    def __init__(self, builder, *args, **kwargs):
+    def __init__(self, builder, settings=None, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         print(f"QT_API = {os.environ['QT_API']}")
@@ -53,6 +54,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__should_reset_profile_icon_path = False
 
         self.builder = builder
+        self.settings = settings if settings is not None else ModpackBuilderSettings(builder)
 
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":
@@ -150,18 +152,18 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** Application Settings ***
 
-        if self.builder.minecraft_directory:
-            self.minecraft_directory_line_edit.setText(str(self.builder.minecraft_directory))
+        if self.settings.minecraft_directory:
+            self.minecraft_directory_line_edit.setText(str(self.settings.minecraft_directory))
 
-        if self.builder.profiles_directory:
-            self.profiles_directory_line_edit.setText(str(self.builder.profiles_directory))
+        if self.settings.profiles_directory:
+            self.profiles_directory_line_edit.setText(str(self.settings.profiles_directory))
 
-        if self.builder.minecraft_launcher_path:
-            self.minecraft_launcher_line_edit.setText(str(self.builder.minecraft_launcher_path))
+        if self.settings.minecraft_launcher_path:
+            self.minecraft_launcher_line_edit.setText(str(self.settings.minecraft_launcher_path))
 
         # Set the value for concurrent requests and downloads spin boxes
-        self.concurrent_requests_spin_box.setValue(self.builder.concurrent_requests)
-        self.concurrent_downloads_spin_box.setValue(self.builder.concurrent_downloads)
+        self.concurrent_requests_spin_box.setValue(self.settings.concurrent_requests)
+        self.concurrent_downloads_spin_box.setValue(self.settings.concurrent_downloads)
 
     def __load_package(self, path):
         progress_dialog = MultiProgressDialog(parent=self)
@@ -340,12 +342,12 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot(int)
         @helpers.connect_slot(self.concurrent_requests_spin_box.valueChanged)
         def __on_concurrent_requests_spin_box_value_changed(value):
-            self.builder.concurrent_requests = value
+            self.settings.concurrent_requests = value
 
         @helpers.make_slot(int)
         @helpers.connect_slot(self.concurrent_downloads_spin_box.valueChanged)
         def __on_concurrent_downloads_spin_box_value_changed(value):
-            self.builder.concurrent_downloads = value
+            self.settings.concurrent_downloads = value
 
     def __bind_file_and_directory_picker_buttons(self):
         @helpers.make_slot()
@@ -443,7 +445,7 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.launch_minecraft_button.clicked)
         def __on_launch_minecraft_button_clicked():
             Popen(
-                self.builder.minecraft_launcher_path,
+                self.settings.minecraft_launcher_path,
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -479,6 +481,8 @@ class ModpackBuilderWindow(QMainWindow):
 
             if not self.builder.add_curseforge_mod(text):
                 return
+
+            self.settings.curseforge_cache[text] = self.builder.curseforge_mods[text]
 
             self.curseforge_mods_table_model.insertRow(0)
             self.curseforge_mods_table_model.setData(self.curseforge_mods_table_model.index(0, 0), text)
@@ -640,7 +644,8 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_id_line_edit.textChanged)
         def __on_profile_id_line_edit_text_changed(text):
-            profile_directory = Path(self.builder.profiles_directory / text)
+            profile_directory = Path(self.settings.profiles_directory / text)
+
             self.profile_directory_line_edit.setText(str(profile_directory))
             self.builder.manifest.profile_id = text
             self.builder.manifest.profile_directory = profile_directory
@@ -751,17 +756,17 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot(str)
         @helpers.connect_slot(self.minecraft_directory_line_edit.textChanged)
         def __on_minecraft_directory_line_edit_text_changed(text):
-            self.builder.minecraft_directory = Path(text)
+            self.settings.minecraft_directory = Path(text)
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profiles_directory_line_edit.textChanged)
         def __on_profiles_directory_line_edit_text_changed(text):
-            self.builder.profiles_directory = Path(text)
+            self.settings.profiles_directory = Path(text)
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.minecraft_launcher_line_edit.textChanged)
         def __on_minecraft_launcher_line_edit_text_changed(text):
-            self.builder.minecraft_launcher_path = Path(text)
+            self.settings.minecraft_launcher_path = Path(text)
 
     def __bind_table_selection_changes(self):
         @helpers.make_slot(QItemSelection, QItemSelection)
