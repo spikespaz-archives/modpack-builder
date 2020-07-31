@@ -39,9 +39,6 @@ class ModpackBuilderWindow(QMainWindow):
     # the directory names tidy and preventing auto-generated folder names from getting
     # unwieldy due to potentially abhorrently long modpack names.
     profile_id_length_limit = 32
-    # This is the color of the bottom bar of the Minecraft Launcher where the
-    # profile selection dropdown is shown.
-    profile_icon_background_color = "#262626"
 
     def __init__(self, builder, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -136,7 +133,7 @@ class ModpackBuilderWindow(QMainWindow):
 
     def __set_widget_stylesheets(self):
         self.profile_icon_image_label.setStyleSheet(
-            f"QLabel {{ background: '{self.profile_icon_background_color}' }}"
+            f"QLabel {{ background: #262626 }}"
         )
 
         # Fix for the bottom border missing on the table view's header, only on Windows 10
