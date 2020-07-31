@@ -144,9 +144,14 @@ class CurseForgeMod:
     @staticmethod
     def get(identifier):
         response = requests.get(CURSEFORGE_API_BASE_URL.format(identifier))
-        response.raise_for_status()
 
-        return CurseForgeMod(identifier, **response.json())
+        if response.status_code != 200 and response.headers.get("content-type") != "application/json":
+            response.raise_for_status()
+
+        if "error" in (response_json := response.json()):
+            return None
+
+        return CurseForgeMod(identifier, **response_json)
 
     @property
     def identifier(self):
