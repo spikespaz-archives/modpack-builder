@@ -117,16 +117,12 @@ class ModpackBuilderWindow(QMainWindow):
         if os.environ["QT_API"] == "pyqt5":
             self.setContentsMargins(9, 9, 9, 9)
 
-        self.modpack_package_line_edit.setValidator(PathValidator(file=True, extensions=(".zip",)))
-
         # Set up the QWebEngineView for the markdown information view
         self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
         self.information_web_engine_page = LockedWebEnginePage()
         self.information_web_engine_view.setPage(self.information_web_engine_page)
         self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
-
-        self.profile_id_line_edit.setValidator(SlugValidator(size=self.profile_id_length_limit))
 
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
@@ -162,6 +158,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__install_event_filters()
+        self.__set_text_input_validators()
         self.__set_spin_box_and_slider_ranges()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
@@ -190,6 +187,19 @@ class ModpackBuilderWindow(QMainWindow):
     def __install_event_filters(self):
         self.profile_icon_image_label.installEventFilter(self)
         self.loading_priority_table_view.installEventFilter(self)
+
+    def __set_text_input_validators(self):
+        # File and directory path edits
+        self.modpack_package_line_edit.setValidator(PathValidator(file=True, extensions=(".zip",)))
+        self.profile_icon_path_line_edit.setValidator(PathValidator(file=True, extensions=(".png",)))
+        self.minecraft_directory_line_edit.setValidator(PathValidator())
+        self.minecraft_launcher_path_line_edit.setValidator(PathValidator(file=True, extensions=(".exe",)))
+
+        # Identifier / slug edits
+        self.profile_id_line_edit.setValidator(SlugValidator(size=self.profile_id_length_limit, rstrip=True))
+        self.curseforge_mod_identifier_line_edit.setValidator(SlugValidator())
+        self.external_mod_identifier_line_edit.setValidator(SlugValidator())
+        self.loading_priority_mod_identifier_line_edit.setValidator(SlugValidator())
 
     def __set_spin_box_and_slider_ranges(self):
         # Set the min and max range for concurrent requests and downloads sliders/spin boxes
