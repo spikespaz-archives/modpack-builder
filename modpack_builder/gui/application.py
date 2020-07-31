@@ -66,7 +66,6 @@ class ModpackBuilderWindow(QMainWindow):
         )
         self.loading_priority_table_view.setModel(self.loading_priority_table_model)
 
-        self.loading_priority_table_view.horizontalHeader().setStretchLastSection(True)
         self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.curseforge_mods_table_model = CurseForgeModsTableModel(
@@ -75,7 +74,6 @@ class ModpackBuilderWindow(QMainWindow):
         )
         self.curseforge_mods_table_view.setModel(self.curseforge_mods_table_model)
 
-        self.curseforge_mods_table_view.horizontalHeader().setStretchLastSection(True)
         self.curseforge_mods_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__create_information_view()
@@ -91,20 +89,26 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.__load_values_from_builder()
 
+    @staticmethod
+    def __set_column_width_ratios(widget, width, sizes):
+        remainder = width
+
+        for column, size in enumerate(sizes[:-1]):
+            widget.setColumnWidth(column, column_width := round(width * size / sum(sizes)))
+            remainder -= column_width
+
+        widget.setColumnWidth(len(sizes) - 1, remainder)
+
     def eventFilter(self, source, event):
         if source is self.curseforge_mods_table_view:
             if event.type() == QEvent.Resize:
-                self.curseforge_mods_table_view.setColumnWidth(0, event.size().width() * (3 / 14))  # Identifier
-                self.curseforge_mods_table_view.setColumnWidth(1, event.size().width() * (4 / 14))  # Name
-                self.curseforge_mods_table_view.setColumnWidth(2, event.size().width() * (1 / 14))  # Server
-                self.curseforge_mods_table_view.setColumnWidth(3, event.size().width() * (1 / 14))  # Version
+                width = self.curseforge_mods_table_view.contentsRect().width()
+                self.__set_column_width_ratios(self.curseforge_mods_table_view, width, (3, 4, 1, 1, 5))
 
         elif source is self.loading_priority_table_view:
             if event.type() == QEvent.Resize:
-                # Fix for no sensible way of specifying column size stretch ratios
-                # Resize all columns except the last leaving the stretch logic in Qt to do the work (prevents scrollbar)
-                self.loading_priority_table_view.setColumnWidth(0, event.size().width() * (3 / 12))  # Identifier
-                self.loading_priority_table_view.setColumnWidth(1, event.size().width() * (4 / 12))  # Name
+                width = self.curseforge_mods_table_view.contentsRect().width()
+                self.__set_column_width_ratios(self.loading_priority_table_view, width, (3, 4, 5))
 
         elif source is self.profile_icon_image_label:
             if event.type() == QEvent.Resize:
