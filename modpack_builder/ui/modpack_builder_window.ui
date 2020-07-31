@@ -223,6 +223,9 @@
            <layout class="QHBoxLayout" name="curseforge_mod_actions_layout">
             <item>
              <widget class="QPushButton" name="curseforge_mod_add_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Add</string>
               </property>
@@ -230,6 +233,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="curseforge_mod_remove_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Remove</string>
               </property>
@@ -237,6 +243,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="curseforge_mod_update_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Update</string>
               </property>
@@ -244,6 +253,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="curseforge_mod_disable_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Disable</string>
               </property>
@@ -325,6 +337,9 @@
            <layout class="QHBoxLayout" name="external_mod_actions_layout">
             <item>
              <widget class="QPushButton" name="external_mod_add_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Add</string>
               </property>
@@ -332,6 +347,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="external_mod_remove_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Remove</string>
               </property>
@@ -339,6 +357,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="external_mod_update_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Update</string>
               </property>
@@ -346,6 +367,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="external_mod_disable_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Disable</string>
               </property>
@@ -388,6 +412,9 @@
            <layout class="QHBoxLayout" name="loading_priority_actions_layout">
             <item>
              <widget class="QPushButton" name="loading_priority_add_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Add</string>
               </property>
@@ -395,6 +422,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="loading_priority_remove_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Remove</string>
               </property>
@@ -402,6 +432,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="loading_priority_increase_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Increase</string>
               </property>
@@ -409,6 +442,9 @@
             </item>
             <item>
              <widget class="QPushButton" name="loading_priority_decrease_button">
+              <property name="enabled">
+               <bool>false</bool>
+              </property>
               <property name="text">
                <string>Decrease</string>
               </property>
