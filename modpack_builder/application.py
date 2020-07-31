@@ -132,8 +132,7 @@ class ModpackBuilderWindow(QMainWindow):
         )
         self.loading_priority_table_view.setModel(self.loading_priority_table_model)
 
-        # Use this instead of 'setStretchLastSection(True)' because the drag handle for the last column is disabled
-        self.loading_priority_table_view.horizontalHeader().setSectionResizeMode(2, QHeaderView.Stretch)
+        self.loading_priority_table_view.horizontalHeader().setStretchLastSection(True)
         self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__install_event_filters()
