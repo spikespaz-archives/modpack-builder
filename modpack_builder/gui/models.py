@@ -152,7 +152,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
 
         self.builder = builder
 
-        self.column_names = ("Identifier", "Name", "Version", "File")
+        self.column_names = ("Identifier", "Name", "Version", "Server", "File")
         self.identifiers = list()
 
         self.dataChanged.connect(self.parent().verticalHeader().reset)
@@ -203,7 +203,10 @@ class CurseForgeModsTableModel(QAbstractTableModel):
             else:  # Must be an actual file ID from CurseForge
                 return str(curseforge_mod.version)
 
-        elif index.column() == 3:  # File
+        elif index.column() == 3:  # Server
+            return str(self.builder.manifest.curseforge_mods[self.identifiers[index.row()]].server)
+
+        elif index.column() == 4:  # File
             return self.builder.curseforge_files[self.identifiers[index.row()]].name
 
     def setData(self, index, value, role=Qt.DisplayRole):
@@ -227,7 +230,10 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         elif index.column() == 2:  # Version
             self.builder.manifest.curseforge_files[self.identifiers[index.row()]].version = value
 
-        elif index.column() == 3:  # File
+        elif index.column() == 3:  # Server
+            return False
+
+        elif index.column() == 4:  # File
             return False
 
         self.dataChanged.emit(
