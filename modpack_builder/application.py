@@ -126,27 +126,6 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
-        self.profile_icon_image_label.setStyleSheet(
-            f"QLabel {{ background: '{self.profile_icon_background_color}' }}"
-        )
-
-        # Fix for the bottom border missing on the table view's header, only on Windows 10
-        if QSysInfo().windowsVersion() == QSysInfo.WV_WINDOWS10:
-            table_view_header_css = """
-            QHeaderView::section {
-                border-style: solid;
-                border-color: #D8D8D8;
-                border-top-width: 0px;
-                border-bottom-width: 1px;
-                border-left-width: 0px;
-                border-right-width: 1px;
-            }
-            """
-
-            self.curseforge_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
-            self.external_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
-            self.loading_priority_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
-
         self.loading_priority_table_model = LoadingPriorityTableModel(
             self.builder,
             parent=self.loading_priority_table_view
@@ -160,6 +139,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__install_event_filters()
         self.__set_text_input_validators()
         self.__set_spin_box_and_slider_ranges()
+        self.__set_widget_stylesheets()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_file_and_directory_picker_buttons()
         self.__bind_action_buttons()
@@ -214,6 +194,28 @@ class ModpackBuilderWindow(QMainWindow):
         self.client_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
         self.server_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
         self.server_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
+
+    def __set_widget_stylesheets(self):
+        self.profile_icon_image_label.setStyleSheet(
+            f"QLabel {{ background: '{self.profile_icon_background_color}' }}"
+        )
+
+        # Fix for the bottom border missing on the table view's header, only on Windows 10
+        if QSysInfo().windowsVersion() == QSysInfo.WV_WINDOWS10:
+            table_view_header_css = """
+                    QHeaderView::section {
+                        border-style: solid;
+                        border-color: #D8D8D8;
+                        border-top-width: 0px;
+                        border-bottom-width: 1px;
+                        border-left-width: 0px;
+                        border-right-width: 1px;
+                    }
+                    """
+
+            self.curseforge_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
+            self.external_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
+            self.loading_priority_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
 
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
