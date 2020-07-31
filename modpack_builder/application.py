@@ -335,10 +335,11 @@ class ModpackBuilderWindow(QMainWindow):
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 close_fds=True,
-                creationflags=
-                subprocess.CREATE_NEW_PROCESS_GROUP |
-                subprocess.DETACHED_PROCESS |
-                subprocess.CREATE_BREAKAWAY_FROM_JOB
+                creationflags=(
+                    subprocess.CREATE_NEW_PROCESS_GROUP |
+                    subprocess.DETACHED_PROCESS |
+                    subprocess.CREATE_BREAKAWAY_FROM_JOB
+                )
             )
 
         @helpers.make_slot()
