@@ -528,7 +528,7 @@ class ModpackBuilderWindow(QMainWindow):
                 pass
 
             if self.__should_reset_profile_icon_path:
-                self.profile_icon_path_line_edit.setText("")
+                self.profile_icon_path_line_edit.setText(None)
 
             self.__should_reset_profile_icon_path = True
 
@@ -551,6 +551,24 @@ class ModpackBuilderWindow(QMainWindow):
         # ***External Mods***
 
         # ***Loading Priority***
+
+        @helpers.make_slot(str)
+        @helpers.connect_slot(self.loading_priority_mod_identifier_line_edit.textChanged)
+        def __on_loading_priority_mod_identifier_line_edit_text_changed(text):
+            if (
+                text and (
+                    text in self.builder.curseforge_mods or
+                    text in self.builder.manifest.external_mods
+                ) and
+                text not in self.builder.manifest.load_priority
+            ):
+                self.loading_priority_add_button.setEnabled(True)
+            else:
+                self.loading_priority_add_button.setEnabled(False)
+
+            if text in self.builder.manifest.load_priority:
+                # Assumes that nothing is already selected
+                self.loading_priority_table_view.selectRow(self.builder.manifest.load_priority.index(text))
 
         # ***Minecraft Forge***
 
