@@ -11,7 +11,7 @@ import markdown2
 
 from qtpy import uic
 from qtpy.QtGui import QDesktopServices, QPixmap
-from qtpy.QtWebEngineWidgets import QWebEnginePage
+from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtWidgets import QMainWindow, QHeaderView
 from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
 
@@ -56,6 +56,8 @@ class ModpackBuilderWindow(QMainWindow):
 
         # Set up the QWebEngineView for the markdown information view
         self.information_web_engine_page = LockedWebEnginePage()
+        self.information_web_engine_view = QWebEngineView(self.information_tab_frame)
+        self.information_tab_frame_layout.addWidget(self.information_web_engine_view)
         self.information_web_engine_view.setPage(self.information_web_engine_page)
         self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
