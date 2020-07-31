@@ -404,7 +404,7 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(self.loading_priority_add_button.clicked)
         def __on_loading_priority_add_button_clicked():
-            text = self.loading_priority_mod_idenfifier_edit.text()
+            text = self.loading_priority_mod_identifier_line_edit.text()
 
             if (
                 not text or

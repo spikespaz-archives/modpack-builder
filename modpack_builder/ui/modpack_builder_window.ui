@@ -217,7 +217,7 @@
            </widget>
           </item>
           <item row="1" column="1">
-           <widget class="QLineEdit" name="curseforge_mod_name_line_edit"/>
+           <widget class="QLineEdit" name="curseforge_mod_identifier_line_edit"/>
           </item>
           <item row="2" column="1">
            <layout class="QHBoxLayout" name="curseforge_mod_actions_layout">
@@ -382,7 +382,7 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QLineEdit" name="loading_priority_mod_idenfifier_edit"/>
+           <widget class="QLineEdit" name="loading_priority_mod_identifier_line_edit"/>
           </item>
           <item row="1" column="1">
            <layout class="QHBoxLayout" name="loading_priority_actions_layout">
@@ -422,7 +422,7 @@
          <widget class="QTableView" name="loading_priority_table_view">
           <property name="selectionBehavior">
            <enum>QAbstractItemView::SelectRows</enum>
-          </property>property>
+          </property>
           <property name="wordWrap">
            <bool>false</bool>
           </property>
