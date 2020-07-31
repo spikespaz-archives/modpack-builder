@@ -2,7 +2,7 @@ from pathlib import Path
 
 from qtpy.QtGui import QValidator
 
-from . import utilities
+from .. import utilities
 
 
 class SlugValidator(QValidator):

@@ -5,9 +5,9 @@ from qtpy.QtGui import QStandardItemModel, QStandardItem
 from qtpy.QtCore import Qt, QObject, Signal, QTimer
 from qtpy import uic
 
-from . import helpers
+from ..gui import helpers
 
-from .builder import ProgressReporter
+from ..builder import ProgressReporter
 
 
 class ProgressBarReporter(ProgressReporter, QObject):

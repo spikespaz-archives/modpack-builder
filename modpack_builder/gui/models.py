@@ -1,8 +1,8 @@
 from orderedset import OrderedSet
 
-from qtpy.QtCore import Qt, QAbstractTableModel, QVariant, QModelIndex
+from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex
 
-from . import utilities
+from .. import utilities
 
 
 class LoadingPriorityTableModel(QAbstractTableModel):
@@ -26,7 +26,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
 
     def headerData(self, section, orientation, role=Qt.DisplayRole):
         if role != Qt.DisplayRole:
-            return QVariant()
+            return None
 
         if orientation == Qt.Horizontal:
             return self.column_names[section]
@@ -40,7 +40,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
             index.row() > self.rowCount() or
             index.column() > self.columnCount()
         ):
-            return QVariant()
+            return None
 
         identifier = self.builder.manifest.load_priority[index.row()]
 
