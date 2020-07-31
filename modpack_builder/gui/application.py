@@ -56,14 +56,6 @@ class ModpackBuilderWindow(QMainWindow):
         if os.environ["QT_API"] == "pyqt5":
             self.setContentsMargins(9, 9, 9, 9)
 
-        # Set up the QWebEngineView for the markdown information view
-        self.information_web_engine_page = LockedWebEnginePage()
-        self.information_web_engine_view = QWebEngineView(self.information_tab_frame)
-        self.information_tab_frame_layout.addWidget(self.information_web_engine_view)
-        self.information_web_engine_view.setPage(self.information_web_engine_page)
-        self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
-        self.information_web_engine_view.setZoomFactor(0.75)
-
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
         self.loading_priority_table_model = LoadingPriorityTableModel(
@@ -75,6 +67,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.loading_priority_table_view.horizontalHeader().setStretchLastSection(True)
         self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
+        self.__create_information_view()
         self.__install_event_filters()
         self.__set_text_input_validators()
         self.__set_spin_box_and_slider_ranges()
@@ -102,6 +95,15 @@ class ModpackBuilderWindow(QMainWindow):
                 self.profile_icon_image_label.setMaximumWidth(event.size().height())
 
         return False  # Default to allow the event to be handled further (order of the filters is unknown)
+
+    def __create_information_view(self):
+        self.information_web_engine_view = QWebEngineView(self.information_tab_frame)
+        self.information_web_engine_page = LockedWebEnginePage(self.information_web_engine_view)
+
+        self.information_tab_frame_layout.addWidget(self.information_web_engine_view)
+        self.information_web_engine_view.setPage(self.information_web_engine_page)
+        self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
+        self.information_web_engine_view.setZoomFactor(0.75)
 
     def __install_event_filters(self):
         self.profile_icon_image_label.installEventFilter(self)
