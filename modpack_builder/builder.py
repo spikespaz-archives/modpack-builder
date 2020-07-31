@@ -73,7 +73,7 @@ class ModpackBuilder:
 
         self.readme_path = None
 
-        self.__manifest = ModpackManifest(dict())
+        self.manifest = ModpackManifest(dict())
 
         self.curseforge_mods = dict()
         self.curseforge_files = dict()
