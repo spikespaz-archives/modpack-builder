@@ -55,7 +55,6 @@ class ModpackBuilderWindow(QMainWindow):
             self.setContentsMargins(9, 9, 9, 9)
 
         # Set up the QWebEngineView for the markdown information view
-        self.information_tab_frame.layout().setContentsMargins(0, 0, 0, 0)
         self.information_web_engine_page = LockedWebEnginePage()
         self.information_web_engine_view.setPage(self.information_web_engine_page)
         self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
