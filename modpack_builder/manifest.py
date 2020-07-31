@@ -87,8 +87,10 @@ class ModpackManifest:
         for identifier in client_data.get("curseforge_mods", tuple()):
             identifier, _, version = identifier.lower().partition(":")
 
-            if version in (member.value for member in ReleaseType):
+            if version and version in (member.value for member in ReleaseType):
                 version = ReleaseType(version)
+            elif version:
+                version = int(version)
 
             self.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
                 identifier=identifier,
