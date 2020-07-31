@@ -12,8 +12,8 @@ import markdown2
 from qtpy import uic
 from qtpy.QtWebEngineWidgets import QWebEnginePage
 from qtpy.QtWidgets import QMainWindow, QHeaderView
-from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent
 from qtpy.QtGui import QDesktopServices, QPixmap, QValidator
+from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
 
 from . import helpers
 from . import utilities
@@ -163,6 +163,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__bind_file_and_directory_picker_buttons()
         self.__bind_action_buttons()
         self.__bind_synchronized_controls()
+        self.__bind_selection_changes()
 
         self.__load_values_from_builder()
 
@@ -598,6 +599,35 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(self.minecraft_launcher_line_edit.textChanged)
         def __on_minecraft_launcher_line_edit_text_changed(text):
             self.builder.minecraft_launcher_path = Path(text)
+
+    def __bind_selection_changes(self):
+        @helpers.make_slot(QItemSelection, QItemSelection)
+        @helpers.connect_slot(self.loading_priority_table_view.selectionModel().selectionChanged)
+        def __on_loading_priority_table_view_selection_model_selection_changed(*_):
+            selected_rows = tuple(
+                index.row() for index in self.loading_priority_table_view.selectionModel().selectedRows()
+            )
+
+            if len(selected_rows) == 0:
+                self.loading_priority_mod_identifier_line_edit.setText(None)
+                self.loading_priority_mod_identifier_line_edit.setEnabled(True)
+            elif len(selected_rows) == 1:
+                self.loading_priority_mod_identifier_line_edit.setText(
+                    self.builder.manifest.load_priority[selected_rows[-1]]
+                )
+                self.loading_priority_mod_identifier_line_edit.setEnabled(True)
+            else:
+                self.loading_priority_mod_identifier_line_edit.setText(None)
+                self.loading_priority_mod_identifier_line_edit.setEnabled(False)
+
+            if len(selected_rows):
+                self.loading_priority_remove_button.setEnabled(True)
+                self.loading_priority_increase_button.setEnabled(True)
+                self.loading_priority_decrease_button.setEnabled(True)
+            else:
+                self.loading_priority_remove_button.setEnabled(False)
+                self.loading_priority_increase_button.setEnabled(False)
+                self.loading_priority_decrease_button.setEnabled(False)
 
     def __load_package(self, path):
         progress_dialog = MultiProgressDialog(parent=self)
