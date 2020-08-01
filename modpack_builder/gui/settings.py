@@ -1,10 +1,12 @@
 import os
 import json
+import pickle
 import shutil
 import platform
 
 from pathlib import Path
 from json import JSONDecodeError
+from pickle import UnpicklingError
 
 from . import PROGRAM_NAME
 
@@ -63,10 +65,10 @@ class ModpackBuilderSettings:
             return False
 
         try:
-            with open(self.__curseforge_cache_file, "r") as file:
-                self.curseforge_cache.update(json.load(file))
+            with open(self.__curseforge_cache_file, "rb") as file:
+                self.curseforge_cache.update(pickle.load(file))
 
-        except JSONDecodeError:
+        except UnpicklingError:
             self.__curseforge_cache_file.unlink()
             return False
 
@@ -76,9 +78,13 @@ class ModpackBuilderSettings:
         with open(self.__settings_file, "w") as file:
             json.dump(self.dictionary, file, indent=self.json_indent)
 
-    def dump_curseforge_cache(self):
-        with open(self.__curseforge_cache_file, "w") as file:
-            json.dump(self.curseforge_cache, file, indent=self.json_indent)
+    def dump_curseforge_cache(self, purge=True):
+        if purge:
+            for entry in self.curseforge_cache.values():
+                entry.__setattr__(f"_{type(entry).__name__}__description", None)
+
+        with open(self.__curseforge_cache_file, "wb") as file:
+            pickle.dump(self.curseforge_cache, file)
 
     @staticmethod
     def get_settings_directory():
@@ -147,7 +153,7 @@ class ModpackBuilderSettings:
 
         self.__settings_directory = value
         self.__settings_file = value / "settings.json"
-        self.__curseforge_cache_file = value / "curseforge_cache.json"
+        self.__curseforge_cache_file = value / "curseforge_cache.dat"
 
         ModpackBuilderSettings.set_settings_directory(value)
 
