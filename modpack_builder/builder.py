@@ -20,6 +20,7 @@ from .curseforge import CurseForgeMod, CURSEFORGE_MOD_BASE_URL
 PLATFORM = platform.system()
 
 if PLATFORM == "Windows":
+    import winreg
     import win32com.client
 
 
@@ -446,11 +447,9 @@ class ModpackBuilder:
             if minecraft_launcher_path is not None and minecraft_launcher_path.exists() and minecraft_launcher_path.is_file():
                 return minecraft_launcher_path
 
-            import winreg
-
             user_shell_folders_key = winreg.OpenKey(
                 winreg.HKEY_CURRENT_USER,
-                "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders"
+                r"SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\User Shell Folders"
             )
             programs_directory = Path(os.path.expandvars(winreg.QueryValueEx(user_shell_folders_key, "Programs")[0]))
             user_shell_folders_key.Close()

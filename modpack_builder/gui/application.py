@@ -54,7 +54,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__should_reset_profile_icon_path = False
 
         self.builder = builder
-        self.settings = settings if settings is not None else ModpackBuilderSettings(builder)
+        self.settings = settings if settings else ModpackBuilderSettings(builder)
 
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":

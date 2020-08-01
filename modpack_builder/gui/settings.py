@@ -1,15 +1,34 @@
+import os
 import json
 import shutil
+import platform
 
 from pathlib import Path
 
+from . import PROGRAM_NAME
+
+PLATFORM = platform.system()
+
+if PLATFORM == "Windows":
+    import winreg
+
 
 class ModpackBuilderSettings:
-    def __init__(self, builder, path=Path("~/.modpack-builder")):
+    def __init__(self, builder, path=None):
         self.json_indent = 2
 
         self.builder = builder
-        self.settings_path = path
+
+        if path:
+            settings_directory = path
+        else:
+            settings_directory = ModpackBuilderSettings.get_settings_directory()
+
+        if not settings_directory:
+            settings_directory = (Path.home() / ".modpack_builder").resolve()
+
+        self.settings_directory = settings_directory
+
         self.curseforge_cache = dict()
 
     def load_settings(self):
@@ -45,20 +64,54 @@ class ModpackBuilderSettings:
         with open(self.__curseforge_cache_file, "w") as file:
             json.dump(self.curseforge_cache, file, indent=self.json_indent)
 
+    @staticmethod
+    def get_settings_directory():
+        if PLATFORM == "Windows":
+            program_key = winreg.OpenKey(winreg.HKEY_CURRENT_USER, rf"SOFTWARE\{PROGRAM_NAME}")
+            settings_path = Path(os.path.expandvars(winreg.QueryValueEx(program_key, "SettingsDirectory")[0]))
+
+            program_key.Close()
+
+            return settings_path
+
+        elif PLATFORM == "Darwin":
+            return None
+
+        elif PLATFORM == "Linux":
+            return None
+
+    @staticmethod
+    def set_settings_directory(path):
+        if PLATFORM == "Windows":
+            program_key = winreg.CreateKeyEx(winreg.HKEY_CURRENT_USER, rf"SOFTWARE\{PROGRAM_NAME}")
+
+            winreg.SetValueEx(program_key, "SettingsDirectory", None, winreg.REG_EXPAND_SZ, path.resolve())
+            winreg.FlushKey(program_key)
+
+            program_key.Close()
+
+        elif PLATFORM == "Darwin":
+            pass
+
+        elif PLATFORM == "Linux":
+            pass
+
     @property
-    def settings_path(self):
+    def settings_directory(self):
         return self.__settings_path
 
-    @settings_path.setter
-    def settings_path(self, value):
+    @settings_directory.setter
+    def settings_directory(self, value):
         (value := value.resolve()).mkdir(parents=True, exist_ok=True)
 
-        if self.settings_path.exists() and self.settings_path.is_dir():
-            shutil.move(str(self.settings_path), str(value))
+        if self.settings_directory.exists() and self.settings_directory.is_dir():
+            shutil.move(str(self.settings_directory), str(value))
 
         self.__settings_path = value
         self.__settings_file = value / "settings.json"
         self.__curseforge_cache_file = value / "curseforge_cache.json"
+
+        ModpackBuilderSettings.set_settings_directory(value)
 
     @property
     def concurrent_requests(self):
