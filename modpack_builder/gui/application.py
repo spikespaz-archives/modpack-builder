@@ -642,7 +642,10 @@ class ModpackBuilderWindow(QMainWindow):
             # the second call of this slot must be ignored if no changes have been tracked.
             # The path is resolved to ensure that the modpack is not reloaded if for whatever reason two equivalent
             # relative or absolute directories replace each other.
-            if (path := Path(self.modpack_package_line_edit.text()).resolve()) == self.__last_modpack_package_path:
+            if (
+                not (text := self.modpack_package_line_edit.text()) or
+                (path := Path(text).resolve()) == self.__last_modpack_package_path
+            ):
                 return
 
             self.__last_modpack_package_path = path
@@ -778,7 +781,10 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(self.settings_directory_line_edit.editingFinished)
         def __on_settings_directory_line_edit_editing_finished():
-            if (path := Path(self.settings_directory_line_edit.text()).resolve()) == self.__last_settings_directory:
+            if (
+                not (text := self.settings_directory_line_edit.text()) or
+                (path := Path(text).resolve()) == self.__last_settings_directory
+            ):
                 return
 
             print(self.__last_settings_directory)
