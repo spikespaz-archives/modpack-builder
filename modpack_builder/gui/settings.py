@@ -123,8 +123,27 @@ class ModpackBuilderSettings:
     def settings_directory(self, value):
         (value := value.resolve()).mkdir(parents=True, exist_ok=True)
 
-        if self.settings_directory and self.settings_directory.exists() and self.settings_directory.is_dir():
-            shutil.move(str(self.settings_directory), str(value))
+        if (
+            self.__settings_file and
+            self.__settings_file.exists() and
+            self.__settings_file.is_file()
+        ):
+            shutil.move(str(self.__settings_file), str(value))
+
+        if (
+            self.__curseforge_cache_file and
+            self.__curseforge_cache_file.exists() and
+            self.__curseforge_cache_file.is_file()
+        ):
+            shutil.move(str(self.__curseforge_cache_file), str(value))
+
+        if (
+            self.settings_directory and
+            self.settings_directory.exists() and
+            self.settings_directory.is_dir() and
+            not tuple(self.settings_directory.iterdir())
+        ):
+            self.settings_directory.rmdir()
 
         self.__settings_directory = value
         self.__settings_file = value / "settings.json"
