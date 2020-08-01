@@ -65,10 +65,20 @@ class CurseForgeMod:
         self.__summary = kwargs.get("summary")
         self.__game = kwargs.get("game")
         self.__type = kwargs.get("type")
-        self.__urls = CurseForgeMod.UrlsEntry(**kwargs.get("urls", dict()))
+
+        if type(urls := kwargs.get("urls", dict())) == list:
+            self.__urls = CurseForgeMod.UrlsEntry()
+        else:
+            self.__urls = CurseForgeMod.UrlsEntry(**urls)
+
         self.__thumbnail = kwargs.get("thumbnail")
         self.__created_at = arrow.get(kwargs["created_at"]) if kwargs.get("created_at") else None
-        self.__downloads = CurseForgeMod.DownloadsEntry(**kwargs.get("downloads", dict()))
+
+        if type(downloads := kwargs.get("downloads", dict())) == list:
+            self.__downloads = CurseForgeMod.DownloadsEntry()
+        else:
+            self.__downloads = CurseForgeMod.DownloadsEntry(**downloads)
+
         self.__license = kwargs.get("license")
         self.__donate = kwargs.get("donate")
         self.__categories = OrderedSet(kwargs.get("categories", tuple()))
@@ -86,13 +96,14 @@ class CurseForgeMod:
 
         self.__versions = dict()
 
-        files_ = dict((file.id, file) for file in self.__files)
+        if type(versions := kwargs.get("versions", dict())) != list:
+            files_ = dict((file.id, file) for file in self.__files)
 
-        for version, files in kwargs.get("versions", dict()).items():
-            self.__versions[version] = set()
+            for version, files in versions.items():
+                self.__versions[version] = set()
 
-            for file in files:
-                self.__versions[version].add(files_[file["id"]])
+                for file in files:
+                    self.__versions[version].add(files_[file["id"]])
 
         self.__description = kwargs.get("description")
         self.__last_fetch = arrow.get(kwargs["last_fetch"]) if kwargs.get("last_fetch") else None
