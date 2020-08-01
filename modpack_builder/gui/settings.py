@@ -6,7 +6,6 @@ import platform
 
 from pathlib import Path
 from json import JSONDecodeError
-from pickle import UnpicklingError
 
 from . import PROGRAM_NAME
 
@@ -68,7 +67,7 @@ class ModpackBuilderSettings:
             with open(self.__curseforge_cache_file, "rb") as file:
                 self.curseforge_cache.update(pickle.load(file))
 
-        except UnpicklingError:
+        except:
             self.__curseforge_cache_file.unlink()
             return False
 
