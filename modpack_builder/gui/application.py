@@ -11,9 +11,9 @@ import markdown2
 
 from qtpy import uic
 from qtpy.QtGui import QDesktopServices, QPixmap
-from qtpy.QtWidgets import QMainWindow, QHeaderView
 from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
+from qtpy.QtWidgets import QMainWindow, QHeaderView, QLineEdit, QTableView
 
 from .. import utilities
 
@@ -241,7 +241,13 @@ class ModpackBuilderWindow(QMainWindow):
         widget.setColumnWidth(len(sizes) - 1, remainder)
 
     def eventFilter(self, source, event):
-        if source is self.curseforge_mods_table_view:
+        if isinstance(source, QLineEdit):
+            if event.type() == QEvent.KeyPress and event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape):
+                source.clearFocus()
+            elif event.type() == QEvent.FocusOut:
+                source.editingFinished.emit()
+
+        elif source is self.curseforge_mods_table_view:
             if event.type() == QEvent.Resize:
                 width = self.curseforge_mods_table_view.contentsRect().width()
                 self.__set_column_width_ratios(self.curseforge_mods_table_view, width, (3, 4, 1, 1, 5))
@@ -269,9 +275,11 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setZoomFactor(0.75)
 
     def __install_event_filters(self):
+        for attribute in self.__dict__.values():
+            if isinstance(attribute, (QLineEdit, QTableView)):
+                attribute.installEventFilter(self)
+
         self.profile_icon_image_label.installEventFilter(self)
-        self.curseforge_mods_table_view.installEventFilter(self)
-        self.loading_priority_table_view.installEventFilter(self)
 
     def __set_text_input_validators(self):
         # File and directory path edits
@@ -786,9 +794,6 @@ class ModpackBuilderWindow(QMainWindow):
                 (path := Path(text).resolve()) == self.__last_settings_directory
             ):
                 return
-
-            print(self.__last_settings_directory)
-            print(path)
 
             self.__last_settings_directory = path
             self.settings.settings_directory = path
