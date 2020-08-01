@@ -746,6 +746,25 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_10">
         <item>
+         <widget class="QGroupBox" name="settings_directory_group_box">
+          <property name="title">
+           <string>Settings Directory</string>
+          </property>
+          <layout class="QHBoxLayout" name="horizontalLayout">
+           <item>
+            <widget class="QLineEdit" name="settings_directory_line_edit"/>
+           </item>
+           <item>
+            <widget class="QToolButton" name="settings_directory_select_button">
+             <property name="text">
+              <string>...</string>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+        <item>
          <widget class="QGroupBox" name="minecraft_directory_group_box">
           <property name="title">
            <string>Minecraft Directory</string>

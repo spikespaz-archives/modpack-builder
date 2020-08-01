@@ -56,6 +56,9 @@ class ModpackBuilderWindow(QMainWindow):
         self.builder = builder
         self.settings = settings if settings else ModpackBuilderSettings(builder)
 
+        self.__last_settings_directory = self.settings.settings_directory
+        self.settings_directory_line_edit.setText(str(self.settings.settings_directory))
+
         self.settings.load_settings()
         self.settings.load_curseforge_cache()
 
@@ -87,7 +90,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.__set_spin_box_and_slider_ranges()
         self.__set_widget_stylesheets()
         self.__bind_spin_boxes_and_sliders()
-        self.__bind_file_and_directory_picker_buttons()
+        self.__bind_path_select_buttons()
         self.__bind_action_buttons()
         self.__bind_synchronized_controls()
         self.__bind_table_selection_changes()
@@ -273,6 +276,7 @@ class ModpackBuilderWindow(QMainWindow):
     def __set_text_input_validators(self):
         # File and directory path edits
         self.modpack_package_line_edit.setValidator(PathValidator(file=True, extensions=(".zip",)))
+        self.settings_directory_line_edit.setValidator(PathValidator())
         self.profile_icon_path_line_edit.setValidator(PathValidator(file=True, extensions=(".png",)))
         self.minecraft_directory_line_edit.setValidator(PathValidator())
         self.minecraft_launcher_line_edit.setValidator(PathValidator(file=True, extensions=(".exe",)))
@@ -352,7 +356,7 @@ class ModpackBuilderWindow(QMainWindow):
         def __on_concurrent_downloads_spin_box_value_changed(value):
             self.settings.concurrent_downloads = value
 
-    def __bind_file_and_directory_picker_buttons(self):
+    def __bind_path_select_buttons(self):
         @helpers.make_slot()
         @helpers.connect_slot(self.modpack_package_select_button.clicked)
         def __on_modpack_package_select_button_clicked():
@@ -387,6 +391,21 @@ class ModpackBuilderWindow(QMainWindow):
 
             with open(profile_icon_path, "rb") as image:
                 self.profile_icon_base64_line_edit.setText(base64.b64encode(image.read()).decode())
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.settings_directory_select_button.clicked)
+        def __on_settings_directory_select_button_clicked():
+            settings_directory = helpers.pick_directory(
+                parent=self,
+                title="Select Settings Directory",
+                path=Path(self.settings_directory_line_edit.text())
+            )
+
+            if settings_directory is None:
+                return
+
+            self.minecraft_directory_line_edit.setText(str(settings_directory))
+            self.settings_directory_line_edit.editingFinished.emit()
 
         @helpers.make_slot()
         @helpers.connect_slot(self.minecraft_directory_select_button.clicked)
@@ -755,6 +774,18 @@ class ModpackBuilderWindow(QMainWindow):
         # ***External Resources***
 
         # *** Application Settings ***
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.settings_directory_line_edit.editingFinished)
+        def __on_settings_directory_line_edit_editing_finished():
+            if (path := Path(self.settings_directory_line_edit.text()).resolve()) == self.__last_settings_directory:
+                return
+
+            print(self.__last_settings_directory)
+            print(path)
+
+            self.__last_settings_directory = path
+            self.settings.settings_directory = path
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.minecraft_directory_line_edit.textChanged)
