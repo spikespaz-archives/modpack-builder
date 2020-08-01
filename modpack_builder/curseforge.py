@@ -86,15 +86,13 @@ class CurseForgeMod:
 
         self.__versions = dict()
 
+        files_ = dict((file.id, file) for file in self.__files)
+
         for version, files in kwargs.get("versions", dict()).items():
             self.__versions[version] = set()
 
             for file in files:
-                file["type"] = ReleaseType(file["type"]) if file.get("type") else None
-                file["versions"] = frozenset(file.get("versions", tuple()))
-                file["uploaded_at"] = arrow.get(file["uploaded_at"]) if file.get("uploaded_at") else None
-
-                self.__versions[version].add(CurseForgeMod.FileEntry(**file))
+                self.__versions[version].add(files_[file["id"]])
 
         self.__description = kwargs.get("description")
         self.__last_fetch = arrow.get(kwargs["last_fetch"]) if kwargs.get("last_fetch") else None
