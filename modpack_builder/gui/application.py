@@ -56,6 +56,9 @@ class ModpackBuilderWindow(QMainWindow):
         self.builder = builder
         self.settings = settings if settings else ModpackBuilderSettings(builder)
 
+        self.settings.load_settings()
+        self.settings.load_curseforge_cache()
+
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":
             self.setContentsMargins(9, 9, 9, 9)
