@@ -3,6 +3,7 @@ import math
 import json
 import shutil
 import platform
+import concurrent.futures
 
 from pathlib import Path
 from zipfile import ZipFile
@@ -129,7 +130,7 @@ class ModpackBuilder:
         for identifier in identifiers:
             futures[executor.submit(__target, identifier)] = self.manifest.curseforge_mods[identifier]
 
-        for future in futures:
+        for future in concurrent.futures.as_completed(futures):
             # Abort the loop if the task has been cancelled
             if self.__task_aborted:
                 break
@@ -236,7 +237,9 @@ class ModpackBuilder:
                 block_size=ModpackBuilder.download_block_size
             )] = (identifier, file)
 
-        for future, (identifier, file) in futures.items():
+        for future, in concurrent.futures.as_completed(futures):
+            identifier, file = futures[future]
+
             try:
                 path = future.result()
                 # Apparently 'shutil' doesn't support path-like objects (yet?)
