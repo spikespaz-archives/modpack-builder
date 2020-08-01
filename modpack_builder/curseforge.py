@@ -139,7 +139,7 @@ class CurseForgeMod:
         if response.status_code != 200 and response.headers.get("content-type") != "application/json":
             response.raise_for_status()
         elif "error" in (response_json := response.json()):
-            return None
+            raise Exception(response_json["message"])
 
         return CurseForgeMod(identifier, **response_json)
 
