@@ -1,9 +1,9 @@
 from pathlib import Path
 
-from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar
-from qtpy.QtGui import QStandardItemModel, QStandardItem
-from qtpy.QtCore import Qt, QObject, Signal, QTimer
 from qtpy import uic
+from qtpy.QtGui import QStandardItemModel, QStandardItem
+from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData
+from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QApplication
 
 from ..gui import helpers
 
@@ -93,10 +93,26 @@ class MultiProgressDialog(QDialog):
         self.progress_log_list_view.setModel(self.__progress_log_item_model)
 
         self.cancel_button.clicked.connect(self.close)
+        self.progress_log_list_view.installEventFilter(self)
+
         self.__bind_cancel_request_and_completed()
         self.__bind_auto_scroll_handlers()
         self.__bind_reporter_created()
         self.__bind_log_buffer_writer()
+
+    def eventFilter(self, source, event):
+        if isinstance(source, QListView):
+            if event.type() == QEvent.KeyPress and event.key() == Qt.Key_C and event.modifiers() & Qt.ControlModifier:
+                print("Text copied!")
+                rows = sorted(source.selectionModel().selectedRows())
+                data = QMimeData()
+                data.setText("\n".join(str(source.model().data(row)) for row in rows))
+
+                QApplication.instance().clipboard().setMimeData(data)
+
+                return True
+
+        return False
 
     def show(self):
         self.__progress_log_buffer_write_timer.start(round(1000 / self.update_refresh_rate))
