@@ -104,10 +104,15 @@ class ModpackBuilder:
     def abort(self):
         self.__task_aborted = True
 
-    def fetch_curseforge_mods(self):
+    def fetch_curseforge_mods(self, skip_identifiers=None):
         self.curseforge_mods.clear()
 
-        self.__reporter.maximum = len(self.manifest.curseforge_mods)
+        identifiers = set(self.manifest.curseforge_mods.keys())
+
+        if skip_identifiers:
+            identifiers -= set(skip_identifiers)
+
+        self.__reporter.maximum = len(identifiers)
         self.__reporter.value = 0
         self.__logger("Retrieving information for all identifiers...")
 
@@ -115,14 +120,14 @@ class ModpackBuilder:
         futures = dict()
         failures = list()
 
-        def __target(identifier):
+        def __target(identifier_):
             if self.__task_aborted:
                 return
 
-            return CurseForgeMod.get(identifier)
+            return CurseForgeMod.get(identifier_)
 
-        for entry in self.manifest.curseforge_mods.values():
-            futures[executor.submit(__target, entry.identifier)] = entry
+        for identifier in identifiers:
+            futures[executor.submit(__target, identifier)] = self.manifest.curseforge_mods[identifier]
 
         for future in futures:
             # Abort the loop if the task has been cancelled
