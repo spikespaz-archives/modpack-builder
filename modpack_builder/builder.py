@@ -144,8 +144,8 @@ class ModpackBuilder:
                 self.__logger(f"Retrieved information: {entry.identifier}")
             except Exception as error:
                 self.__logger(
-                    f"Failed: {futures[future].identifier}\n"
-                    f"Error message: {error}"
+                    f"Request for '{futures[future].identifier}' failed:\n"
+                    f"{type(error).__name__}: {error}"
                 )
 
             self.__reporter.value += 1
@@ -248,8 +248,8 @@ class ModpackBuilder:
                 self.__logger(f"Downloaded '{identifier}' file: {path.name}")
             except Exception as error:
                 self.__logger(
-                    f"Download for '{identifier}' failed: {file.name}\n"
-                    f"Error message: {error}"
+                    f"Download for '{futures[future].identifier}' failed:\n"
+                    f"{type(error).__name__}: {error}"
                 )
 
             self.__reporter.value += 1
@@ -262,8 +262,13 @@ class ModpackBuilder:
         self.__reporter.done()
 
     def add_curseforge_mod(self, identifier):
-        if (curseforge_mod := CurseForgeMod.get(identifier)) is None:
-            self.__logger(f"Unable to retrieve mod information: {identifier}")
+        try:
+            curseforge_mod = CurseForgeMod.get(identifier)
+        except Exception as error:
+            self.__logger(
+                f"Request for '{identifier}' failed:\n"
+                f"{type(error).__name__}: {error}"
+            )
             return False
 
         curseforge_file = curseforge_mod.best_file(
@@ -272,7 +277,7 @@ class ModpackBuilder:
         )
 
         if curseforge_file is None:
-            self.__logger(f"Unable to find file: {identifier}")
+            self.__logger(f"Could not find suitable release for: {identifier}")
             return False
 
         self.manifest.curseforge_mods[identifier] = ModpackManifest.CurseForgeMod(
