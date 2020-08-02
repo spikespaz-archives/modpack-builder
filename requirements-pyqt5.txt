@@ -1,4 +1,0 @@
-PyQtWebEngine
-markdown2
-PyQt5
-QtPy

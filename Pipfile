@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+QtPy = {version="*", index="pypi"}
+PyQt5 = {version="*", index="pypi"}
+PyQtWebEngine = {version="*", index="pypi"}
+PySide2 = {version="*", index="pypi"}
+psutil = {version="*", index="pypi"}
+arrow = {version="*", index="pypi"}
+requests = {version="*", index="pypi"}
+orderedset = {version="*", index="pypi"}
+markdown2 = {version="*", index="pypi"}
+pywin32 = {version="*", index="pypi", platform_windows="== 'Windows'"}
+
+[dev-packages]
+pipenv = {version="*"}
+PyInstaller = {version="*"}
