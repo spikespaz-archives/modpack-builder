@@ -187,11 +187,30 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.connect_slot(progress_dialog.completed)
         def __on_progress_dialog_completed():
             self.__load_values_from_builder()
-            progress_dialog.close()
+            # progress_dialog.close()
 
         @utilities.make_thread(daemon=True)
         def __builder_load_package_thread():
             self.builder.load_package(path)
+
+            self.builder.fetch_curseforge_mods(skip_identifiers=self.settings.curseforge_cache.keys())
+
+            for identifier in self.builder.manifest.curseforge_mods:
+                if data := self.settings.curseforge_cache.get(identifier):
+                    self.builder.curseforge_mods[identifier] = data
+
+            for identifier in set(self.builder.curseforge_mods.keys()) - set(self.settings.curseforge_cache.keys()):
+                self.settings.curseforge_cache[identifier] = self.builder.curseforge_mods[identifier]
+
+            self.settings.dump_curseforge_cache()
+
+            self.builder.find_curseforge_files()
+
+            self.curseforge_mods_table_model.identifiers = list(self.builder.curseforge_files.keys())
+
+            self.curseforge_mods_table_model.refresh()
+            self.loading_priority_table_model.refresh()
+
             progress_dialog.completed.emit()
 
         @helpers.make_slot()
