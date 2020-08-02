@@ -246,23 +246,23 @@ class ModpackBuilderWindow(QMainWindow):
 
     def eventFilter(self, source, event):
         if isinstance(source, QLineEdit):
-            if event.type() == QEvent.KeyPress and event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape):
+            if event.type() is QEvent.KeyPress and event.key() in (Qt.Key_Enter, Qt.Key_Return, Qt.Key_Escape):
                 source.clearFocus()
-            elif event.type() == QEvent.FocusOut:
+            elif event.type() is QEvent.FocusOut:
                 source.editingFinished.emit()
 
         elif source is self.curseforge_mods_table_view:
-            if event.type() == QEvent.Resize:
+            if event.type() is QEvent.Resize:
                 width = self.curseforge_mods_table_view.contentsRect().width()
                 self.__set_column_width_ratios(self.curseforge_mods_table_view, width, (3, 4, 1, 1, 5))
 
         elif source is self.loading_priority_table_view:
-            if event.type() == QEvent.Resize:
+            if event.type() is QEvent.Resize:
                 width = self.curseforge_mods_table_view.contentsRect().width()
                 self.__set_column_width_ratios(self.loading_priority_table_view, width, (3, 4, 5))
 
         elif source is self.profile_icon_image_label:
-            if event.type() == QEvent.Resize:
+            if event.type() is QEvent.Resize:
                 # Keep the preview image square because 'widthForHeight' is not an option
                 self.profile_icon_image_label.setMinimumWidth(event.size().height())
                 self.profile_icon_image_label.setMaximumWidth(event.size().height())

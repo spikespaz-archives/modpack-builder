@@ -66,7 +66,7 @@ class CurseForgeMod:
         self.__game = kwargs.get("game")
         self.__type = kwargs.get("type")
 
-        if type(urls := kwargs.get("urls", dict())) == list:
+        if type(urls := kwargs.get("urls", dict())) is list:
             self.__urls = CurseForgeMod.UrlsEntry()
         else:
             self.__urls = CurseForgeMod.UrlsEntry(**urls)
@@ -74,7 +74,7 @@ class CurseForgeMod:
         self.__thumbnail = kwargs.get("thumbnail")
         self.__created_at = arrow.get(kwargs["created_at"]) if kwargs.get("created_at") else None
 
-        if type(downloads := kwargs.get("downloads", dict())) == list:
+        if type(downloads := kwargs.get("downloads", dict())) is list:
             self.__downloads = CurseForgeMod.DownloadsEntry()
         else:
             self.__downloads = CurseForgeMod.DownloadsEntry(**downloads)
@@ -96,7 +96,7 @@ class CurseForgeMod:
 
         self.__versions = dict()
 
-        if type(versions := kwargs.get("versions", dict())) != list:
+        if type(versions := kwargs.get("versions", dict())) is not list:
             files_ = dict((file.id, file) for file in self.__files)
 
             for version, files in versions.items():
