@@ -55,18 +55,49 @@ pyinstaller_default_arguments = {
     "bundle_identifier": None, 
     "runtime_tmpdir": None, 
     "bootloader_ignore_signals": False,
-    "distpath": None,
-    # "distpath": "C:\\Users\\spike\\Documents\\github.com\\spikespaz\\modpack-builder\\dist",
-    "workpath": None,
-    # "workpath": "C:\\Users\\spike\\Documents\\github.com\\spikespaz\\modpack-builder\\build",
+    "distpath": None,  # "distpath": "C:\\Users\\spike\\Documents\\github.com\\spikespaz\\modpack-builder\\dist",
+    "workpath": None,  # "workpath": "C:\\Users\\spike\\Documents\\github.com\\spikespaz\\modpack-builder\\build",
     "noconfirm": False,
     "upx_dir": None, 
     "ascii": False, 
     "clean_build": False, 
     "loglevel": "INFO",
-    "filenames": None
-    # "filenames": ["pyinstaller_wrapper.py"]
+    "filenames": None  # "filenames": ["pyinstaller_wrapper.py"]
 }
+
+
+def __convert_types(object_):
+    if isinstance(object_, dict):
+        replacement = dict()
+
+        for key, value in object_.items():
+            replacement[key] = __convert_types(value)
+
+        return replacement
+
+    elif isinstance(object_, tuple):
+        replacement = list()
+
+        for value in object_:
+            replacement.append(__convert_types(value))
+
+        return replacement
+
+    elif isinstance(object_, Path):
+        # There is a bug with PyInstaller 3.6 on Windows in 'PyInstaller\building\build_main.py' on line 636,
+        # to work around this we must replace backslashes in paths with forward-slashes.
+        # In PyInstaller, the line that calls `os.makedirs` raises an exception like this:
+        #     OSError: [WinError 123] The filename, directory name,
+        #     or volume label syntax is incorrect: "<bound method Path.resolve of WindowsPath('C:"
+        # This indicates that somewhere along the call-chain a function is mangling the handling of the WindowsPath
+        # object. Possibly attempting to convert the path to a string without using 'str' as it should.
+        return "/".join(object_.resolve().parts)
+
+    elif isinstance(object_, Enum):
+        return object_.value
+
+    else:
+        return object_
 
 
 def pyinstaller_compile(filenames, pyi_config=None, **kwargs):
@@ -76,46 +107,17 @@ def pyinstaller_compile(filenames, pyi_config=None, **kwargs):
         
     PyInstaller.compat.check_requirements()
 
+    kwargs["filenames"] = filenames
+
+    if "distpath" not in kwargs:
+        kwargs["distpath"] = Path.cwd() / "dist"
+
+    if "workpath" not in kwargs:
+        kwargs["workpath"] = Path.cwd() / "build"
+
+    kwargs = __convert_types(kwargs)
+
     arguments = pyinstaller_default_arguments.copy()
-
-    if (specpath := kwargs.get("specpath")) and isinstance(specpath, Path):
-        kwargs["specpath"] = str(specpath.resolve())
-
-    if datas := kwargs.get("datas"):
-        kwargs["datas"] = list((str(path.resolve()) if isinstance(path, Path) else path) for path in datas)
-
-    if pathex := kwargs.get("pathex"):
-        kwargs["pathex"] = list((str(path.resolve()) if isinstance(path, Path) else path) for path in pathex)
-
-    if hookspath := kwargs.get("hookspath"):
-        kwargs["hookspath"] = list((str(path.resolve()) if isinstance(path, Path) else path) for path in hookspath)
-
-    if runtime_hooks := kwargs.get("runtime_hooks"):
-        kwargs["runtime_hooks"] = list(
-            (str(path.resolve()) if isinstance(path, Path) else path) for path in runtime_hooks)
-
-    if debug := kwargs.get("debug"):
-        kwargs["debug"] = list((mode.value if isinstance(mode, DebugMode) else mode) for mode in debug)
-        
-    if (runtime_tmpdir := kwargs.get("runtime_tmpdir")) and isinstance(runtime_tmpdir, Path):
-        kwargs["runtime_tmpdir"] = str(runtime_tmpdir.resolve())
-
-    if distpath := kwargs.get("distpath"):
-        if isinstance(distpath, Path):
-            kwargs["distpath"] = str(distpath.resolve())
-
-    if workpath := kwargs.get("distpath"):
-        if isinstance(workpath, Path):
-            kwargs["distpath"] = str(workpath.resolve())
-            
-    if (upx_dir := kwargs.get("upx_dir")) and isinstance(upx_dir, Path):
-        kwargs["upx_dir"] = str(upx_dir.resolve())
-        
-    if (loglevel := kwargs.get("loglevel")) and isinstance(loglevel, LogLevel):
-        kwargs["loglevel"] = loglevel.value
-        
-    kwargs["filenames"] = list((str(path.resolve()) if isinstance(path, Path) else path) for path in filenames)
-
     arguments.update(kwargs)
 
     logger = PyInstaller.log.getLogger(__name__)
