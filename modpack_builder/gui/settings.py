@@ -60,15 +60,19 @@ class ModpackBuilderSettings:
         return True
 
     def load_curseforge_cache(self):
-        if not self.__curseforge_cache_file.exists() or not self.__curseforge_cache_file.is_file():
-            return False
-
         try:
             with open(self.__curseforge_cache_file, "rb") as file:
                 self.curseforge_cache.update(pickle.load(file))
 
-        except:
-            self.__curseforge_cache_file.unlink()
+        except (FileNotFoundError, Exception) as exception:
+            if type(exception) is not FileNotFoundError:
+                self.__curseforge_cache_file.unlink()
+
+            if self.__curseforge_cache_backup_file.exists() and self.__curseforge_cache_backup_file.is_file():
+                shutil.move(str(self.__curseforge_cache_backup_file), str(self.__curseforge_cache_file))
+
+                return self.load_curseforge_cache()
+
             return False
 
         return True
@@ -78,6 +82,9 @@ class ModpackBuilderSettings:
             json.dump(self.dictionary, file, indent=self.json_indent)
 
     def dump_curseforge_cache(self, purge=True):
+        if self.__curseforge_cache_file.exists() and self.__curseforge_cache_file.is_file():
+            shutil.move(str(self.__curseforge_cache_file), str(self.__curseforge_cache_backup_file))
+
         if purge:
             for entry in self.curseforge_cache.values():
                 entry.__setattr__(f"_{type(entry).__name__}__description", None)
@@ -153,6 +160,7 @@ class ModpackBuilderSettings:
         self.__settings_directory = value
         self.__settings_file = value / "settings.json"
         self.__curseforge_cache_file = value / "curseforge_cache.dat"
+        self.__curseforge_cache_backup_file = value / "curseforge_cache.dat.bak"
 
         ModpackBuilderSettings.set_settings_directory(value)
 
