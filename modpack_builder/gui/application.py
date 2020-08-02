@@ -15,17 +15,15 @@ from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
 from qtpy.QtWidgets import QMainWindow, QHeaderView, QLineEdit, QTableView
 
-from .. import utilities
+import modpack_builder.utilities as utilities
+import modpack_builder.gui.helpers as helpers
 
-from ..builder import ModpackBuilder
-from ..curseforge import ReleaseType
-
-from . import helpers
-
-from .settings import ModpackBuilderSettings
-from .validators import SlugValidator, PathValidator
-from .multi_progress_dialog import MultiProgressDialog
-from .models import LoadingPriorityTableModel, CurseForgeModsTableModel
+from modpack_builder.builder import ModpackBuilder
+from modpack_builder.curseforge import ReleaseType
+from modpack_builder.gui.settings import ModpackBuilderSettings
+from modpack_builder.gui.validators import SlugValidator, PathValidator
+from modpack_builder.gui.multi_progress_dialog import MultiProgressDialog
+from modpack_builder.gui.models import LoadingPriorityTableModel, CurseForgeModsTableModel
 
 
 class LockedWebEnginePage(QWebEnginePage):

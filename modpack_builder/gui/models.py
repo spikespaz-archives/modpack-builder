@@ -2,9 +2,9 @@ from orderedset import OrderedSet
 
 from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex
 
-from .. import utilities
+import modpack_builder.utilities as utilities
 
-from ..curseforge import ReleaseType
+from modpack_builder.curseforge import ReleaseType
 
 
 class LoadingPriorityTableModel(QAbstractTableModel):

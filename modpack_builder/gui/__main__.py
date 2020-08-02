@@ -2,8 +2,8 @@ import sys
 
 from qtpy.QtWidgets import QApplication
 
-from ..builder import ModpackBuilder
-from .application import ModpackBuilderWindow
+from modpack_builder.builder import ModpackBuilder
+from modpack_builder.gui.application import ModpackBuilderWindow
 
 
 app = QApplication([])

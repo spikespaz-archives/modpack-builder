@@ -7,7 +7,7 @@ import platform
 from pathlib import Path
 from json import JSONDecodeError
 
-from . import PROGRAM_NAME
+from modpack_builder.gui import PROGRAM_NAME
 
 PLATFORM = platform.system()
 

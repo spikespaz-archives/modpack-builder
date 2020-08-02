@@ -5,7 +5,7 @@ from typing import Union
 
 from orderedset import OrderedSet
 
-from .curseforge import ReleaseType, CURSEFORGE_MOD_BASE_URL
+from modpack_builder.curseforge import ReleaseType, CURSEFORGE_MOD_BASE_URL
 
 
 class ModpackManifest:

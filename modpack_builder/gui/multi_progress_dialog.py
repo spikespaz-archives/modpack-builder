@@ -5,9 +5,9 @@ from qtpy.QtGui import QStandardItemModel, QStandardItem
 from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData
 from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QApplication
 
-from ..gui import helpers
+import modpack_builder.gui.helpers as helpers
 
-from ..builder import ProgressReporter
+from modpack_builder.builder import ProgressReporter
 
 
 class ProgressBarReporter(ProgressReporter, QObject):

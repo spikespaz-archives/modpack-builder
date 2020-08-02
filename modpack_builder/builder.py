@@ -2,7 +2,6 @@ import os
 import math
 import json
 import shutil
-import platform
 import concurrent.futures
 
 from pathlib import Path
@@ -12,13 +11,13 @@ from concurrent.futures import ThreadPoolExecutor
 
 import psutil
 
-from . import utilities
+import modpack_builder.utilities as utilities
 
-from .manifest import ModpackManifest
-from .utilities import ProgressReporter
-from .curseforge import CurseForgeMod, CURSEFORGE_MOD_BASE_URL
+from modpack_builder import PLATFORM
+from modpack_builder.manifest import ModpackManifest
+from modpack_builder.utilities import ProgressReporter
+from modpack_builder.curseforge import CurseForgeMod, CURSEFORGE_MOD_BASE_URL
 
-PLATFORM = platform.system()
 
 if PLATFORM == "Windows":
     import winreg
