@@ -39,7 +39,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
         if (
             role != Qt.DisplayRole or
             not index.isValid() or
-            index.row() > self.rowCount() or
+            index.row() > self.rowCount() - 1 or
             index.column() > self.columnCount()
         ):
             return None
@@ -72,7 +72,7 @@ class LoadingPriorityTableModel(QAbstractTableModel):
             role != Qt.DisplayRole or
             value in self.builder.manifest.load_priority or
             not index.isValid() or
-            index.row() > self.rowCount() or
+            index.row() > self.rowCount() - 1 or
             index.column() > 0  # Only row is important, the other columns besides identifier are not assignable
         ):
             return False
@@ -179,8 +179,8 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         if (
             role != Qt.DisplayRole or
             not index.isValid() or
-            index.row() > self.rowCount() or
-            index.column() > self.columnCount()
+            index.row() > self.rowCount() - 1 or
+            index.column() > self.columnCount() - 1
         ):
             return None
 
@@ -213,8 +213,8 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         if (
             role != Qt.DisplayRole or
             not index.isValid() or
-            index.row() > self.rowCount() or
-            index.column() > self.columnCount()
+            index.row() > self.rowCount() - 1 or
+            index.column() > self.columnCount() - 1
         ):
             return False
 
