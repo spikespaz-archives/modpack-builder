@@ -434,10 +434,7 @@ class ModpackBuilder:
         elif PLATFORM == "Linux":
             minecraft_directory = Path.home().joinpath(".minecraft")
 
-        if minecraft_directory.exists() and minecraft_directory.is_dir():
-            return minecraft_directory.resolve()
-
-        return None
+        return minecraft_directory.resolve()
 
     @staticmethod
     def get_minecraft_launcher_path():
@@ -476,6 +473,8 @@ class ModpackBuilder:
 
         elif PLATFORM == "Linux":
             return None
+
+        return None
 
     @property
     def manifest(self):

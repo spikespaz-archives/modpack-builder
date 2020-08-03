@@ -47,11 +47,15 @@ class ModpackBuilderSettings:
 
                 self.builder.concurrent_requests = data.get("concurrent_requests", self.builder.concurrent_requests)
                 self.builder.concurrent_downloads = data.get("concurrent_downloads", self.builder.concurrent_downloads)
-                self.builder.minecraft_directory = Path(
-                    data.get("minecraft_directory", self.builder.minecraft_directory))
-                self.builder.minecraft_launcher_path = Path(
-                    data.get("minecraft_launcher_path", self.builder.minecraft_launcher_path))
-                self.builder.profiles_directory = Path(data.get("profiles_directory", self.builder.profiles_directory))
+
+                if (minecraft_directory := data.get("minecraft_directory")) is not None:
+                    self.builder.minecraft_directory = Path(minecraft_directory).resolve()
+
+                if (minecraft_launcher_path := data.get("minecraft_launcher_path")) is not None:
+                    self.builder.minecraft_launcher_path = Path(minecraft_launcher_path).resolve()
+
+                if (profiles_directory := data.get("profiles_directory")) is not None:
+                    self.builder.profiles_directory = Path(profiles_directory).resolve()
 
         except JSONDecodeError:
             self.__settings_file.unlink()
@@ -211,10 +215,24 @@ class ModpackBuilderSettings:
 
     @property
     def dictionary(self):
-        return {
-            "concurrent_requests": self.concurrent_requests,
-            "concurrent_downloads": self.concurrent_downloads,
-            "minecraft_directory": str(self.minecraft_directory.resolve()),
-            "minecraft_launcher_path": str(self.minecraft_launcher_path.resolve()),
-            "profiles_directory": str(self.profiles_directory.resolve())
-        }
+        dictionary = dict()
+
+        dictionary["concurrent_requests"] = self.concurrent_requests
+        dictionary["concurrent_downloads"] = self.concurrent_downloads
+
+        if self.minecraft_directory:
+            dictionary["minecraft_directory"] = str(self.minecraft_directory.resolve())
+        else:
+            dictionary["minecraft_directory"] = None
+
+        if self.minecraft_launcher_path:
+            dictionary["minecraft_launcher_path"] = str(self.minecraft_launcher_path.resolve())
+        else:
+            dictionary["minecraft_launcher_path"] = None
+
+        if self.profiles_directory:
+            dictionary["profiles_directory"] = str(self.profiles_directory.resolve())
+        else:
+            dictionary["profiles_directory"] = None
+
+        return dictionary
