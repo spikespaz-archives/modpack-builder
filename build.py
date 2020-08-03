@@ -1,15 +1,64 @@
+#! /usr/bin/env python
+
+import os
+
 from pathlib import Path
 
 from distribution_tools.pyinstaller_wrapper import pyinstaller_compile
 from modpack_builder.gui import PROGRAM_NAME
 
 
-pyinstaller_compile(
-    filenames=(Path("modpack_builder/gui/__main__.py"),),
-    name=PROGRAM_NAME,
-    onefile=True,
-    noconfirm=True,
-    clean_build=True,
-    hiddenimports=("PySide2.QtXml",),
-    datas=((Path("modpack_builder/gui/ui"), "modpack_builder/gui/ui"),),
-)
+pyqt5_runtime_hook = "import os; os.environ['QT_API'] = 'pyqt5'"
+pyside2_runtime_hook = "import os; os.environ['QT_API'] = 'pyside2'"
+
+
+def build_version_pyqt5(distpath, workpath, onefile=True, clean_build=True):
+    workpath.mkdir(parents=True, exist_ok=True)
+
+    with open(pyqt5_runtime_hook_file := workpath / "pyqt5_runtime_hook.py", "w") as file:
+        file.write(pyqt5_runtime_hook + "\n")
+
+    pyinstaller_compile(
+        filenames=(Path("modpack_builder/gui/__main__.py"),),
+        name=f"{PROGRAM_NAME} (PyQt5)",
+        onefile=onefile,
+        noconfirm=True,
+        clean_build=clean_build,
+        noupx=True,
+        datas=((Path("modpack_builder/gui/ui"), "modpack_builder/gui/ui"),),
+        runtime_hooks=(pyqt5_runtime_hook_file,),
+        specpath=workpath,
+        distpath=distpath,
+        workpath=workpath
+    )
+
+
+def build_version_pyside2(distpath, workpath, onefile=True, clean_build=True):
+    workpath.mkdir(parents=True, exist_ok=True)
+
+    with open(pyside2_runtime_hook_file := workpath / "pyside2_runtime_hook.py", "w") as file:
+        file.write(pyside2_runtime_hook + "\n")
+
+    pyinstaller_compile(
+        filenames=(Path("modpack_builder/gui/__main__.py"),),
+        name=f"{PROGRAM_NAME} (PySide2)",
+        onefile=onefile,
+        noconfirm=True,
+        clean_build=clean_build,
+        noupx=True,
+        hiddenimports=("PySide2.QtXml",),
+        datas=((Path("modpack_builder/gui/ui"), "modpack_builder/gui/ui"),),
+        runtime_hooks=(pyside2_runtime_hook_file,),
+        specpath=workpath,
+        distpath=distpath,
+        workpath=workpath
+    )
+
+
+if __name__ == "__main__":
+    if os.environ["QT_API"] == "pyqt5":
+        print(f"Building {PROGRAM_NAME} (PyQt5)")
+        build_version_pyqt5(Path.cwd() / ".output", Path.cwd() / ".build_pyqt5", onefile=False)
+    elif os.environ["QT_API"] == "pyside2":
+        print(f"Building {PROGRAM_NAME} (PySide2)")
+        build_version_pyside2(Path.cwd() / ".output", Path.cwd() / ".build_pyside2", onefile=False)
