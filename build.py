@@ -4,7 +4,7 @@ import os
 
 from pathlib import Path
 
-from distribution_tools.pyinstaller_wrapper import pyinstaller_compile
+from distribution_tools import pyinstaller_compile
 from modpack_builder.gui import PROGRAM_NAME
 
 
