@@ -60,69 +60,25 @@ class ProgressBarReporter(ProgressReporter, QObject):
         self.__set_text.emit(value)
 
 
-class ProgressLogItemModel(QAbstractItemModel):
+class ProgressLogItemModel(QStandardItemModel):
     def __init__(self, parent=None, limit=1000):
         super().__init__(parent)
 
-        self.lines = list()
         self.limit = limit
 
-    def parent(self, _=None):
-        return QModelIndex()
+    def __apply_limit(self):
+        if self.rowCount() > self.limit:
+            self.removeRows(0, self.rowCount() - self.limit)
 
-    def index(self, row, column, _=None):
-        return self.createIndex(row, column)
+    def insertRows(self, row, count, _=None):
+        super().insertRows(row, count)
 
-    def rowCount(self, _=None):
-        return len(self.lines)
+        self.__apply_limit()
 
-    def columnCount(self, _=None):
-        return 1
+    def appendRow(self, item):
+        super().appendRow(item)
 
-    def data(self, index, role=Qt.DisplayRole):
-        if (
-            role != Qt.DisplayRole or
-            not index.isValid() or
-            index.row() > self.rowCount() - 1 or
-            index.column() > self.columnCount() - 1
-        ):
-            return None
-
-        return self.lines[index.row()]
-
-    def setData(self, index, value, role=Qt.DisplayRole):
-        if (
-            role != Qt.DisplayRole or
-            not index.isValid() or
-            index.row() > self.rowCount() - 1 or
-            index.column() > self.columnCount() - 1
-        ):
-            return None
-
-        self.lines[index] = value
-
-    def insertRows(self, row, count, parent=None):
-        self.beginInsertRows(QModelIndex(), row, row + count - 1)
-
-        for index in range(row, row + count):
-            self.lines.insert(index, None)
-
-        self.endInsertRows()
-
-        if len(self.lines) > self.limit:
-            self.removeRows(0, len(self.lines) - self.limit)
-
-    def removeRows(self, row, count, parent=None):
-        self.beginRemoveRows(QModelIndex(), row, row + count - 1)
-
-        for _ in range(count):
-            self.lines.pop(row)
-
-        self.endRemoveRows()
-
-    def append_row(self, text):
-        self.insertRows(len(self.lines), 1)
-        self.lines[-1] = text
+        self.__apply_limit()
 
 
 class MultiProgressDialog(QDialog):
@@ -201,7 +157,7 @@ class MultiProgressDialog(QDialog):
             self.progress_log_list_view.setUpdatesEnabled(False)
 
             for line in self.__log_buffer:
-                self.__progress_log_item_model.append_row(line)
+                self.__progress_log_item_model.appendRow(QStandardItem(line))
 
             self.progress_log_list_view.setUpdatesEnabled(True)
 
