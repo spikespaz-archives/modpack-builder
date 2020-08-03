@@ -96,8 +96,8 @@ class LoadingPriorityTableModel(QAbstractTableModel):
 
         load_priority_list = list(self.builder.manifest.load_priority)
 
-        for offset in range(count):
-            load_priority_list.insert(row + offset, utilities.generate_id(8))
+        for index in range(row, row + count):
+            load_priority_list.insert(index, utilities.generate_id(8))
 
         self.builder.manifest.load_priority = OrderedSet(load_priority_list)
 

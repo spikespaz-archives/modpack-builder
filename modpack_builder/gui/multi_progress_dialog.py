@@ -2,8 +2,8 @@ from pathlib import Path
 
 from qtpy import uic
 from qtpy.QtGui import QStandardItemModel, QStandardItem
-from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData
 from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QApplication
+from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData, QAbstractItemModel, QModelIndex
 
 import modpack_builder.gui.helpers as helpers
 
@@ -60,6 +60,71 @@ class ProgressBarReporter(ProgressReporter, QObject):
         self.__set_text.emit(value)
 
 
+class ProgressLogItemModel(QAbstractItemModel):
+    def __init__(self, parent=None, limit=1000):
+        super().__init__(parent)
+
+        self.lines = list()
+        self.limit = limit
+
+    def parent(self, _=None):
+        return QModelIndex()
+
+    def index(self, row, column, _=None):
+        return self.createIndex(row, column)
+
+    def rowCount(self, _=None):
+        return len(self.lines)
+
+    def columnCount(self, _=None):
+        return 1
+
+    def data(self, index, role=Qt.DisplayRole):
+        if (
+            role != Qt.DisplayRole or
+            not index.isValid() or
+            index.row() > self.rowCount() - 1 or
+            index.column() > self.columnCount() - 1
+        ):
+            return None
+
+        return self.lines[index.row()]
+
+    def setData(self, index, value, role=Qt.DisplayRole):
+        if (
+            role != Qt.DisplayRole or
+            not index.isValid() or
+            index.row() > self.rowCount() - 1 or
+            index.column() > self.columnCount() - 1
+        ):
+            return None
+
+        self.lines[index] = value
+
+    def insertRows(self, row, count, parent=None):
+        self.beginInsertRows(QModelIndex(), row, row + count - 1)
+
+        for index in range(row, row + count):
+            self.lines.insert(index, None)
+
+        self.endInsertRows()
+
+        if len(self.lines) > self.limit:
+            self.removeRows(0, len(self.lines) - self.limit)
+
+    def removeRows(self, row, count, parent=None):
+        self.beginRemoveRows(QModelIndex(), row, row + count - 1)
+
+        for _ in range(count):
+            self.lines.pop(row)
+
+        self.endRemoveRows()
+
+    def append_row(self, text):
+        self.insertRows(len(self.lines), 1)
+        self.lines[-1] = text
+
+
 class MultiProgressDialog(QDialog):
     # I have found the below refresh-rate for update to be the best at keeping up with
     # the monitor and still reducing flickering, 60 does work but is more noticeable
@@ -70,7 +135,7 @@ class MultiProgressDialog(QDialog):
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
     cancel_confirmation_title = "Cancel Confirmation"
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, log_limit=1000, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.__allow_close = False
@@ -86,7 +151,7 @@ class MultiProgressDialog(QDialog):
         self.__main_reporter = ProgressBarReporter()
         self.__main_reporter.progress_bar = self.main_progress_bar
         self.__reporter_map = dict()
-        self.__progress_log_item_model = QStandardItemModel()
+        self.__progress_log_item_model = ProgressLogItemModel(limit=log_limit)
         self.__progress_log_buffer_write_timer = QTimer(self)
         self.__log_buffer = list()
 
@@ -136,7 +201,7 @@ class MultiProgressDialog(QDialog):
             self.progress_log_list_view.setUpdatesEnabled(False)
 
             for line in self.__log_buffer:
-                self.__progress_log_item_model.appendRow(QStandardItem(line))
+                self.__progress_log_item_model.append_row(line)
 
             self.progress_log_list_view.setUpdatesEnabled(True)
 
