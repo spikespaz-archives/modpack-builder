@@ -70,8 +70,8 @@ class MultiProgressDialog(QDialog):
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
     cancel_confirmation_title = "Cancel Confirmation"
 
-    def __init__(self, log_limit=1000, log_refresh=20, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None, log_limit=1000, log_refresh=20, *args, **kwargs):
+        super().__init__(parent, *args, **kwargs)
 
         self.__allow_close = False
         self.__cancel_requested = False
@@ -86,9 +86,9 @@ class MultiProgressDialog(QDialog):
         self.__main_reporter = ProgressBarReporter()
         self.__main_reporter.progress_bar = self.main_progress_bar
         self.__reporter_map = dict()
-        self.__progress_log_item_model = BufferedItemModel(limit=log_limit, refresh=log_refresh)
 
-        self.progress_log_list_view.setModel(self.__progress_log_item_model)
+        self.progress_log_item_model = BufferedItemModel(limit=log_limit, refresh=log_refresh)
+        self.progress_log_list_view.setModel(self.progress_log_item_model)
 
         self.cancel_button.clicked.connect(self.close)
         self.progress_log_list_view.installEventFilter(self)
@@ -146,7 +146,7 @@ class MultiProgressDialog(QDialog):
         self.__scroll_bar_was_at_bottom = False
 
         @helpers.make_slot()
-        @helpers.connect_slot(self.__progress_log_item_model.rowsAboutToBeInserted)
+        @helpers.connect_slot(self.progress_log_item_model.rowsAboutToBeInserted)
         def __on_progress_log_model_rows_about_to_be_inserted():
             self.__scroll_bar_was_at_bottom = progress_log_scroll_bar.value() == progress_log_scroll_bar.maximum()
 
@@ -210,7 +210,7 @@ class MultiProgressDialog(QDialog):
                 self.cancel_request.emit()
 
     def log(self, text):
-        self.__progress_log_item_model.appendRow(QStandardItem(text))
+        self.progress_log_item_model.appendRow(QStandardItem(text))
 
     def reporter(self):
         progress_reporter = ProgressBarReporter(callback=self.__reporter_done_callback)
