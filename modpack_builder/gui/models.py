@@ -1,10 +1,62 @@
 from orderedset import OrderedSet
 
-from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex
+from qtpy.QtGui import QStandardItemModel
+from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Signal, QTimer
 
 import modpack_builder.utilities as utilities
+import modpack_builder.gui.helpers as helpers
 
 from modpack_builder.curseforge import ReleaseType
+
+
+class BufferedItemModel(QStandardItemModel):
+    __row_appended = Signal()
+
+    def __init__(self, parent=None, limit=None, refresh=20):
+        super().__init__(parent)
+
+        self.limit = limit
+        self.buffer = list()
+        self.timer = QTimer()
+
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(refresh)
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.__row_appended)
+        def __on_row_appended():
+            if not self.timer.isActive():
+                self.timer.start()
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.timer.timeout)
+        def __on_timer_timeout():
+            self.__dump_buffer()
+
+    def __dump_buffer(self):
+        self.insertRows(self.rowCount(), len(self.buffer))  # Append rows for each item in the buffer
+
+        # Set the items for each new row
+        for offset, item in enumerate(self.buffer):
+            self.setItem(self.rowCount() - len(self.buffer) + offset, 0, item)
+
+        self.buffer.clear()  # Reset the buffer
+
+    def __apply_limit(self):
+        if self.rowCount() > self.limit:
+            # Remove rows from the beginning, count being the number of rows over the limit
+            self.removeRows(0, self.rowCount() - self.limit)
+
+    def insertRows(self, row, count, _=None):
+        super().insertRows(row, count)
+
+        if self.limit:
+            self.__apply_limit()
+
+    def appendRow(self, item):
+        # Append the QStandardItem to the internal list to be popped into the model on the next timeout
+        self.buffer.append(item)
+        self.__row_appended.emit()
 
 
 class LoadingPriorityTableModel(QAbstractTableModel):

@@ -7,7 +7,7 @@ from qtpy.QtGui import QStandardItem
 import modpack_builder.utilities as utilities
 import modpack_builder.gui.helpers as helpers
 
-from modpack_builder.gui.multi_progress_dialog import ProgressLogItemModel
+from modpack_builder.gui.models import BufferedItemModel
 
 
 class ExampleProgressLogDialog(QDialog):
@@ -17,7 +17,7 @@ class ExampleProgressLogDialog(QDialog):
         self.resize(200, 300)
 
         self.progress_log_list_view = QListView(self)
-        self.progress_log_item_model = ProgressLogItemModel(self.progress_log_list_view)
+        self.progress_log_item_model = BufferedItemModel(self.progress_log_list_view)
 
         self.progress_log_list_view.setUniformItemSizes(True)
         self.progress_log_list_view.setModel(self.progress_log_item_model)
