@@ -104,7 +104,7 @@ class MultiProgressDialog(QDialog):
             geometry.moveCenter(self.parent().geometry().center())
             self.setGeometry(geometry)
 
-        self.show()
+        super().show()
 
     def eventFilter(self, source, event):
         if isinstance(source, QListView):
