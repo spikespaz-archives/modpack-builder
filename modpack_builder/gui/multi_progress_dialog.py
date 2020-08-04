@@ -63,7 +63,7 @@ class ProgressBarReporter(ProgressReporter, QObject):
 class ProgressLogItemModel(QStandardItemModel):
     __row_appended = Signal()
 
-    def __init__(self, parent=None, limit=1000, refresh=20):
+    def __init__(self, parent=None, limit=None, refresh=20):
         super().__init__(parent)
 
         self.limit = limit
@@ -100,7 +100,9 @@ class ProgressLogItemModel(QStandardItemModel):
 
     def insertRows(self, row, count, _=None):
         super().insertRows(row, count)
-        self.__apply_limit()
+
+        if self.limit:
+            self.__apply_limit()
 
     def appendRow(self, item):
         # Append the QStandardItem to the internal list to be popped into the model on the next timeout
@@ -109,16 +111,13 @@ class ProgressLogItemModel(QStandardItemModel):
 
 
 class MultiProgressDialog(QDialog):
-    # I have found the below refresh-rate for update to be the best at keeping up with
-    # the monitor and still reducing flickering, 60 does work but is more noticeable
-    update_refresh_rate = 50
     reporter_created = Signal(ProgressBarReporter)
     cancel_request = Signal()
     completed = Signal()
     cancel_confirmation_text = "Are you sure you want to cancel the current task?"
     cancel_confirmation_title = "Cancel Confirmation"
 
-    def __init__(self, log_limit=1000, *args, **kwargs):
+    def __init__(self, log_limit=1000, log_refresh=20, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.__allow_close = False
@@ -134,7 +133,7 @@ class MultiProgressDialog(QDialog):
         self.__main_reporter = ProgressBarReporter()
         self.__main_reporter.progress_bar = self.main_progress_bar
         self.__reporter_map = dict()
-        self.__progress_log_item_model = ProgressLogItemModel(limit=log_limit)
+        self.__progress_log_item_model = ProgressLogItemModel(limit=log_limit, refresh=log_refresh)
 
         self.progress_log_list_view.setModel(self.__progress_log_item_model)
 
