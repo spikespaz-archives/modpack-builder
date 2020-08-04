@@ -3,7 +3,7 @@ from pathlib import Path
 from qtpy import uic
 from qtpy.QtGui import QStandardItemModel, QStandardItem
 from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData
-from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView
+from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QApplication
 
 import modpack_builder.gui.helpers as helpers
 
