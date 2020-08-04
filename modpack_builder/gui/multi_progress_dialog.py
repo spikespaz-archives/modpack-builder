@@ -3,7 +3,7 @@ from pathlib import Path
 from qtpy import uic
 from qtpy.QtGui import QStandardItemModel, QStandardItem
 from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData
-from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QVBoxLayout
+from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView
 
 import modpack_builder.gui.helpers as helpers
 
@@ -257,70 +257,3 @@ class MultiProgressDialog(QDialog):
         self.reporter_created.emit(progress_reporter)
 
         return progress_reporter
-
-
-if __name__ == "__main__":
-    import sys
-    import time
-
-    from threading import Thread
-
-    from qtpy.QtWidgets import QApplication, QPushButton
-
-    app = QApplication([])
-    window = MultiProgressDialog()
-    window.setWindowTitle("Example Progress Reporter Dialog")
-
-    add_reporter_button = QPushButton("Add Reporter", window)
-    window.cancel_button_layout.addWidget(add_reporter_button)
-
-    reporters = []
-    reporter_count = 8
-
-    window.main_reporter.maximum = reporter_count
-
-    @helpers.make_slot()
-    @helpers.connect_slot(add_reporter_button.clicked)
-    def __add_reporter():
-        reporters.append(window.reporter())
-        reporters[-1].maximum = 100
-        reporters[-1].value = min(len(reporters) / reporter_count * 100, 100)
-        reporters[-1].text = f"Reporter {len(reporters)}: %p%"
-
-        window.main_reporter.value = len(reporters)
-
-        window.log(f"Added reporter {len(reporters)} with value of {reporters[-1].value}")
-
-    window.show()
-
-    def __add_reporters():
-        for number in range(reporter_count):
-            if window.cancel_requested:
-                return
-
-            time.sleep(0.5)
-            __add_reporter()
-
-    def __remove_reporters():
-        for reporter in reporters:
-            time.sleep(0.5)
-            reporter.done()
-            window.log(f"Removed reporter: {str(reporter)}")
-
-    add_reporters_thread = Thread(target=__add_reporters, daemon=True)
-    remove_reporters_thread = Thread(target=__remove_reporters, daemon=True)
-
-    def __cancel():
-        add_reporters_thread.join()
-        remove_reporters_thread.start()
-        remove_reporters_thread.join()
-
-        window.completed.emit()
-
-    cancel_thread = Thread(target=__cancel, daemon=True)
-
-    add_reporters_thread.start()
-
-    window.cancel_request.connect(cancel_thread.start)
-
-    sys.exit(app.exec_())
