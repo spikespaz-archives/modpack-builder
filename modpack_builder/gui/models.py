@@ -60,8 +60,8 @@ class BufferedItemModel(QStandardItemModel):
 
 
 class LoadingPriorityTableModel(QAbstractTableModel):
-    def __init__(self, builder, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None, builder=None):
+        super().__init__(parent)
 
         self.builder = builder
 
@@ -199,8 +199,8 @@ class LoadingPriorityTableModel(QAbstractTableModel):
 
 
 class CurseForgeModsTableModel(QAbstractTableModel):
-    def __init__(self, builder, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, parent=None, builder=None):
+        super().__init__(parent)
 
         self.builder = builder
 
@@ -256,7 +256,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
                 return str(curseforge_mod.version)
 
         elif index.column() == 3:  # Server
-            return str(self.builder.manifest.curseforge_mods[self.identifiers[index.row()]].server)
+            return self.builder.manifest.curseforge_mods[self.identifiers[index.row()]].server
 
         elif index.column() == 4:  # File
             return self.builder.curseforge_files[self.identifiers[index.row()]].name
@@ -283,7 +283,7 @@ class CurseForgeModsTableModel(QAbstractTableModel):
             self.builder.manifest.curseforge_files[self.identifiers[index.row()]].version = value
 
         elif index.column() == 3:  # Server
-            return False
+            self.builder.manifest.curseforge_mods[self.identifiers[index.row()]].server = value
 
         elif index.column() == 4:  # File
             return False
@@ -295,6 +295,14 @@ class CurseForgeModsTableModel(QAbstractTableModel):
         )
 
         return True
+
+    def flags(self, index):
+        base_flags = Qt.ItemIsSelectable | Qt.ItemIsEnabled | Qt.ItemNeverHasChildren
+
+        if index.column() in (2, 3):
+            return base_flags | Qt.ItemIsEditable
+
+        return base_flags
 
     def insertRows(self, row, count, _=None):
         self.beginInsertRows(QModelIndex(), row, row + count - 1)

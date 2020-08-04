@@ -24,6 +24,7 @@ from modpack_builder.gui.settings import ModpackBuilderSettings
 from modpack_builder.gui.validators import SlugValidator, PathValidator
 from modpack_builder.gui.multi_progress_dialog import MultiProgressDialog
 from modpack_builder.gui.models import LoadingPriorityTableModel, CurseForgeModsTableModel
+from modpack_builder.gui.delegates import CheckBoxItemDelegate
 
 
 class LockedWebEnginePage(QWebEnginePage):
@@ -48,6 +49,10 @@ class ModpackBuilderWindow(QMainWindow):
 
         uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
 
+        # Fix for PyQt5
+        if os.environ["QT_API"] == "pyqt5":
+            self.setContentsMargins(9, 9, 9, 9)
+
         self.__last_modpack_package_path = None
         self.__should_reset_profile_icon_path = False
 
@@ -60,26 +65,27 @@ class ModpackBuilderWindow(QMainWindow):
         self.settings.load_settings()
         self.settings.load_curseforge_cache()
 
-        # Fix for PyQt5
-        if os.environ["QT_API"] == "pyqt5":
-            self.setContentsMargins(9, 9, 9, 9)
-
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
         self.loading_priority_table_model = LoadingPriorityTableModel(
-            self.builder,
-            parent=self.loading_priority_table_view
+            parent=self.loading_priority_table_view,
+            builder=self.builder,
         )
-        self.loading_priority_table_view.setModel(self.loading_priority_table_model)
 
+        self.loading_priority_table_view.setModel(self.loading_priority_table_model)
         self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.curseforge_mods_table_model = CurseForgeModsTableModel(
-            self.builder,
-            parent=self.curseforge_mods_table_view
+            parent=self.curseforge_mods_table_view,
+            builder=self.builder
         )
-        self.curseforge_mods_table_view.setModel(self.curseforge_mods_table_model)
+        self.curseforge_mods_checkbox_item_delegate = CheckBoxItemDelegate(
+            parent=self.curseforge_mods_table_view,
+            model=self.curseforge_mods_table_model
+        )
 
+        self.curseforge_mods_table_view.setModel(self.curseforge_mods_table_model)
+        self.curseforge_mods_table_view.setItemDelegateForColumn(3, self.curseforge_mods_checkbox_item_delegate)
         self.curseforge_mods_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
         self.__create_information_view()
