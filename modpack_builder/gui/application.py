@@ -172,7 +172,7 @@ class ModpackBuilderWindow(QMainWindow):
     def __load_package(self, path):
         progress_dialog = MultiProgressDialog(self, log_limit=None)
 
-        progress_dialog.setWindowTitle("Extracting Modpack Package")
+        progress_dialog.setWindowTitle("Loading Modpack Package")
 
         self.builder.reporter = progress_dialog.main_reporter
         self.builder.logger = progress_dialog.log
@@ -180,8 +180,18 @@ class ModpackBuilderWindow(QMainWindow):
         @helpers.make_slot()
         @helpers.connect_slot(progress_dialog.completed)
         def __on_progress_dialog_completed():
+            if progress_dialog.cancel_requested:
+                progress_dialog.close()
+                return
+
             self.__load_values_from_builder()
-            # progress_dialog.close()
+
+        @helpers.make_slot()
+        @helpers.connect_slot(progress_dialog.cancel_request)
+        def __on_cancel_request():
+            self.builder.abort()
+            self.__last_modpack_package_path = None
+            progress_dialog.completed.emit()
 
         @utilities.make_thread(daemon=True)
         def __builder_load_package_thread():
@@ -189,28 +199,29 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.builder.fetch_curseforge_mods(skip_identifiers=self.settings.curseforge_cache.keys())
 
-            for identifier in self.builder.manifest.curseforge_mods:
-                if data := self.settings.curseforge_cache.get(identifier):
-                    self.builder.curseforge_mods[identifier] = data
+            if not progress_dialog.cancel_requested:
+                # Set the progress bar to indeterminate
+                progress_dialog.main_reporter.maximum = 0
+                progress_dialog.main_reporter.value = 0
 
-            for identifier in set(self.builder.curseforge_mods.keys()) - set(self.settings.curseforge_cache.keys()):
-                self.settings.curseforge_cache[identifier] = self.builder.curseforge_mods[identifier]
+                # Load the remaining mods that were skipped (previously cached) into the builder
+                for identifier in self.builder.manifest.curseforge_mods:
+                    if data := self.settings.curseforge_cache.get(identifier):
+                        self.builder.curseforge_mods[identifier] = data
 
-            self.settings.dump_curseforge_cache()
+                # Add all of the new mods that were fetched to the cache
+                for identifier in set(self.builder.curseforge_mods.keys()) - set(self.settings.curseforge_cache.keys()):
+                    self.settings.curseforge_cache[identifier] = self.builder.curseforge_mods[identifier]
 
-            self.builder.find_curseforge_files()
+                self.settings.dump_curseforge_cache()
 
-            self.curseforge_mods_table_model.identifiers = list(self.builder.curseforge_files.keys())
+                self.builder.find_curseforge_files()
 
-            self.curseforge_mods_table_model.refresh()
-            self.loading_priority_table_model.refresh()
+                self.curseforge_mods_table_model.identifiers = list(self.builder.curseforge_files.keys())
 
-            progress_dialog.completed.emit()
+                self.curseforge_mods_table_model.refresh()
+                self.loading_priority_table_model.refresh()
 
-        @helpers.make_slot()
-        @helpers.connect_slot(progress_dialog.cancel_request)
-        def __on_cancel_request():
-            self.builder.abort()
             progress_dialog.completed.emit()
 
         progress_dialog.show()
