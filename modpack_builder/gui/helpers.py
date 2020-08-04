@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from qtpy import QtCore
+from qtpy.QtCore import Slot
 from qtpy.QtWidgets import QFileDialog
 
 
@@ -26,15 +26,12 @@ def make_slot(*args, **kwargs):
     def wrapper(func):
         # Convert "snake_case" to "camelCase" for the name of the Qt slot.
         kwargs.setdefault("name", func.__name__.replace("_", " ").title().replace(" ", ""))
-
-        return QtCore.Slot(*args, **kwargs)(func)
+        return Slot(*args, **kwargs)(func)
 
     return wrapper
 
 
-def connect_slot(signal, *args, **kwargs):
-    del args, kwargs
-
+def connect_slot(signal):
     def wrapper(func):
         signal.connect(func)
 

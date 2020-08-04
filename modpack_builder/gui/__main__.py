@@ -6,7 +6,7 @@ from modpack_builder.builder import ModpackBuilder
 from modpack_builder.gui.application import ModpackBuilderWindow
 
 
-app = QApplication([])
+app = QApplication(list())
 builder = ModpackBuilder()
 window = ModpackBuilderWindow(builder)
 
