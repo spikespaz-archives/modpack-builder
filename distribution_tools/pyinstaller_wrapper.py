@@ -8,8 +8,6 @@ import PyInstaller.log
 import PyInstaller.compat
 import PyInstaller.__main__
 
-from distribution_tools import PLATFORM
-
 
 class LogLevel(Enum):
     trace = "TRACE"
@@ -131,7 +129,7 @@ def pyinstaller_compile(filenames, pyi_config=None, **kwargs):
 
     logger.info(f"PyInstaller: {PyInstaller.__version__}")
     logger.info(f"Python: {platform.python_version()}{' (conda)' if PyInstaller.compat.is_conda else str()}")
-    logger.info(f"Platform: {PLATFORM}")
+    logger.info(f"Platform: {platform.platform()}")
 
     try:
         if not (spec_file := arguments["filenames"][0]).endswith(".spec"):
