@@ -170,13 +170,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.concurrent_downloads_spin_box.setValue(self.settings.concurrent_downloads)
 
     def __load_package(self, path):
-        progress_dialog = MultiProgressDialog(parent=self)
-
-        # Fix for PySide2 not putting the dialog in the middle of the parent like it should
-        if os.environ["QT_API"] == "pyside2":
-            geometry = progress_dialog.geometry()
-            geometry.moveCenter(self.geometry().center())
-            progress_dialog.setGeometry(geometry)
+        progress_dialog = MultiProgressDialog(self, log_limit=None)
 
         progress_dialog.setWindowTitle("Extracting Modpack Package")
 

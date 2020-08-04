@@ -1,3 +1,5 @@
+import os
+
 from pathlib import Path
 
 from qtpy import uic
@@ -143,6 +145,15 @@ class MultiProgressDialog(QDialog):
         self.__bind_cancel_request_and_completed()
         self.__bind_auto_scroll_handlers()
         self.__bind_reporter_created()
+
+    def show(self):
+        # Fix for PySide2 not putting the dialog in the middle of the parent like it should
+        if os.environ["QT_API"] == "pyside2":
+            geometry = self.geometry()
+            geometry.moveCenter(self.parent().geometry().center())
+            self.setGeometry(geometry)
+
+        self.show()
 
     def eventFilter(self, source, event):
         if isinstance(source, QListView):
