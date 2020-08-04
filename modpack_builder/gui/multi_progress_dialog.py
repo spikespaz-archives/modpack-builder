@@ -2,8 +2,8 @@ from pathlib import Path
 
 from qtpy import uic
 from qtpy.QtGui import QStandardItemModel, QStandardItem
-from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QApplication
-from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData, QAbstractItemModel, QModelIndex
+from qtpy.QtCore import Qt, QObject, Signal, QTimer, QEvent, QMimeData
+from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QVBoxLayout
 
 import modpack_builder.gui.helpers as helpers
 
@@ -61,24 +61,51 @@ class ProgressBarReporter(ProgressReporter, QObject):
 
 
 class ProgressLogItemModel(QStandardItemModel):
-    def __init__(self, parent=None, limit=1000):
+    __row_appended = Signal()
+
+    def __init__(self, parent=None, limit=1000, refresh=20):
         super().__init__(parent)
 
         self.limit = limit
+        self.buffer = list()
+        self.timer = QTimer()
+
+        self.timer.setSingleShot(True)
+        self.timer.setInterval(refresh)
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.__row_appended)
+        def __on_row_appended():
+            if not self.timer.isActive():
+                self.timer.start()
+
+        @helpers.make_slot()
+        @helpers.connect_slot(self.timer.timeout)
+        def __on_timer_timeout():
+            self.__dump_buffer()
+
+    def __dump_buffer(self):
+        self.insertRows(self.rowCount(), len(self.buffer))  # Append rows for each item in the buffer
+
+        # Set the items for each new row
+        for offset, item in enumerate(self.buffer):
+            self.setItem(self.rowCount() - len(self.buffer) + offset, 0, item)
+
+        self.buffer.clear()  # Reset the buffer
 
     def __apply_limit(self):
         if self.rowCount() > self.limit:
+            # Remove rows from the beginning, count being the number of rows over the limit
             self.removeRows(0, self.rowCount() - self.limit)
 
     def insertRows(self, row, count, _=None):
         super().insertRows(row, count)
-
         self.__apply_limit()
 
     def appendRow(self, item):
-        super().appendRow(item)
-
-        self.__apply_limit()
+        # Append the QStandardItem to the internal list to be popped into the model on the next timeout
+        self.buffer.append(item)
+        self.__row_appended.emit()
 
 
 class MultiProgressDialog(QDialog):
@@ -108,8 +135,6 @@ class MultiProgressDialog(QDialog):
         self.__main_reporter.progress_bar = self.main_progress_bar
         self.__reporter_map = dict()
         self.__progress_log_item_model = ProgressLogItemModel(limit=log_limit)
-        self.__progress_log_buffer_write_timer = QTimer(self)
-        self.__log_buffer = list()
 
         self.progress_log_list_view.setModel(self.__progress_log_item_model)
 
@@ -119,7 +144,6 @@ class MultiProgressDialog(QDialog):
         self.__bind_cancel_request_and_completed()
         self.__bind_auto_scroll_handlers()
         self.__bind_reporter_created()
-        self.__bind_log_buffer_writer()
 
     def eventFilter(self, source, event):
         if isinstance(source, QListView):
@@ -134,11 +158,6 @@ class MultiProgressDialog(QDialog):
 
         return False
 
-    def show(self):
-        self.__progress_log_buffer_write_timer.start(round(1000 / self.update_refresh_rate))
-
-        super().show()
-
     @property
     def main_reporter(self):
         return self.__main_reporter
@@ -146,22 +165,6 @@ class MultiProgressDialog(QDialog):
     @property
     def cancel_requested(self):
         return self.__cancel_requested
-
-    def __bind_log_buffer_writer(self):
-        @helpers.make_slot()
-        @helpers.connect_slot(self.__progress_log_buffer_write_timer.timeout)
-        def __on_progress_log_buffer_write_timer_timeout():
-            if not self.__log_buffer:
-                return
-
-            self.progress_log_list_view.setUpdatesEnabled(False)
-
-            for line in self.__log_buffer:
-                self.__progress_log_item_model.appendRow(QStandardItem(line))
-
-            self.progress_log_list_view.setUpdatesEnabled(True)
-
-            self.__log_buffer.clear()
 
     def __bind_cancel_request_and_completed(self):
         @helpers.make_slot()
@@ -246,7 +249,7 @@ class MultiProgressDialog(QDialog):
                 self.cancel_request.emit()
 
     def log(self, text):
-        self.__log_buffer.append(text)
+        self.__progress_log_item_model.appendRow(QStandardItem(text))
 
     def reporter(self):
         progress_reporter = ProgressBarReporter(callback=self.__reporter_done_callback)
