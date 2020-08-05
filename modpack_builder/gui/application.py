@@ -107,7 +107,7 @@ class ModpackBuilderWindow(QMainWindow):
         if self.builder.readme_path:
             self.show_information_markdown(self.builder.readme_path)
 
-        # *** Profile Options ***
+        # *** Modpack Options ***
 
         if self.builder.manifest.profile_name:
             self.profile_name_line_edit.setText(self.builder.manifest.profile_name)
@@ -134,8 +134,6 @@ class ModpackBuilderWindow(QMainWindow):
         # ***External Mods***
 
         # ***Loading Priority***
-
-        # ***Minecraft Forge***
 
         # ***Java Runtime***
 
@@ -539,7 +537,7 @@ class ModpackBuilderWindow(QMainWindow):
             with open(Path("./dumped-manifest.json"), "w") as manifest_file:
                 json.dump(self.builder.manifest.dictionary, manifest_file, indent=2)
 
-        # *** Profile Options ***
+        # *** Modpack Options ***
 
         @helpers.make_slot()
         @helpers.connect_slot(self.update_profile_button.clicked)
@@ -666,18 +664,6 @@ class ModpackBuilderWindow(QMainWindow):
 
             __load_priority_list_view_shift_rows(selection, 1)
 
-        # *** Minecraft Forge ***
-
-        @helpers.make_slot()
-        @helpers.connect_slot(self.minecraft_forge_install_client_button.clicked)
-        def __on_minecraft_forge_install_client_button_clicked():
-            pass
-
-        @helpers.make_slot()
-        @helpers.connect_slot(self.minecraft_forge_install_server_button.clicked)
-        def __on_minecraft_forge_install_server_button_clicked():
-            pass
-
         # *** Java Runtime ***
 
         @helpers.make_slot()
@@ -708,7 +694,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** Information ***
 
-        # *** Profile Options ***
+        # *** General Options ***
 
         @helpers.make_slot(str)
         @helpers.connect_slot(self.profile_name_line_edit.textChanged)
@@ -796,8 +782,6 @@ class ModpackBuilderWindow(QMainWindow):
             if text in self.builder.manifest.load_priority:
                 # Assumes that nothing is already selected
                 self.loading_priority_table_view.selectRow(self.builder.manifest.load_priority.index(text))
-
-        # ***Minecraft Forge***
 
         # ***Java Runtime***
 
