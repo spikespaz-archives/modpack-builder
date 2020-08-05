@@ -49,17 +49,6 @@ class ModpackBuilderWindow(QMainWindow):
 
         uic.loadUi(str((Path(__file__).parent / "ui/modpack_builder_window.ui").resolve()), self)
 
-        # Fix for PyQt5
-        if os.environ["QT_API"] == "pyqt5":
-            self.setContentsMargins(9, 9, 9, 9)
-
-        # Set the of all of the labels in the scroll area child group boxes to uniform width
-        modpack_options_labels = self.modpack_options_scroll_area_contents.findChildren(QLabel)
-        modpack_options_label_width = max(label.sizeHint().width() for label in modpack_options_labels)
-
-        for label in modpack_options_labels:
-            label.setMinimumWidth(modpack_options_label_width)
-
         self.__last_modpack_package_path = None
         self.__should_reset_profile_icon_path = False
 
@@ -74,32 +63,13 @@ class ModpackBuilderWindow(QMainWindow):
 
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
-        self.loading_priority_table_model = LoadingPriorityTableModel(
-            parent=self.loading_priority_table_view,
-            builder=self.builder,
-        )
-
-        self.loading_priority_table_view.setModel(self.loading_priority_table_model)
-        self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-
-        self.curseforge_mods_table_model = CurseForgeModsTableModel(
-            parent=self.curseforge_mods_table_view,
-            builder=self.builder
-        )
-        self.curseforge_mods_checkbox_item_delegate = CheckBoxItemDelegate(
-            parent=self.curseforge_mods_table_view,
-            model=self.curseforge_mods_table_model
-        )
-
-        self.curseforge_mods_table_view.setModel(self.curseforge_mods_table_model)
-        self.curseforge_mods_table_view.setItemDelegateForColumn(3, self.curseforge_mods_checkbox_item_delegate)
-        self.curseforge_mods_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
-
         self.__create_information_view()
-        self.__install_event_filters()
+        self.__install_event_filter()
         self.__set_text_input_validators()
         self.__set_spin_box_and_slider_ranges()
+        self.__set_widget_sizes()
         self.__set_widget_stylesheets()
+        self.__setup_table_views()
         self.__bind_spin_boxes_and_sliders()
         self.__bind_path_select_buttons()
         self.__bind_action_buttons()
@@ -313,7 +283,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.information_web_engine_view.setContextMenuPolicy(Qt.PreventContextMenu)
         self.information_web_engine_view.setZoomFactor(0.75)
 
-    def __install_event_filters(self):
+    def __install_event_filter(self):
         for attribute in self.__dict__.values():
             if isinstance(attribute, (QLineEdit, QTableView)):
                 attribute.installEventFilter(self)
@@ -348,6 +318,18 @@ class ModpackBuilderWindow(QMainWindow):
         self.server_allocated_memory_spin_box.setRange(ModpackBuilder.min_recommended_memory, maximum_memory)
         self.server_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
 
+    def __set_widget_sizes(self):
+        # Fix for PyQt5 having no content margins around central widget
+        if os.environ["QT_API"] == "pyqt5":
+            self.setContentsMargins(9, 9, 9, 9)
+
+        # Set the of all of the labels in the scroll area child group boxes to uniform width
+        modpack_options_labels = self.modpack_options_scroll_area_contents.findChildren(QLabel)
+        modpack_options_label_width = max(label.sizeHint().width() for label in modpack_options_labels)
+
+        for label in modpack_options_labels:
+            label.setMinimumWidth(modpack_options_label_width)
+
     def __set_widget_stylesheets(self):
         scroll_area_css = """
             QScrollArea { background: transparent; }
@@ -379,6 +361,28 @@ class ModpackBuilderWindow(QMainWindow):
             self.curseforge_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
             self.external_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
             self.loading_priority_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
+
+    def __setup_table_views(self):
+        self.loading_priority_table_model = LoadingPriorityTableModel(
+            parent=self.loading_priority_table_view,
+            builder=self.builder,
+        )
+
+        self.loading_priority_table_view.setModel(self.loading_priority_table_model)
+        self.loading_priority_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
+
+        self.curseforge_mods_table_model = CurseForgeModsTableModel(
+            parent=self.curseforge_mods_table_view,
+            builder=self.builder
+        )
+        self.curseforge_mods_checkbox_item_delegate = CheckBoxItemDelegate(
+            parent=self.curseforge_mods_table_view,
+            model=self.curseforge_mods_table_model
+        )
+
+        self.curseforge_mods_table_view.setModel(self.curseforge_mods_table_model)
+        self.curseforge_mods_table_view.setItemDelegateForColumn(3, self.curseforge_mods_checkbox_item_delegate)
+        self.curseforge_mods_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
     def __bind_spin_boxes_and_sliders(self):
         @helpers.make_slot(float)
