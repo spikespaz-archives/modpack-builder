@@ -344,6 +344,16 @@ class ModpackBuilderWindow(QMainWindow):
         self.server_allocated_memory_slider.setRange(ModpackBuilder.min_recommended_memory * 2, maximum_memory * 2)
 
     def __set_widget_stylesheets(self):
+        scroll_area_css = """
+            QScrollArea { background: transparent; }
+            QScrollArea > QWidget > QWidget { background: transparent; }
+            QScrollArea > QWidget > QScrollBar { background: none; }
+        """
+
+        self.modpack_options_scroll_area.setStyleSheet(scroll_area_css)
+        # self.modpack_options_scroll_area_contents.setStyleSheet(scroll_area_contents_css)
+        self.application_settings_scroll_area.setStyleSheet(scroll_area_css)
+
         self.profile_icon_image_label.setStyleSheet(
             f"QLabel {{ background: #262626 }}"
         )
@@ -351,15 +361,15 @@ class ModpackBuilderWindow(QMainWindow):
         # Fix for the bottom border missing on the table view's header, only on Windows 10
         if QSysInfo().windowsVersion() == QSysInfo.WV_WINDOWS10:
             table_view_header_css = """
-                    QHeaderView::section {
-                        border-style: solid;
-                        border-color: #D8D8D8;
-                        border-top-width: 0px;
-                        border-bottom-width: 1px;
-                        border-left-width: 0px;
-                        border-right-width: 1px;
-                    }
-                    """
+                QHeaderView::section {
+                    border-style: solid;
+                    border-color: #D8D8D8;
+                    border-top-width: 0px;
+                    border-bottom-width: 1px;
+                    border-left-width: 0px;
+                    border-right-width: 1px;
+                }
+            """
 
             self.curseforge_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
             self.external_mods_table_view.horizontalHeader().setStyleSheet(table_view_header_css)
