@@ -1,6 +1,7 @@
 import sys
 import time
 
+from qtpy.QtCore import Slot
 from qtpy.QtWidgets import QApplication, QPushButton
 
 import modpack_builder.utilities as utilities
@@ -22,7 +23,7 @@ if __name__ == "__main__":
 
     dialog.main_reporter.maximum = reporter_count
 
-    @helpers.make_slot()
+    @Slot()
     @helpers.connect_slot(add_reporter_button.clicked)
     def __add_reporter():
         reporters.append(dialog.reporter())

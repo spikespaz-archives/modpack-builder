@@ -1,8 +1,9 @@
 import sys
 import time
 
-from qtpy.QtWidgets import QApplication, QDialog, QListView, QVBoxLayout
+from qtpy.QtCore import Slot
 from qtpy.QtGui import QStandardItem
+from qtpy.QtWidgets import QApplication, QDialog, QListView, QVBoxLayout
 
 import modpack_builder.utilities as utilities
 import modpack_builder.gui.helpers as helpers
@@ -31,12 +32,12 @@ class ExampleProgressLogDialog(QDialog):
         progress_log_scroll_bar = self.progress_log_list_view.verticalScrollBar()
         self.__scroll_bar_was_at_bottom = False
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.progress_log_item_model.rowsAboutToBeInserted)
         def __on_progress_log_model_rows_about_to_be_inserted():
             self.__scroll_bar_was_at_bottom = progress_log_scroll_bar.value() == progress_log_scroll_bar.maximum()
 
-        @helpers.make_slot(int, int)
+        @Slot(int, int)
         @helpers.connect_slot(progress_log_scroll_bar.rangeChanged)
         def __on_progress_log_scroll_bar_range_changed(_, max_value):
             if self.__scroll_bar_was_at_bottom:

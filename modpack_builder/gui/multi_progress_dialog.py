@@ -4,7 +4,7 @@ from pathlib import Path
 
 from qtpy import uic
 from qtpy.QtGui import QStandardItem
-from qtpy.QtCore import Qt, QObject, Signal, QEvent, QMimeData
+from qtpy.QtCore import Qt, QObject, Signal, QEvent, QMimeData, Slot
 from qtpy.QtWidgets import QDialog, QMessageBox, QProgressBar, QListView, QApplication
 
 import modpack_builder.gui.helpers as helpers
@@ -128,13 +128,13 @@ class MultiProgressDialog(QDialog):
         return self.__cancel_requested
 
     def __bind_cancel_request_and_completed(self):
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.cancel_request)
         def __on_cancel_request():
             self.__cancel_requested = True
             self.cancel_button.setEnabled(False)
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.completed)
         def __on_completed():
             self.__allow_close = True
@@ -145,12 +145,12 @@ class MultiProgressDialog(QDialog):
         progress_log_scroll_bar = self.progress_log_list_view.verticalScrollBar()
         self.__scroll_bar_was_at_bottom = False
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.progress_log_item_model.rowsAboutToBeInserted)
         def __on_progress_log_model_rows_about_to_be_inserted():
             self.__scroll_bar_was_at_bottom = progress_log_scroll_bar.value() == progress_log_scroll_bar.maximum()
 
-        @helpers.make_slot(int, int)
+        @Slot(int, int)
         @helpers.connect_slot(progress_log_scroll_bar.rangeChanged)
         def __on_progress_log_scroll_bar_range_changed(_, max_value):
             if self.__scroll_bar_was_at_bottom:
@@ -167,7 +167,7 @@ class MultiProgressDialog(QDialog):
             self.progress_bar_divider_line.setVisible(False)
 
     def __bind_reporter_created(self):
-        @helpers.make_slot(ProgressBarReporter)
+        @Slot(ProgressBarReporter)
         @helpers.connect_slot(self.reporter_created)
         def __on_reporter_created(reporter):
             initial_geometry = self.geometry()

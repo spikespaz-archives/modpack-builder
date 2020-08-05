@@ -12,7 +12,7 @@ import markdown2
 from qtpy import uic
 from qtpy.QtGui import QDesktopServices, QPixmap
 from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
-from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
+from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection, Slot
 from qtpy.QtWidgets import QMainWindow, QHeaderView, QLineEdit, QTableView, QLabel
 
 import modpack_builder.utilities as utilities
@@ -158,7 +158,7 @@ class ModpackBuilderWindow(QMainWindow):
         self.builder.reporter = progress_dialog.main_reporter
         self.builder.logger = progress_dialog.log
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(progress_dialog.completed)
         def __on_progress_dialog_completed():
             if progress_dialog.cancel_requested:
@@ -167,7 +167,7 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.__load_values_from_builder()
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(progress_dialog.cancel_request)
         def __on_cancel_request():
             self.builder.abort()
@@ -385,40 +385,40 @@ class ModpackBuilderWindow(QMainWindow):
         self.curseforge_mods_table_view.verticalHeader().setSectionResizeMode(QHeaderView.ResizeToContents)
 
     def __bind_spin_boxes_and_sliders(self):
-        @helpers.make_slot(float)
+        @Slot(float)
         @helpers.connect_slot(self.client_allocated_memory_spin_box.valueChanged)
         def __on_client_allocated_memory_spin_box_value_changed(value):
             self.client_allocated_memory_slider.setValue(int(value * 2))
             self.builder.client_allocated_memory = value
 
-        @helpers.make_slot(int)
+        @Slot(int)
         @helpers.connect_slot(self.client_allocated_memory_slider.valueChanged)
         def __on_client_allocated_memory_slider_value_changed(value):
             self.client_allocated_memory_spin_box.setValue(value / 2)
 
-        @helpers.make_slot(float)
+        @Slot(float)
         @helpers.connect_slot(self.server_allocated_memory_spin_box.valueChanged)
         def __on_server_allocated_memory_spin_box_value_changed(value):
             self.server_allocated_memory_slider.setValue(int(value * 2))
             self.builder.server_allocated_memory = value
 
-        @helpers.make_slot(int)
+        @Slot(int)
         @helpers.connect_slot(self.server_allocated_memory_slider.valueChanged)
         def __on_server_allocated_memory_slider_value_changed(value):
             self.server_allocated_memory_spin_box.setValue(value / 2)
 
-        @helpers.make_slot(int)
+        @Slot(int)
         @helpers.connect_slot(self.concurrent_requests_spin_box.valueChanged)
         def __on_concurrent_requests_spin_box_value_changed(value):
             self.settings.concurrent_requests = value
 
-        @helpers.make_slot(int)
+        @Slot(int)
         @helpers.connect_slot(self.concurrent_downloads_spin_box.valueChanged)
         def __on_concurrent_downloads_spin_box_value_changed(value):
             self.settings.concurrent_downloads = value
 
     def __bind_path_select_buttons(self):
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.modpack_package_select_button.clicked)
         def __on_modpack_package_select_button_clicked():
             modpack_package_path = helpers.pick_file(
@@ -434,7 +434,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.modpack_package_line_edit.setText(str(modpack_package_path))
             self.modpack_package_line_edit.editingFinished.emit()
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.profile_icon_path_select_button.clicked)
         def __on_profile_icon_path_select_button_clicked():
             profile_icon_path = helpers.pick_file(
@@ -453,7 +453,7 @@ class ModpackBuilderWindow(QMainWindow):
             with open(profile_icon_path, "rb") as image:
                 self.profile_icon_base64_line_edit.setText(base64.b64encode(image.read()).decode())
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.settings_directory_select_button.clicked)
         def __on_settings_directory_select_button_clicked():
             settings_directory = helpers.pick_directory(
@@ -468,7 +468,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.minecraft_directory_line_edit.setText(str(settings_directory))
             self.settings_directory_line_edit.editingFinished.emit()
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.minecraft_directory_select_button.clicked)
         def __on_minecraft_directory_select_button_clicked():
             minecraft_directory = helpers.pick_directory(
@@ -482,7 +482,7 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.minecraft_directory_line_edit.setText(str(minecraft_directory))
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.profiles_directory_select_button.clicked)
         def __on_profiles_directory_select_button_clicked():
             profiles_directory = helpers.pick_directory(
@@ -496,7 +496,7 @@ class ModpackBuilderWindow(QMainWindow):
 
             self.profiles_directory_line_edit.setText(str(profiles_directory))
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.minecraft_launcher_select_button.clicked)
         def __on_minecraft_launcher_select_button_clicked():
             minecraft_launcher_path = helpers.pick_file(
@@ -514,17 +514,17 @@ class ModpackBuilderWindow(QMainWindow):
     def __bind_action_buttons(self):
         # *** Window General Actions ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.install_or_update_client_button.clicked)
         def __on_install_or_update_client_button_clicked():
             pass
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.install_or_update_server_button.clicked)
         def __on_install_or_update_server_button_clicked():
             pass
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.launch_minecraft_button.clicked)
         def __on_launch_minecraft_button_clicked():
             Popen(
@@ -540,7 +540,7 @@ class ModpackBuilderWindow(QMainWindow):
                 )
             )
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.export_package_button.clicked)
         def __on_export_package_button_clicked():
             import json
@@ -550,14 +550,14 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** Modpack Options ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.update_profile_button.clicked)
         def __on_update_profile_button_clicked():
             pass
 
         # *** CurseForge Mods ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.curseforge_mod_add_button.clicked)
         def __on_curseforge_mod_add_button_clicked():
             text = self.curseforge_mod_identifier_line_edit.text()
@@ -571,7 +571,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.curseforge_mods_table_model.setData(self.curseforge_mods_table_model.index(0, 0), text)
             self.curseforge_mods_table_view.selectRow(0)
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.curseforge_mod_remove_button.clicked)
         def __on_curseforge_mod_remove_button_clicked():
             if not (selection := self.curseforge_mods_table_view.selectionModel()).hasSelection():
@@ -586,41 +586,41 @@ class ModpackBuilderWindow(QMainWindow):
             for rows in reversed(contiguous_rows):
                 self.curseforge_mods_table_model.removeRows(min(rows), len(rows))
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.curseforge_mod_update_button.clicked)
         def __on_curseforge_mod_update_button_clicked():
             pass
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.curseforge_mod_disable_button.clicked)
         def __on_curseforge_mod_disable_button_clicked():
             pass
 
         # *** External Mods ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.external_mod_add_button.clicked)
         def __on_external_mod_add_button_clicked():
             pass
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.external_mod_remove_button.clicked)
         def __on_external_mod_remove_button_clicked():
             pass
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.external_mod_update_button.clicked)
         def __on_external_mod_update_button_clicked():
             pass
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.external_mod_disable_button.clicked)
         def __on_external_mod_disable_button_clicked():
             pass
 
         # *** Loading Priority ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.loading_priority_add_button.clicked)
         def __on_loading_priority_add_button_clicked():
             text = self.loading_priority_mod_identifier_line_edit.text()
@@ -629,7 +629,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.loading_priority_table_model.setData(self.loading_priority_table_model.index(0, 0), text)
             self.loading_priority_table_view.selectRow(0)
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.loading_priority_remove_button.clicked)
         def __on_loading_priority_remove_button_clicked():
             if not (selection := self.loading_priority_table_view.selectionModel()).hasSelection():
@@ -659,7 +659,7 @@ class ModpackBuilderWindow(QMainWindow):
                     min(rows) + offset if offset < 0 else max(rows) + offset + 1
                 )
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.loading_priority_increase_button.clicked)
         def __on_loading_priority_increase_button_clicked():
             if not (selection := self.loading_priority_table_view.selectionModel()).hasSelection():
@@ -667,7 +667,7 @@ class ModpackBuilderWindow(QMainWindow):
 
             __load_priority_list_view_shift_rows(selection, -1)
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.loading_priority_decrease_button.clicked)
         def __on_loading_priority_decrease_button_button_clicked():
             if not (selection := self.loading_priority_table_view.selectionModel()).hasSelection():
@@ -677,13 +677,13 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** Java Runtime ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.java_runtime_download_button.clicked)
         def __on_java_runtime_download_button_clicked():
             pass
 
     def __bind_synchronized_controls(self):
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.modpack_package_line_edit.editingFinished)
         def __on_modpack_package_line_edit_editing_finished():
             # Due to an old bug where this signal is fired multiple times, first when the user presses Enter and then
@@ -707,7 +707,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** General Options ***
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.profile_name_line_edit.textChanged)
         def __on_profile_name_line_edit_text_changed(text):
             # Conversion of name to slug is handled by the validator.
@@ -715,7 +715,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.profile_id_line_edit.setText(text)
             self.builder.manifest.profile_name = text
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.profile_id_line_edit.textChanged)
         def __on_profile_id_line_edit_text_changed(text):
             profile_directory = Path(self.settings.profiles_directory / text)
@@ -724,7 +724,7 @@ class ModpackBuilderWindow(QMainWindow):
             self.builder.manifest.profile_id = text
             self.builder.manifest.profile_directory = profile_directory
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.profile_icon_base64_line_edit.textChanged)
         def __on_profile_icon_base64_line_edit_text_changed(text):
             try:
@@ -746,7 +746,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         # ***CurseForge Mods***
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.curseforge_mod_identifier_line_edit.textChanged)
         def __on_curseforge_mod_identifier_line_edit_text_changed(text):
             if text and text not in self.builder.curseforge_files:
@@ -758,7 +758,7 @@ class ModpackBuilderWindow(QMainWindow):
                 # Assumes that nothing is already selected
                 self.curseforge_mods_table_view.selectRow(self.curseforge_mods_table_model.identifiers.index(text))
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.minecraft_versions_line_edit.textChanged)
         def __on_minecraft_versions_line_edit_text_changed(text):
             self.builder.manifest.game_versions.clear()
@@ -767,7 +767,7 @@ class ModpackBuilderWindow(QMainWindow):
                 if version := version.strip():
                     self.builder.manifest.game_versions.add(version)
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.release_type_combo_box.currentTextChanged)
         def __on_release_type_combo_box_current_text_changed(text):
             self.builder.manifest.release_preference = ReleaseType(text.lower())
@@ -776,7 +776,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         # ***Loading Priority***
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.loading_priority_mod_identifier_line_edit.textChanged)
         def __on_loading_priority_mod_identifier_line_edit_text_changed(text):
             if (
@@ -796,27 +796,27 @@ class ModpackBuilderWindow(QMainWindow):
 
         # ***Java Runtime***
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.client_jvm_arguments_text_edit.textChanged)
         def __on_client_jvm_arguments_text_edit_text_changed():
             self.builder.manifest.client_java_args = shlex.split(self.client_jvm_arguments_text_edit.toPlainText())
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.server_jvm_arguments_text_edit.textChanged)
         def __on_server_jvm_arguments_text_edit_text_changed():
             self.builder.manifest.server_java_args = shlex.split(self.server_jvm_arguments_text_edit.toPlainText())
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.java_download_url_mac_line_edit.textChanged)
         def __on_java_download_url_mac_line_edit_text_changed(text):
             self.builder.manifest.java_downloads.darwin = text
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.java_download_url_linux_line_edit.textChanged)
         def __on_java_download_url_linux_line_edit_text_changed(text):
             self.builder.manifest.java_downloads.linux = text
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.java_download_url_windows_line_edit.textChanged)
         def __on_java_download_url_windows_line_edit_text_changed(text):
             self.builder.manifest.java_downloads.windows = text
@@ -825,7 +825,7 @@ class ModpackBuilderWindow(QMainWindow):
 
         # *** Application Settings ***
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.settings_directory_line_edit.editingFinished)
         def __on_settings_directory_line_edit_editing_finished():
             if (
@@ -837,23 +837,23 @@ class ModpackBuilderWindow(QMainWindow):
             self.__last_settings_directory = path
             self.settings.settings_directory = path
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.minecraft_directory_line_edit.textChanged)
         def __on_minecraft_directory_line_edit_text_changed(text):
             self.settings.minecraft_directory = Path(text)
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.profiles_directory_line_edit.textChanged)
         def __on_profiles_directory_line_edit_text_changed(text):
             self.settings.profiles_directory = Path(text)
 
-        @helpers.make_slot(str)
+        @Slot(str)
         @helpers.connect_slot(self.minecraft_launcher_line_edit.textChanged)
         def __on_minecraft_launcher_line_edit_text_changed(text):
             self.settings.minecraft_launcher_path = Path(text)
 
     def __bind_table_selection_changes(self):
-        @helpers.make_slot(QItemSelection, QItemSelection)
+        @Slot(QItemSelection, QItemSelection)
         @helpers.connect_slot(self.loading_priority_table_view.selectionModel().selectionChanged)
         def __on_loading_priority_table_view_selection_model_selection_changed(*_):
             selected_rows = tuple(
@@ -881,7 +881,7 @@ class ModpackBuilderWindow(QMainWindow):
                 self.loading_priority_increase_button.setEnabled(False)
                 self.loading_priority_decrease_button.setEnabled(False)
 
-        @helpers.make_slot(QItemSelection, QItemSelection)
+        @Slot(QItemSelection, QItemSelection)
         @helpers.connect_slot(self.curseforge_mods_table_view.selectionModel().selectionChanged)
         def __on_curseforge_mods_table_view_selection_model_selection_changed(*_):
             selected_rows = tuple(

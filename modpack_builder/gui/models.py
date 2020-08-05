@@ -1,7 +1,7 @@
 from orderedset import OrderedSet
 
 from qtpy.QtGui import QStandardItemModel
-from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Signal, QTimer
+from qtpy.QtCore import Qt, QAbstractTableModel, QModelIndex, Signal, QTimer, Slot
 
 import modpack_builder.utilities as utilities
 import modpack_builder.gui.helpers as helpers
@@ -22,13 +22,13 @@ class BufferedItemModel(QStandardItemModel):
         self.timer.setSingleShot(True)
         self.timer.setInterval(refresh)
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.__row_appended)
         def __on_row_appended():
             if not self.timer.isActive():
                 self.timer.start()
 
-        @helpers.make_slot()
+        @Slot()
         @helpers.connect_slot(self.timer.timeout)
         def __on_timer_timeout():
             self.__dump_buffer()
