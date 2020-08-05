@@ -13,7 +13,7 @@ from qtpy import uic
 from qtpy.QtGui import QDesktopServices, QPixmap
 from qtpy.QtWebEngineWidgets import QWebEngineView, QWebEnginePage
 from qtpy.QtCore import Qt, QModelIndex, QSysInfo, QEvent, QItemSelection
-from qtpy.QtWidgets import QMainWindow, QHeaderView, QLineEdit, QTableView
+from qtpy.QtWidgets import QMainWindow, QHeaderView, QLineEdit, QTableView, QLabel
 
 import modpack_builder.utilities as utilities
 import modpack_builder.gui.helpers as helpers
@@ -52,6 +52,13 @@ class ModpackBuilderWindow(QMainWindow):
         # Fix for PyQt5
         if os.environ["QT_API"] == "pyqt5":
             self.setContentsMargins(9, 9, 9, 9)
+
+        # Set the of all of the labels in the scroll area child group boxes to uniform width
+        modpack_options_labels = self.modpack_options_scroll_area_contents.findChildren(QLabel)
+        modpack_options_label_width = max(label.sizeHint().width() for label in modpack_options_labels)
+
+        for label in modpack_options_labels:
+            label.setMinimumWidth(modpack_options_label_width)
 
         self.__last_modpack_package_path = None
         self.__should_reset_profile_icon_path = False
