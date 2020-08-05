@@ -108,7 +108,7 @@ class MultiProgressDialog(QDialog):
 
     def eventFilter(self, source, event):
         if isinstance(source, QListView):
-            if event.type() is QEvent.KeyPress and event.key() == Qt.Key_C and event.modifiers() & Qt.ControlModifier:
+            if event.type() == QEvent.KeyPress and event.key() == Qt.Key_C and event.modifiers() & Qt.ControlModifier:
                 rows = sorted(source.selectionModel().selectedRows())
                 data = QMimeData()
                 data.setText("\n".join(str(source.model().data(row)) for row in rows))
