@@ -74,140 +74,261 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="profile_options_page">
+      <widget class="QWidget" name="modpack_options_page">
        <attribute name="title">
-        <string>Profile Options</string>
+        <string>Modpack Options</string>
        </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_11">
+       <layout class="QVBoxLayout" name="verticalLayout_6">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QGroupBox" name="profile_general_group_box">
-          <property name="title">
-           <string>General</string>
+         <widget class="QScrollArea" name="modpack_options_scroll_area">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
-          <layout class="QFormLayout" name="formLayout_4">
-           <item row="0" column="0">
-            <widget class="QLabel" name="profile_name_label">
-             <property name="text">
-              <string>Profile Name</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="profile_name_line_edit"/>
-           </item>
-           <item row="2" column="0">
-            <widget class="QLabel" name="profile_directory_label">
-             <property name="text">
-              <string>Profile Directory</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="version_label_label">
-             <property name="text">
-              <string>Version Label</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QComboBox" name="version_label_combo_box"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="profile_id_label">
-             <property name="text">
-              <string>Profile ID</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLineEdit" name="profile_id_line_edit"/>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLineEdit" name="profile_directory_line_edit">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="profile_icon_group_box">
-          <property name="title">
-           <string>Profile Icon</string>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_5">
-           <item>
-            <layout class="QFormLayout" name="profile_icon_layout">
-             <item row="0" column="0">
-              <widget class="QLabel" name="profile_icon_label">
-               <property name="text">
-                <string>File Path</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0">
-              <widget class="QLabel" name="profile_icon_base64_label">
-               <property name="text">
-                <string>Base64 Data</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="1">
-              <layout class="QHBoxLayout" name="profile_icon_path_layout">
-               <item>
-                <widget class="QLineEdit" name="profile_icon_path_line_edit"/>
-               </item>
-               <item>
-                <widget class="QToolButton" name="profile_icon_path_select_button">
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="modpack_options_scroll_area_contents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>906</width>
+             <height>426</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_8">
+            <item>
+             <widget class="QGroupBox" name="profile_general_group_box">
+              <property name="title">
+               <string>Profile General</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_4">
+               <item row="0" column="0">
+                <widget class="QLabel" name="profile_name_label">
                  <property name="text">
-                  <string>...</string>
+                  <string>Profile Name</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QLineEdit" name="profile_name_line_edit"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="profile_directory_label">
+                 <property name="text">
+                  <string>Profile Directory</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="0">
+                <widget class="QLabel" name="version_label_label">
+                 <property name="text">
+                  <string>Version Label</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="4" column="1">
+                <widget class="QComboBox" name="version_label_combo_box"/>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="profile_id_label">
+                 <property name="text">
+                  <string>Profile ID</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QLineEdit" name="profile_id_line_edit"/>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="profile_directory_line_edit">
+                 <property name="enabled">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
               </layout>
-             </item>
-             <item row="1" column="1">
-              <widget class="QLineEdit" name="profile_icon_base64_line_edit"/>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <widget class="QLabel" name="profile_icon_image_label">
-             <property name="frameShape">
-              <enum>QFrame::Panel</enum>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="alignment">
-              <set>Qt::AlignCenter</set>
-             </property>
-            </widget>
-           </item>
-          </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="profile_icon_group_box">
+              <property name="title">
+               <string>Profile Icon</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_5">
+               <item>
+                <layout class="QFormLayout" name="profile_icon_layout">
+                 <item row="0" column="0">
+                  <widget class="QLabel" name="profile_icon_label">
+                   <property name="text">
+                    <string>File Path</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0">
+                  <widget class="QLabel" name="profile_icon_base64_label">
+                   <property name="text">
+                    <string>Base64 Data</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="0" column="1">
+                  <layout class="QHBoxLayout" name="profile_icon_path_layout">
+                   <item>
+                    <widget class="QLineEdit" name="profile_icon_path_line_edit"/>
+                   </item>
+                   <item>
+                    <widget class="QToolButton" name="profile_icon_path_select_button">
+                     <property name="text">
+                      <string>...</string>
+                     </property>
+                    </widget>
+                   </item>
+                  </layout>
+                 </item>
+                 <item row="1" column="1">
+                  <widget class="QLineEdit" name="profile_icon_base64_line_edit"/>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <widget class="QLabel" name="profile_icon_image_label">
+                 <property name="frameShape">
+                  <enum>QFrame::Panel</enum>
+                 </property>
+                 <property name="text">
+                  <string/>
+                 </property>
+                 <property name="alignment">
+                  <set>Qt::AlignCenter</set>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="minecraft_forge_options_group_box">
+              <property name="title">
+               <string>Minecraft Forge</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout">
+               <item row="0" column="0">
+                <widget class="QLabel" name="minecraft_version_label">
+                 <property name="text">
+                  <string>Minecraft Version</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="minecraft_version_dropdown"/>
+               </item>
+               <item row="1" column="0">
+                <widget class="QLabel" name="minecraft_forge_version_label">
+                 <property name="text">
+                  <string>Forge Version</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="1">
+                <widget class="QComboBox" name="minecraft_forge_version_dropdown"/>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="curseforge_options_group_box">
+              <property name="title">
+               <string>CurseForge Mods</string>
+              </property>
+              <layout class="QFormLayout" name="formLayout_6">
+               <item row="0" column="0">
+                <widget class="QLabel" name="release_type_label">
+                 <property name="text">
+                  <string>Release Type</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="0" column="1">
+                <widget class="QComboBox" name="release_type_combo_box"/>
+               </item>
+               <item row="2" column="1">
+                <widget class="QLineEdit" name="minecraft_versions_line_edit"/>
+               </item>
+               <item row="2" column="0">
+                <widget class="QLabel" name="minecraft_versions_label">
+                 <property name="text">
+                  <string>Minecraft Versions</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="modpack_options_spacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>
-         <spacer name="profile_options_spacer">
+         <widget class="Line" name="modpack_options_divider_line">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="update_profile_button">
-          <property name="text">
-           <string>Update Profile</string>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="modpack_options_actions_layout">
+          <property name="leftMargin">
+           <number>9</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>9</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="update_profile_button">
+            <property name="text">
+             <string>Update Profile</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
@@ -217,60 +338,56 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
-         <layout class="QFormLayout" name="curseforge_mods_control_layout">
-          <item row="1" column="0">
+         <layout class="QHBoxLayout" name="curseforge_mods_control_layout">
+          <item>
            <widget class="QLabel" name="curseforge_mod_identifier_label">
             <property name="text">
              <string>Mod Identifier</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
+          <item>
            <widget class="QLineEdit" name="curseforge_mod_identifier_line_edit"/>
           </item>
-          <item row="2" column="1">
-           <layout class="QHBoxLayout" name="curseforge_mod_actions_layout">
-            <item>
-             <widget class="QPushButton" name="curseforge_mod_add_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Add</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="curseforge_mod_remove_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Remove</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="curseforge_mod_update_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Update</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="curseforge_mod_disable_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Disable</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item>
+           <widget class="QPushButton" name="curseforge_mod_add_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="curseforge_mod_remove_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="curseforge_mod_update_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Update</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="curseforge_mod_disable_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Disable</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -285,35 +402,6 @@
           <property name="wordWrap">
            <bool>false</bool>
           </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="curseforge_mod_preferences_group_box">
-          <property name="title">
-           <string>Download Preferences</string>
-          </property>
-          <layout class="QFormLayout" name="curseforge_mods_options_layout">
-           <item row="0" column="0">
-            <widget class="QLabel" name="minecraft_versions_label">
-             <property name="text">
-              <string>Minecraft Versions</string>
-             </property>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLineEdit" name="minecraft_versions_line_edit"/>
-           </item>
-           <item row="1" column="0">
-            <widget class="QLabel" name="release_type_label">
-             <property name="text">
-              <string>Release Type</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QComboBox" name="release_type_combo_box"/>
-           </item>
-          </layout>
          </widget>
         </item>
        </layout>
@@ -412,60 +500,56 @@
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_7">
         <item>
-         <layout class="QFormLayout" name="loading_priority_control_layout">
-          <item row="0" column="0">
+         <layout class="QHBoxLayout" name="loading_priority_control_layout">
+          <item>
            <widget class="QLabel" name="loading_priority_mod_identifier_label">
             <property name="text">
              <string>Mod Identifier</string>
             </property>
            </widget>
           </item>
-          <item row="0" column="1">
+          <item>
            <widget class="QLineEdit" name="loading_priority_mod_identifier_line_edit"/>
           </item>
-          <item row="1" column="1">
-           <layout class="QHBoxLayout" name="loading_priority_actions_layout">
-            <item>
-             <widget class="QPushButton" name="loading_priority_add_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Add</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="loading_priority_remove_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Remove</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="loading_priority_increase_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Increase</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="loading_priority_decrease_button">
-              <property name="enabled">
-               <bool>false</bool>
-              </property>
-              <property name="text">
-               <string>Decrease</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
+          <item>
+           <widget class="QPushButton" name="loading_priority_add_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Add</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="loading_priority_remove_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Remove</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="loading_priority_increase_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Increase</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="loading_priority_decrease_button">
+            <property name="enabled">
+             <bool>false</bool>
+            </property>
+            <property name="text">
+             <string>Decrease</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </item>
@@ -478,68 +562,6 @@
            <bool>false</bool>
           </property>
          </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="minecraft_forge_tab">
-       <attribute name="title">
-        <string>Minecraft Forge</string>
-       </attribute>
-       <layout class="QVBoxLayout" name="verticalLayout_6">
-        <item>
-         <layout class="QFormLayout" name="minecraft_forge_settings_layout">
-          <item row="0" column="0">
-           <widget class="QLabel" name="minecraft_version_label">
-            <property name="text">
-             <string>Minecraft Version</string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1">
-           <widget class="QComboBox" name="minecraft_version_dropdown"/>
-          </item>
-          <item row="1" column="0">
-           <widget class="QLabel" name="minecraft_forge_version_label">
-            <property name="text">
-             <string>Forge Version</string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QComboBox" name="minecraft_forge_version_dropdown"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <spacer name="minecraft_forge_tab_spacer">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <layout class="QHBoxLayout" name="minecraft_forge_actions_layout">
-          <item>
-           <widget class="QPushButton" name="minecraft_forge_install_client_button">
-            <property name="text">
-             <string>Install Client</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QPushButton" name="minecraft_forge_install_server_button">
-            <property name="text">
-             <string>Install Server</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
        </layout>
       </widget>
@@ -751,151 +773,214 @@
         <string>Application Settings</string>
        </attribute>
        <layout class="QVBoxLayout" name="verticalLayout_10">
+        <property name="spacing">
+         <number>0</number>
+        </property>
+        <property name="leftMargin">
+         <number>0</number>
+        </property>
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QGroupBox" name="settings_directory_group_box">
-          <property name="title">
-           <string>Settings Directory</string>
+         <widget class="QScrollArea" name="application_settings_scroll_area">
+          <property name="frameShape">
+           <enum>QFrame::NoFrame</enum>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout">
-           <item>
-            <widget class="QLineEdit" name="settings_directory_line_edit"/>
-           </item>
-           <item>
-            <widget class="QToolButton" name="settings_directory_select_button">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+          <property name="frameShadow">
+           <enum>QFrame::Plain</enum>
+          </property>
+          <property name="widgetResizable">
+           <bool>true</bool>
+          </property>
+          <widget class="QWidget" name="application_settings_scroll_area_contents">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>0</y>
+             <width>906</width>
+             <height>426</height>
+            </rect>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_11">
+            <item>
+             <widget class="QGroupBox" name="settings_directory_group_box">
+              <property name="title">
+               <string>Settings Directory</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout">
+               <item>
+                <widget class="QLineEdit" name="settings_directory_line_edit"/>
+               </item>
+               <item>
+                <widget class="QToolButton" name="settings_directory_select_button">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="minecraft_directory_group_box">
+              <property name="title">
+               <string>Minecraft Directory</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_3">
+               <item>
+                <widget class="QLineEdit" name="minecraft_directory_line_edit"/>
+               </item>
+               <item>
+                <widget class="QToolButton" name="minecraft_directory_select_button">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="profiles_directory_group_box">
+              <property name="title">
+               <string>Profiles Directory</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_7">
+               <item>
+                <widget class="QLineEdit" name="profiles_directory_line_edit"/>
+               </item>
+               <item>
+                <widget class="QToolButton" name="profiles_directory_select_button">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="minecraft_launcher_group_box">
+              <property name="title">
+               <string>Minecraft Launcher</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_4">
+               <item>
+                <widget class="QLineEdit" name="minecraft_launcher_line_edit"/>
+               </item>
+               <item>
+                <widget class="QToolButton" name="minecraft_launcher_select_button">
+                 <property name="text">
+                  <string>...</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="concurrent_requests_group_box">
+              <property name="title">
+               <string>Concurrent Requests</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <item>
+                <widget class="QSpinBox" name="concurrent_requests_spin_box"/>
+               </item>
+               <item>
+                <widget class="QSlider" name="concurrent_requests_slider">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::TicksAbove</enum>
+                 </property>
+                 <property name="tickInterval">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <widget class="QGroupBox" name="concurrent_downloads_group_box">
+              <property name="title">
+               <string>Concurrent Downloads</string>
+              </property>
+              <layout class="QHBoxLayout" name="horizontalLayout_6">
+               <item>
+                <widget class="QSpinBox" name="concurrent_downloads_spin_box"/>
+               </item>
+               <item>
+                <widget class="QSlider" name="concurrent_downloads_slider">
+                 <property name="orientation">
+                  <enum>Qt::Horizontal</enum>
+                 </property>
+                 <property name="tickPosition">
+                  <enum>QSlider::TicksAbove</enum>
+                 </property>
+                 <property name="tickInterval">
+                  <number>1</number>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </widget>
+            </item>
+            <item>
+             <spacer name="application_settings_spacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+           </layout>
+          </widget>
          </widget>
         </item>
         <item>
-         <widget class="QGroupBox" name="minecraft_directory_group_box">
-          <property name="title">
-           <string>Minecraft Directory</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QLineEdit" name="minecraft_directory_line_edit"/>
-           </item>
-           <item>
-            <widget class="QToolButton" name="minecraft_directory_select_button">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="profiles_directory_group_box">
-          <property name="title">
-           <string>Profiles Directory</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_7">
-           <item>
-            <widget class="QLineEdit" name="profiles_directory_line_edit"/>
-           </item>
-           <item>
-            <widget class="QToolButton" name="profiles_directory_select_button">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="minecraft_launcher_group_box">
-          <property name="title">
-           <string>Minecraft Launcher</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_4">
-           <item>
-            <widget class="QLineEdit" name="minecraft_launcher_line_edit"/>
-           </item>
-           <item>
-            <widget class="QToolButton" name="minecraft_launcher_select_button">
-             <property name="text">
-              <string>...</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="concurrent_requests_group_box">
-          <property name="title">
-           <string>Concurrent Requests</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_2">
-           <item>
-            <widget class="QSpinBox" name="concurrent_requests_spin_box"/>
-           </item>
-           <item>
-            <widget class="QSlider" name="concurrent_requests_slider">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="tickPosition">
-              <enum>QSlider::TicksAbove</enum>
-             </property>
-             <property name="tickInterval">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <widget class="QGroupBox" name="concurrent_downloads_group_box">
-          <property name="title">
-           <string>Concurrent Downloads</string>
-          </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
-           <item>
-            <widget class="QSpinBox" name="concurrent_downloads_spin_box"/>
-           </item>
-           <item>
-            <widget class="QSlider" name="concurrent_downloads_slider">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="tickPosition">
-              <enum>QSlider::TicksAbove</enum>
-             </property>
-             <property name="tickInterval">
-              <number>1</number>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </widget>
-        </item>
-        <item>
-         <spacer name="application_settings_spacer">
+         <widget class="Line" name="application_settings_page_divider_line">
           <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>20</width>
-            <height>40</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item>
-         <widget class="QPushButton" name="open_documentation_button">
-          <property name="text">
-           <string>Open Documentation</string>
+           <enum>Qt::Horizontal</enum>
           </property>
          </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="application_settings_actions_layout">
+          <property name="leftMargin">
+           <number>9</number>
+          </property>
+          <property name="topMargin">
+           <number>6</number>
+          </property>
+          <property name="rightMargin">
+           <number>9</number>
+          </property>
+          <property name="bottomMargin">
+           <number>6</number>
+          </property>
+          <item>
+           <widget class="QPushButton" name="open_documentation_button">
+            <property name="text">
+             <string>Open Documentation</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
         </item>
        </layout>
       </widget>
