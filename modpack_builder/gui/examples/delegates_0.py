@@ -1,7 +1,7 @@
 import random
 
 from qtpy.QtCore import QAbstractTableModel, Qt
-from qtpy.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QAbstractItemView, QWidget, QHeaderView
+from qtpy.QtWidgets import QApplication, QMainWindow, QTableView, QVBoxLayout, QAbstractItemView, QWidget, QHeaderView, QStyleFactory
 
 from modpack_builder.gui.delegates import CheckBoxItemDelegate
 
@@ -13,13 +13,13 @@ class ExampleTableModel(QAbstractTableModel):
         self.table = list()
 
         for row in range(10):
-            self.table.append([f"Row {row}", bool(random.getrandbits(1))])
+            self.table.append([f"Row {row}", bool(random.getrandbits(1)), None])
 
     def rowCount(self, _=None):
         return len(self.table)
 
     def columnCount(self, _=None):
-        return 2
+        return 3
 
     def data(self, index, role=Qt.DisplayRole):
         if (
@@ -85,6 +85,8 @@ if __name__ == "__main__":
 
     app = QApplication(list())
     window = ExampleCheckBoxItemDelegateWindow()
+
+    # app.setStyle(QStyleFactory.create("fusion"))
 
     window.show()
     sys.exit(app.exec_())
