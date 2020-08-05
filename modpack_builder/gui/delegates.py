@@ -32,15 +32,18 @@ class CheckBoxItemDelegate(QStyledItemDelegate):
     def paint(self, painter, option, index):
         data = self.model.data(index)
 
-        if isinstance(data, bool):
-            checkbox_style = QStyleOptionButton()
-            checkbox_style.state |= QStyle.State_Enabled
-            checkbox_style.state |= QStyle.State_On if data else QStyle.State_Off
-            checkbox_style.rect = self.__get_checkbox_rect(option)
+        if option.state & QStyle.State_Selected:
+            painter.save()
+            painter.setBrush(QApplication.palette().highlight())
+            painter.drawRect(option.rect)
+            painter.restore()
 
-            QApplication.style().drawControl(QStyle.CE_CheckBox, checkbox_style, painter)
-        else:
-            super().paint(painter, option, index)
+        checkbox_style = QStyleOptionButton()
+        checkbox_style.state |= QStyle.State_Enabled
+        checkbox_style.state |= QStyle.State_On if data else QStyle.State_Off
+        checkbox_style.rect = self.__get_checkbox_rect(option)
+
+        QApplication.style().drawControl(QStyle.CE_CheckBox, checkbox_style, painter)
 
     def updateEditorGeometry(self, editor, option, _):
         editor.setGeometry(self.__get_checkbox_rect(option))
