@@ -20,15 +20,18 @@ class ThreadWorker(QObject):
         self.finished.emit()
 
 
-def create_thread(target, *args, parent=None, **kwargs):
+# https://wiki.qt.io/QThreads_general_usage
+def create_thread(target, *args, dispose=False, parent=None, **kwargs):
     thread = QThread(parent)
     worker = ThreadWorker(target, *args, **kwargs)
 
     worker.moveToThread(thread)
     thread.started.connect(worker.run)
     worker.finished.connect(thread.quit)
-    worker.finished.connect(worker.deleteLater)
-    thread.finished.connect(thread.deleteLater)
+
+    if dispose:
+        worker.finished.connect(worker.deleteLater)
+        thread.finished.connect(thread.deleteLater)
 
     # Make the worker an attribute of the thread to stop Python from garbage collecting it.
     # https://stackoverflow.com/a/63274024/2512078
