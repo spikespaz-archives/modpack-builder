@@ -55,15 +55,6 @@ def pick_file(parent, title="Select File", path=Path("~"), types=("Text Document
     return None
 
 
-def make_slot(*args, **kwargs):
-    def wrapper(func):
-        # Convert "snake_case" to "camelCase" for the name of the Qt slot.
-        kwargs.setdefault("name", func.__name__.replace("_", " ").title().replace(" ", ""))
-        return Slot(*args, **kwargs)(func)
-
-    return wrapper
-
-
 def connect_slot(signal):
     def wrapper(func):
         signal.connect(func)
