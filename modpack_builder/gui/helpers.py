@@ -22,22 +22,29 @@ class ThreadWorker(QObject):
 
 # https://wiki.qt.io/QThreads_general_usage
 def create_thread(target, *args, dispose=False, parent=None, **kwargs):
-    thread = QThread(parent)
+    thread_ = QThread(parent)
     worker = ThreadWorker(target, *args, **kwargs)
 
-    worker.moveToThread(thread)
-    thread.started.connect(worker.run)
+    worker.moveToThread(thread_)
+    thread_.started.connect(worker.run)
     worker.finished.connect(thread.quit)
 
     if dispose:
         worker.finished.connect(worker.deleteLater)
-        thread.finished.connect(thread.deleteLater)
+        thread_.finished.connect(thread.deleteLater)
 
     # Make the worker an attribute of the thread to stop Python from garbage collecting it.
     # https://stackoverflow.com/a/63274024/2512078
-    thread.worker = worker
+    thread_.worker = worker
 
-    return thread
+    return thread_
+
+
+def thread(*args, dispose=False, parent=None, **kwargs):
+    def wrapper(func):
+        return create_thread(target=func, *args, dispose=dispose, parent=parent, **kwargs)
+
+    return wrapper
 
 
 def pick_directory(parent, title="Select Directory", path=Path("~")):

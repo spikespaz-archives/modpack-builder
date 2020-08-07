@@ -59,7 +59,15 @@ class ModpackBuilderWindow(QMainWindow):
         self.settings_directory_line_edit.setText(str(self.settings.settings_directory))
 
         self.settings.load_settings()
-        self.settings.load_curseforge_cache()
+
+        self.__load_curseforge_cache_thread = helpers.create_thread(
+            self.settings.load_curseforge_cache, parent=self
+        )
+        self.__load_curseforge_cache_thread.start()
+
+        self.__dump_curseforge_cache_thread = helpers.create_thread(
+            self.settings.dump_curseforge_cache, parent=self
+        )
 
         self.release_type_combo_box.addItems(value.title() for value in ReleaseType.values)
 
@@ -174,9 +182,12 @@ class ModpackBuilderWindow(QMainWindow):
             self.__last_modpack_package_path = None
             progress_dialog.completed.emit()
 
-        @utilities.make_thread(daemon=True)
+        @helpers.thread(parent=self, dispose=True)
         def __builder_load_package_thread():
             self.builder.load_package(path)
+
+            # The loading thread should be completed by now, and if it isn't it probably doesn't have much longer
+            self.__load_curseforge_cache_thread.wait()
 
             self.builder.fetch_curseforge_mods(skip_identifiers=self.settings.curseforge_cache.keys())
 
@@ -194,11 +205,13 @@ class ModpackBuilderWindow(QMainWindow):
                 for identifier in set(self.builder.curseforge_mods.keys()) - set(self.settings.curseforge_cache.keys()):
                     self.settings.curseforge_cache[identifier] = self.builder.curseforge_mods[identifier]
 
-                self.settings.dump_curseforge_cache()
+                # Start a thread in the background so that there is no delay, unless we have to wait for a previous dump
+                self.__dump_curseforge_cache_thread.wait()
+                self.__dump_curseforge_cache_thread.start()
 
                 self.builder.find_curseforge_files()
 
-                self.curseforge_mods_table_model.identifiers = list(self.builder.curseforge_files.keys())
+                self.curseforge_mods_table_model.reset(self.builder.curseforge_files.keys())
 
                 self.curseforge_mods_table_model.refresh()
                 self.loading_priority_table_model.refresh()
