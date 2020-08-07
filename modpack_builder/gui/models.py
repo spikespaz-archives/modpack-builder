@@ -212,6 +212,11 @@ class CurseForgeModsTableModel(QAbstractTableModel):
     def refresh(self):
         self.dataChanged.emit(self.index(0, 0), self.index(self.rowCount(), self.columnCount()))
 
+    def reset(self, identifiers):
+        self.beginResetModel()
+        self.identifiers = list(identifiers)
+        self.endResetModel()
+
     def rowCount(self, _=None):
         return len(self.identifiers)
 
