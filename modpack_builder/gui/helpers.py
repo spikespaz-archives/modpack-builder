@@ -27,11 +27,11 @@ def create_thread(target, *args, dispose=False, parent=None, **kwargs):
 
     worker.moveToThread(thread_)
     thread_.started.connect(worker.run)
-    worker.finished.connect(thread.quit)
+    worker.finished.connect(thread_.quit)
 
     if dispose:
         worker.finished.connect(worker.deleteLater)
-        thread_.finished.connect(thread.deleteLater)
+        thread_.finished.connect(thread_.deleteLater)
 
     # Make the worker an attribute of the thread to stop Python from garbage collecting it.
     # https://stackoverflow.com/a/63274024/2512078
