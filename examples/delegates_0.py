@@ -62,7 +62,10 @@ class ExampleCheckBoxItemDelegateWindow(QMainWindow):
 
         self.resize(300, 300)
 
-        self.example_table_view = QTableView(self)
+        self.setCentralWidget(QWidget(self))
+        self.centralWidget().setLayout(QVBoxLayout(self.centralWidget()))
+
+        self.example_table_view = QTableView(self.centralWidget())
         self.example_table_model = ExampleTableModel(self.example_table_view)
         self.checkbox_item_delegate = CheckBoxItemDelegate(self.example_table_view, self.example_table_model)
 
@@ -75,8 +78,6 @@ class ExampleCheckBoxItemDelegateWindow(QMainWindow):
         self.example_table_view.setItemDelegateForColumn(1, self.checkbox_item_delegate)
         self.example_table_view.setModel(self.example_table_model)
 
-        self.setCentralWidget(QWidget(self))
-        self.centralWidget().setLayout(QVBoxLayout(self))
         self.centralWidget().layout().addWidget(self.example_table_view)
 
 
