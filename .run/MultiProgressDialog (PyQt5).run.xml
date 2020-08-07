@@ -7,7 +7,7 @@
       <env name="PYTHONUNBUFFERED" value="1" />
       <env name="QT_API" value="pyqt5" />
     </envs>
-    <option name="SDK_HOME" value="C:\Users\spike\Documents\github.com\spikespaz\modpack-builder\pipenv_pyqt5\.venv\Scripts\python.exe" />
+    <option name="SDK_HOME" value="$PROJECT_DIR$\pipenv_pyqt5\.venv\Scripts\python.exe" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
     <option name="IS_MODULE_SDK" value="false" />
     <option name="ADD_CONTENT_ROOTS" value="true" />

@@ -5,8 +5,9 @@ __pycache__/
 
 .build_*/
 .output/
+.venv/
 
 *.zip
 *.jar
 
-.settings
+.settings/
