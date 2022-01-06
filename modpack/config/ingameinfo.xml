@@ -1,0 +1,1432 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<config>
+  <lines at="topleft">
+    <!-- Biome -->
+    <line>
+      <str>Biome: $6{biome}</str>
+    </line>
+    <!-- Time -->
+    <line>
+      <str>Time: $6</str>
+      <if> <!-- From 24 hour to 12 hour -->
+        <less>
+          <var>mctimeh</var>
+          <num>13</num>
+        </less>
+        <add> <!-- Useless math operation to remove zero padding -->
+          <var>mctimeh</var>
+          <num>0</num>
+        </add>
+        <sub>
+          <var>mctimeh</var>
+          <num>12</num>
+        </sub>
+      </if>
+      <str>$7:$6{mctimem} $3</str>
+      <if> <!-- Get AM if hour is less than 13 -->
+        <less>
+          <var>mctimeh</var>
+          <num>13</num>
+        </less>
+        <str>AM</str>
+        <str>PM</str>
+      </if>
+    </line>
+    <line>
+      <str>FPS: </str>
+      <op> <!-- Get a color by value that is greater than -->
+        <str>lt</str>
+        <var>fps</var>
+        <num>15</num>
+        <num>30</num>
+        <num>40</num>
+        <num>50</num>
+        <str>$4</str> <!-- Dark Red -->
+        <str>$c</str> <!-- Red -->
+        <str>$6</str> <!-- Gold -->
+        <str>$e</str> <!-- Yellow -->
+        <str>$a</str> <!-- Green -->
+      </op>
+      <var>fps</var>
+    </line>
+    <line>
+      <if>
+        <greater>
+          <var>ping</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>Ping: </str>
+          <op> <!-- Get a color by value that is less than -->
+            <str>gt</str>
+            <var>ping</var>
+            <num>100</num>
+            <num>80</num>
+            <num>60</num>
+            <num>40</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <str>{ping}</str>
+        </concat>
+      </if>
+    </line>
+  </lines>
+  <lines at="topcenter">
+    <!-- Compass Direction -->
+    <line>
+      <op> <!-- Red for North, Yellow for south, Aqua for east and west -->
+        <str>eq</str>
+        <var>abrroughdirection</var>
+        <str>N</str>
+        <str>S</str>
+        <str>$c</str>
+        <str>$e</str>
+        <str>$b</str>
+      </op>
+      <str>{finedirection} $7- $r</str>
+      <round> <!-- Show the degree as heading -->
+        <add>
+          <var>direction</var>
+          <num>180</num>
+        </add>
+        <num>0</num>
+      </round>
+      <str>$7°</str>
+    </line>
+  </lines>
+  <lines at="topright">
+    <!-- Coordinates -->
+    <line>
+      <str>$7($rX: $b{xi}$7, $rY: $a{yi}$7, $rZ: $b{zi}$7)</str>
+    </line>
+  </lines>
+  <lines at="middleleft">
+    <!-- Potion Effect #0 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks0</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon0</var>
+          <if> <!-- Color the name red if the potion is bad -->
+            <var>potionnegative0</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect0} $7($b</str>
+          <if>
+            <greater> <!-- Show minutes if more than 60 seconds -->
+              <var>potiondurationticks0</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks0</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if> <!-- If the seconds is less than 10 pad with a zero -->
+                <less>
+                  <mod>
+                    <var>potiondurationticks0</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round> <!-- Modulo removes minutes from the tick count -->
+            <div>
+              <mod>
+                <var>potiondurationticks0</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #1 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks1</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks1</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon1</var>
+          <if>
+            <var>potionnegative1</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect1} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks1</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks1</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks1</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks1</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #2 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks2</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks2</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon2</var>
+          <if>
+            <var>potionnegative2</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect2} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks2</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks2</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks2</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks2</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #3 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks3</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks3</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon3</var>
+          <if>
+            <var>potionnegative3</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect3} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks3</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks3</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks3</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks3</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #4 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks4</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks4</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon4</var>
+          <if>
+            <var>potionnegative4</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect4} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks4</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks4</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks4</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks4</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #5 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks5</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks5</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon5</var>
+          <if>
+            <var>potionnegative5</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect5} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks5</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks5</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks5</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks5</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #6 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks6</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks6</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon6</var>
+          <if>
+            <var>potionnegative6</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect6} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks6</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks6</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks6</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks6</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #7 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks7</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks7</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon7</var>
+          <if>
+            <var>potionnegative7</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect7} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks7</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks7</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks7</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks7</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #8 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks8</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks8</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon8</var>
+          <if>
+            <var>potionnegative8</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect8} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks8</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks8</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks8</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks8</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Potion Effect #9 -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks9</var>
+          <num>0.5</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>potiondurationticks9</var>
+          <num>0.5</num>
+        </greater>
+        <concat>
+          <var>potionlargeicon9</var>
+          <if>
+            <var>potionnegative9</var>
+            <str> $c</str>
+            <str> $f</str>
+          </if>
+          <str>{potioneffect8} $7($b</str>
+          <if>
+            <greater>
+              <var>potiondurationticks9</var>
+              <num>1200</num>
+            </greater>
+            <concat>
+              <round>
+                <div>
+                  <var>potiondurationticks9</var>
+                  <num>1200</num>
+                </div>
+                <num>0</num>
+              </round>
+              <str>$7:$b</str>
+              <if>
+                <less>
+                  <mod>
+                    <var>potiondurationticks9</var>
+                    <num>1200</num>
+                  </mod>
+                  <num>190</num>
+                </less>
+                <str>0</str>
+              </if>
+            </concat>
+          </if>
+          <round>
+            <div>
+              <mod>
+                <var>potiondurationticks9</var>
+                <num>1200</num>
+              </mod>
+              <num>20</num>
+            </div>
+            <num>0</num>
+          </round>
+          <str>$7)</str>
+        </concat>
+      </if>
+    </line>
+  </lines>
+  <lines at="bottomleft">
+    <!-- Helmet -->
+    <line>
+      <if>
+        <greater>
+          <var>helmetmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>{helmetlargeicon} {helmetdamageleft}$7/$r{helmetmaxdamage} $7(</str>
+          <op>
+            <str>lt</str>
+            <pct>
+              <var>helmetdamageleft</var>
+              <var>helmetmaxdamage</var>
+            </pct>
+            <num>10</num>
+            <num>20</num>
+            <num>30</num>
+            <num>50</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <round>
+            <pct>
+              <var>helmetdamageleft</var>
+              <var>helmetmaxdamage</var>
+            </pct>
+            <num>1</num>
+          </round>
+          <str>%$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Chestplate -->
+    <line>
+      <if>
+        <greater>
+          <var>chestplatemaxdamage</var>
+          <num>0</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>chestplatemaxdamage</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>{chestplatelargeicon} {chestplatedamageleft}$7/$r{chestplatemaxdamage} $7(</str>
+          <op>
+            <str>lt</str>
+            <pct>
+              <var>chestplatedamageleft</var>
+              <var>chestplatemaxdamage</var>
+            </pct>
+            <num>10</num>
+            <num>20</num>
+            <num>30</num>
+            <num>50</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <round>
+            <pct>
+              <var>chestplatedamageleft</var>
+              <var>chestplatemaxdamage</var>
+            </pct>
+            <num>1</num>
+          </round>
+          <str>%$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Leggings -->
+    <line>
+      <if>
+        <greater>
+          <var>leggingsmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>leggingsmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>{leggingslargeicon} {leggingsdamageleft}$7/$r{leggingsmaxdamage} $7(</str>
+          <op>
+            <str>lt</str>
+            <pct>
+              <var>leggingsdamageleft</var>
+              <var>leggingsmaxdamage</var>
+            </pct>
+            <num>10</num>
+            <num>20</num>
+            <num>30</num>
+            <num>50</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <round>
+            <pct>
+              <var>leggingsdamageleft</var>
+              <var>leggingsmaxdamage</var>
+            </pct>
+            <num>1</num>
+          </round>
+          <str>%$7)</str>
+        </concat>
+      </if>
+    </line>
+    <!-- Boots -->
+    <line>
+      <if>
+        <greater>
+          <var>bootsmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>bootsmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>{bootslargeicon} {bootsdamageleft}$7/$r{bootsmaxdamage} $7(</str>
+          <op>
+            <str>lt</str>
+            <pct>
+              <var>bootsdamageleft</var>
+              <var>bootsmaxdamage</var>
+            </pct>
+            <num>10</num>
+            <num>20</num>
+            <num>30</num>
+            <num>50</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <round>
+            <pct>
+            <var>bootsdamageleft</var>
+              <var>bootsmaxdamage</var>
+            </pct>
+            <num>1</num>
+          </round>
+          <str>%$7)</str>
+        </concat>
+      </if>
+    </line>
+  </lines>
+  <lines at="middleright">
+    <!-- Player Distance #0 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance0</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon0} {nearbyplayername0} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance0</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance0</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #1 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance1</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon1} {nearbyplayername1} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance1</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance1</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #2 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance2</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon2} {nearbyplayername2} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance2</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance2</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #3 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance3</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon3} {nearbyplayername3} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance3</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance3</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #4 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance4</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon4} {nearbyplayername4} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance4</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance4</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #5 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance5</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon5} {nearbyplayername5} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance5</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance5</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #6 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance6</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon6} {nearbyplayername6} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance6</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance6</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #7 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance7</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon7} {nearbyplayername7} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance7</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance7</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #8 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance8</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon8} {nearbyplayername8} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance8</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance8</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #9 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance9</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon9} {nearbyplayername9} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance9</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance9</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #10 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance10</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon10} {nearbyplayername10} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance10</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance10</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #11 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance11</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon11} {nearbyplayername11} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance11</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance11</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #12 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance12</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon12} {nearbyplayername12} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance12</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance12</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #13 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance13</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon13} {nearbyplayername13} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance13</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance13</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #14 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance14</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon14} {nearbyplayername14} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance14</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance14</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+    <!-- Player Distance #15 -->
+    <line>
+      <if>
+        <greater>
+          <var>nearbyplayerdistance15</var>
+          <num>-1</num>
+        </greater>
+        <concat>
+          <str>{nearbyplayericon15} {nearbyplayername15} $7- </str>
+          <if> <!-- Distance counter turns green if the player is within 30 blocks -->
+            <less>
+              <var>nearbyplayerdistance15</var>
+              <num>30</num>
+            </less>
+            <str>$a</str>
+            <str>$e</str>
+          </if>
+          <round>
+            <var>nearbyplayerdistance15</var>
+            <num>0</num>
+          </round>
+        </concat>
+      </if>
+    </line>
+  </lines>
+  <lines at="bottomright">
+    <!-- Mainhand Item -->
+    <line>
+      <if>
+        <greater>
+          <var>mainhandmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>{mainhanddamageleft}$7/$r{mainhandmaxdamage} $7(</str>
+          <op>
+            <str>lt</str>
+            <pct>
+              <var>mainhanddamageleft</var>
+              <var>mainhandmaxdamage</var>
+            </pct>
+            <num>10</num>
+            <num>20</num>
+            <num>30</num>
+            <num>50</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <round>
+            <pct>
+              <var>mainhanddamageleft</var>
+              <var>mainhandmaxdamage</var>
+            </pct>
+            <num>1</num>
+          </round>
+          <str>%$7) {mainhandlargeicon}</str>
+        </concat>
+        <if>
+          <greater>
+            <var>mainhandquantity</var>
+            <num>0</num>
+          </greater>
+          <concat>
+            <str>{mainhandname} </str>
+            <if>
+              <greater>
+                <var>mainhandquantity</var>
+                <num>1</num>
+              </greater>
+              <str>$7($b{mainhandquantity}$7) </str>
+            </if>
+            <var>mainhandlargeicon</var>
+          </concat>
+        </if>
+      </if>
+    </line>
+    <!-- Offhand Item -->
+    <line>
+      <if>
+        <greater>
+          <add>
+            <var>offhandmaxdamage</var>
+            <var>offhandquantity</var>
+          </add>
+          <num>0</num>
+        </greater>
+        <str> </str>
+      </if>
+    </line>
+    <!-- End Spacer -->
+    <line>
+      <if>
+        <greater>
+          <var>offhandmaxdamage</var>
+          <num>0</num>
+        </greater>
+        <concat>
+          <str>{offhanddamageleft}$7/$r{offhandmaxdamage} $7(</str>
+          <op>
+            <str>lt</str>
+            <pct>
+              <var>offhanddamageleft</var>
+              <var>offhandmaxdamage</var>
+            </pct>
+            <num>10</num>
+            <num>20</num>
+            <num>30</num>
+            <num>50</num>
+            <str>$4</str> <!-- Dark Red -->
+            <str>$c</str> <!-- Red -->
+            <str>$6</str> <!-- Gold -->
+            <str>$e</str> <!-- Yellow -->
+            <str>$a</str> <!-- Green -->
+          </op>
+          <round>
+            <pct>
+              <var>offhanddamageleft</var>
+              <var>offhandmaxdamage</var>
+            </pct>
+            <num>1</num>
+          </round>
+          <str>%$7) {offhandlargeicon}</str>
+        </concat>
+        <if>
+          <greater>
+            <var>offhandquantity</var>
+            <num>0</num>
+          </greater>
+          <concat>
+            <str>{offhandname} </str>
+            <if>
+              <greater>
+                <var>offhandquantity</var>
+                <num>1</num>
+              </greater>
+              <str>$7($b{offhandquantity}$7) </str>
+            </if>
+            <var>offhandlargeicon</var>
+          </concat>
+        </if>
+      </if>
+    </line>
+  </lines>
+</config>
