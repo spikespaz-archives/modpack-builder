@@ -1,0 +1,364 @@
+{
+    "format": 0,
+    "metadata": {
+        "name": "The Fellowship & Felonies Pack",
+        "version": "0.1.0",
+        "loader": "fabric",
+        "minecraft": "1.18",
+        "filehost": "modrinth",
+        "default": [
+            "core",
+            "optimization",
+            "visual",
+            "qualityoflife"
+        ]
+    },
+    "mods": {
+        "core": [
+            {
+                "name": "fabric-api",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "cloth-config",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "modmenu",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "dynamic-fps",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "ledger",
+                "files": "*",
+                "side": "server"
+            },
+            {
+                "name": "fabric-language-kotlin",
+                "file": "*",
+                "side": "server"
+            },
+            {
+                "name": {
+                    "curseforge": "not-enough-crashes",
+                    "modrinth": "notenoughcrashes"
+                },
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "inspecio",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": {
+                    "curseforge": "architectury-fabric"
+                },
+                "files": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "roughly-enough-items"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "roughly-searchable",
+                "file": "*",
+                "side": "client"
+            }
+        ],
+        "features": [
+            {
+                "name": {
+                    "curseforge": "spiders-2-0"
+                },
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": {
+                    "curseforge": "falling-tree",
+                    "modrinth": "fallingtree"
+                },
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "charm",
+                "file": "*",
+                "side": "both"
+            }
+        ],
+        "farming": [
+            {
+                "name": "croptopia-fabric",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "harvest-scythes",
+                "file": "*",
+                "side": "both"
+            }
+        ],
+        "optimization": [
+            {
+                "name": "sodium",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "sodium-extra",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "indium",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "lithium",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "phosphor",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "starlight",
+                "file": "*",
+                "side": "server"
+            },
+            {
+                "name": "hydrogen",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": {
+                    "curseforge": "ferritecore-fabric",
+                    "modrinth": "ferrite-core"
+                },
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "lazydfu",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "dashloader",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "krypton",
+                "file": "*",
+                "side": "both"
+            },
+            {
+                "name": "cull-leaves",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "enhanced-block-entities",
+                    "modrinth": "ebe"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "c2me-fabric",
+                "file": "*",
+                "side": "both"
+            }
+        ],
+        "visual": [
+            {
+                "name": {
+                    "curseforge": "irisshaders",
+                    "modrinth": "iris"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "lambdabettergrass",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "lambdynamiclights",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "blur-fabric",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "github": {
+                    "repo": "TeamMidnightDusk/RoundTrees",
+                    "file": "roundtrees-(?P=<version>[\\d.]+).jar",
+                    "release": "latest"
+                },
+                "side": "client"
+            }
+        ],
+        "resourcepack": [
+            {
+                "name": "completeconfig",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "custom-entity-models-cem",
+                    "modrinth": "cem"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "animatica",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "cit-resewn",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "clear-skies",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "colormatic",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "customgui",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "continuity",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "fabricskyboxes",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "jmx",
+                    "modrinth": "imx"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "modrinth": "mbp"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "moremcmeta-fabric",
+                    "modrinth": "moremcmeta"
+                },
+                "file": "*",
+                "side": "client"
+            }
+        ],
+        "auditory": [
+            {
+                "name": "presence-footsteps",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "sound-physics-fabric",
+                    "modrinth": "soundphysics"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": {
+                    "curseforge": "chat-sounds",
+                    "modrinth": "chatsounds"
+                },
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "charmonium",
+                "file": "*",
+                "side": "client"
+            }
+        ],
+        "qualityoflife": [
+            {
+                "name": "ok-zoomer",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "betterf3",
+                "file": "*",
+                "side": "client"
+            },
+            {
+                "name": "fabrictailor",
+                "file": "*",
+                "side": "both"
+            }
+        ],
+        "multiplayer": [
+            {
+                "name": {
+                    "modrinth": "plasmo-voice"
+                },
+                "file": "*",
+                "side": "both"
+            }
+        ]
+    },
+    "resourcepacks": [
+        {
+            "curseforge": "motschens-better-leaves",
+            "file": "*"
+        },
+        {
+            "curseforge": "round-trees-mc-vanilla-1-8-1-13",
+            "file": "*"
+        }
+    ]
+}
